@@ -1,8 +1,6 @@
 # ROS2 Based Robotic Automation
 In this repository, you will find the ROS2-based software implementation for the AlpineR project, which focuses on developing an adaptable and testable automation retrofit kit for a construction loader. The project includes path planning and tracking for farm field tasks with repetitive moves, as well as the adaptation of AgOpenGPS (AOG) for comparative navigation control.
 
-Thesis documents are available on [wiki](https://gitlab.ti.bfh.ch/groups/mse_cs/spring26/master_thesis/-/wikis/home)
-
 # Action Plan
 Gantt Chart
 ![img.png](assets/gantt_chart.png)
