@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<robot name="komatsu" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <!-- Include wheel macro -->
+    <xacro:include filename="wheels.xacro"/>
+
+    <material name="grey">
+      <color rgba="0.7 0.7 0.7 1.0"/>
+    </material>
+
+
+    <material name="black">
+      <color rgba="0.1 0.1 0.1 1.0"/>
+    </material>
+
+    <material name="green">
+      <color rgba="0.0 1.0 0.0 1.0"/>
+    </material>
+
+    <material name="red">
+      <color rgba="1.0 0.0 0.0 1.0"/>
+    </material>
+
+  <!-- ===== Dimensions (meters) ===== -->
+  <xacro:property name="A_len" value="8.350"/>   <!-- Overall length -->
+  <xacro:property name="B_wheelbase" value="3.030"/> <!-- Wheelbase -->
+  <xacro:property name="D_width" value="2.765"/> <!-- Width over tires -->
+  <xacro:property name="E_track" value="2.160"/> <!-- Track width -->
+  <xacro:property name="F_clearance" value="0.455"/> <!-- Ground clearance -->
+  <xacro:property name="H_height" value="3.395"/> <!-- Overall height -->
+  <xacro:property name="X_len" value="3.200"/> <!-- Front overhang -->
+  <xacro:property name="Y_len" value="2.120"/> <!-- Rear overhang -->
+
+  <!-- Simplification choices -->
+  <xacro:property name="half_wb" value="${B_wheelbase/2.0}"/>
+  <xacro:property name="wheel_radius" value="0.80"/>   <!-- approx (tire size 23.5 R25), adjust later -->
+  <xacro:property name="wheel_width" value="0.65"/>
+  <xacro:property name="wheel_y" value="${E_track/2.0}"/>
+
+  <!-- Two boxes (split overall length roughly in half) -->
+  <xacro:property name="rear_box_len" value="${Y_len + half_wb}"/>
+  <xacro:property name="front_box_len" value="${X_len + half_wb}"/>
+  <xacro:property name="box_w" value="${D_width-(2*wheel_width)}"/>
+  <xacro:property name="box_h" value="${H_height-F_clearance}"/> <!-- just visual -->
+
+    <link name="base_footprint" />
+
+    <link name="articulation_link"/>
+
+    <joint name="base_joint" type="fixed">
+        <parent link="base_footprint"/>
+        <child link="articulation_link"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+
+    <link name="rear_chassis">
+        <visual>
+            <origin xyz="${-rear_box_len/2.0} 0 ${F_clearance + box_h/2.0 - 0.10}" rpy="0 0 0"/>
+            <geometry>
+                <box size="${rear_box_len} ${box_w} ${box_h}"/>
+            </geometry>
+            <material name="red"/>
+        </visual>
+    </link>
+
+    <link name="front_chassis">
+        <visual>
+            <origin xyz="${front_box_len/2.0} 0 ${F_clearance + box_h/2.0 - 0.10}" rpy="0 0 0"/>
+            <geometry>
+                <box size="${front_box_len} ${box_w} ${box_h}"/>
+            </geometry>
+            <material name="green"/>
+        </visual>
+    </link>
+
+    <joint name="articulation_to_front" type="revolute">
+        <parent link="articulation_link"/>
+        <child link="front_chassis"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <axis xyz="0 0 1"/>
+        <limit lower="-0.392" upper="0.392" effort="5000" velocity="0.196"/>
+    </joint>
+
+    <joint name="articulation_to_rear" type="revolute">
+        <parent link="articulation_link"/>
+        <child link="rear_chassis"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <axis xyz="0 0 1"/>
+        <limit lower="-0.392" upper="0.392" effort="5000" velocity="0.196"/>
+        <mimic joint="articulation_to_front" multiplier="-1" offset="0"/>
+    </joint>
+
+  <!-- ===== Wheel macro is now in wheels.xacro ===== -->
+
+  <!-- ===== Rear axle wheels ===== -->
+  <xacro:wheel name="rear_left_wheel"  parent="rear_chassis" x="${-half_wb}" y="${ wheel_y}"/>
+  <xacro:wheel name="rear_right_wheel" parent="rear_chassis" x="${-half_wb}" y="${-wheel_y}"/>
+
+  <!-- Front axle wheels (placed at x = +half_wb in front_chassis frame) -->
+  <xacro:wheel name="front_left_wheel"  parent="front_chassis" x="${ half_wb}" y="${ wheel_y}"/>
+  <xacro:wheel name="front_right_wheel" parent="front_chassis" x="${ half_wb}" y="${-wheel_y}"/>
+
+</robot>

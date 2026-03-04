@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ===== Wheel Macro ===== -->
+  <!--
+    Creates a wheel link and joint
+    Parameters:
+      - name: wheel name (e.g., front_left_wheel)
+      - parent: parent link name
+      - x: x position relative to parent
+      - y: y position relative to parent
+      - radius: wheel radius (default: 0.80)
+      - width: wheel width (default: 0.65)
+  -->
+  <xacro:macro name="wheel" params="name parent x y radius:=0.80 width:=0.65">
+    <link name="${name}">
+      <visual>
+        <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
+        <geometry>
+          <cylinder radius="${radius}" length="${width}"/>
+        </geometry>
+        <material name="black"/>
+      </visual>
+    </link>
+
+    <joint name="${name}_joint" type="continuous">
+      <parent link="${parent}"/>
+      <child link="${name}"/>
+      <origin xyz="${x} ${y} ${radius}" rpy="0 0 0"/>
+      <!-- wheel rolls around Y (left axis), with ROS convention x forward, y left, z up -->
+      <axis xyz="0 1 0"/>
+    </joint>
+  </xacro:macro>
+
+</robot>
+
