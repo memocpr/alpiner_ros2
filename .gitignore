@@ -1,1 +1,59 @@
-.idea
+.# =========================
+ # ROS2 / colcon
+ # =========================
+ ros2_ws/build/
+ ros2_ws/install/
+ ros2_ws/log/
+
+ # colcon metadata
+ ros2_ws/.colcon/
+ .colcon/
+
+ # =========================
+ # Python
+ # =========================
+ __pycache__/
+ *.pyc
+ *.pyo
+ *.pyd
+ *.egg-info/
+ *.egg
+ dist/
+ build/
+
+ # virtual environments
+ venv/
+ .venv/
+ env/
+
+ # =========================
+ # CMake
+ # =========================
+ CMakeFiles/
+ CMakeCache.txt
+ cmake_install.cmake
+ Makefile
+
+ # =========================
+ # IDEs
+ # =========================
+ .idea/
+ .vscode/
+ *.code-workspace
+
+ # =========================
+ # OS
+ # =========================
+ .DS_Store
+ Thumbs.db
+
+ # =========================
+ # Logs
+ # =========================
+ *.log
+
+ # =========================
+ # Secrets / configs
+ # =========================
+ .env
+ *.local.yaml
