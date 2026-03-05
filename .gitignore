@@ -1,12 +1,12 @@
 .# =========================
  # ROS2 / colcon
  # =========================
- ros2_ws/build/
- ros2_ws/install/
- ros2_ws/log/
+ alpiner_ros2/ros2_ws/build/
+ alpiner_ros2/ros2_ws/install/
+ alpiner_ros2/ros2_ws/log/
 
  # colcon metadata
- ros2_ws/.colcon/
+ alpiner_ros2/ros2_ws/.colcon/
  .colcon/
 
  # =========================

@@ -2,7 +2,8 @@
 # Launching the urdf on rviz:
 ```bash
 cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
-colcon build 
+rm -rf build/ install/ log/
+colcon build --cmake-clean-cache
 source install/setup.bash
 source /opt/ros/humble/setup.bash
 ros2 launch robot_description view_robot.launch.xml
