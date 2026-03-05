@@ -1,7 +1,7 @@
 
 # Launching the urdf on rviz:
 ```bash
-cd /home/evomrx22/Desktop/AlpineR/ros2_ws
+cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build 
 source install/setup.bash
 source /opt/ros/humble/setup.bash
@@ -13,7 +13,7 @@ First launch the urdf on rviz:
 
 Then in a new terminal, run the tf_view_frames node:
 ```bash
-cd /home/evomrx22/Desktop/AlpineR/ros2_ws/src/robot_description/TFs
+cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/robot_description/TFs
 ros2 run tf2_tools view_frames
 ```
 
