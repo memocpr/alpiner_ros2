@@ -11,11 +11,3 @@ clone the repository and navigate to the ROS2 workspace:
 git clone git@gitlab.ti.bfh.ch:mse_cs/spring26/master_thesis/alpiner/alpiner_ros2.git
 cd alpiner_ros2/ros2_ws
 ```
-
-# Build the workspace and source the setup file:
-```bash
-colcon build
-source install/setup.bash
-```
-
-
