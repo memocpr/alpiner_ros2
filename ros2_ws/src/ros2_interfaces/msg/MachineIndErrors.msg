@@ -1,5 +1,3 @@
-# MachineIndErrors.msg
-
 bool es_btn                     # if True, error is set on emergency buttons set 1
 bool zone_safe                  # if True, error is set on zone safe detection
 bool os3_error_rear             # if True, error is set on OS3 rear (error in sensor)

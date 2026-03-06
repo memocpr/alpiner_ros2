@@ -1,5 +1,3 @@
-# MachineIndOthers.msg
-
 uint8 op_mode_hw                # -1 =unknown, 1 =local, 2 = remote, 3 =autonomous, 4 =emergency stop
 bool engine_is_on               # if True, engine is ON
 bool parking_brake_is_on        # if True, parking brake is ON

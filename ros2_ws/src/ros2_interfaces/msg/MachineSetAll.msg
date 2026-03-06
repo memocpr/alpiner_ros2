@@ -1,4 +1,3 @@
-# MachineSetAll.msg
 uint16 gear_speed 255               # 1-2-3-4
 uint16 shift_mode 255               # 5 =Low, 6=Manual, 7 =High
 uint16 directional_sel 255          # 8=forward, 9 =Reverse, 10 =Neutral

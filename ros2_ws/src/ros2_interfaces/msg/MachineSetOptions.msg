@@ -1,5 +1,3 @@
-# MachineSetOptions.msg
-
 uint8 parking_brake 255      # 0, 1, 255
 #uint8 ecss_active 255        # 0, 1, 255
 uint8 shift_hold_switch 255  # 0, 1, 255

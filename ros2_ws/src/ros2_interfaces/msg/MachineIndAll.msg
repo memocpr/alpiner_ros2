@@ -1,5 +1,3 @@
-# MachineIndAll.msg
-
 float32 speed                       # m/s, positive (forward) or negative (backward)
 int16 speed_sign                    # 11 = Forward, 12 = Reverse
 bool flag_speed_signing_uncertain   # if True, speed is positive, but might as well be negative in reality
