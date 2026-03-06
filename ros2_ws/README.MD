@@ -1,11 +1,18 @@
 
-# Launching the urdf on rviz:
+# Launching the robot model on RViz:
 ```bash
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
+source install/setup.bash
+ros2 launch robot_description view_robot.launch.py
+```
+
+Or if you need a clean build:
+```bash
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 rm -rf build/ install/ log/
 colcon build --cmake-clean-cache
 source install/setup.bash
-source /opt/ros/humble/setup.bash
-ros2 launch robot_description view_robot.launch.xml
+ros2 launch robot_description view_robot.launch.py
 ```
 
 # See the TF
