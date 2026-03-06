@@ -17,12 +17,6 @@ install(
 )
 
 install(
-        DIRECTORY launch/
-        DESTINATION share/${PROJECT_NAME}/launch
-        PATTERN "*.xml"
-)
-
-install(
         PROGRAMS launch/view_robot.launch.py
         DESTINATION share/${PROJECT_NAME}/launch
 )
