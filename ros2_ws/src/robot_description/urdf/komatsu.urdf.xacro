@@ -43,12 +43,23 @@
   <xacro:property name="box_w" value="${D_width-(2*wheel_width)}"/>
   <xacro:property name="box_h" value="${H_height-F_clearance}"/> <!-- just visual -->
 
+    <!-- base_footprint: ground projection of the robot -->
     <link name="base_footprint" />
 
+    <!-- base_link: main robot reference frame at articulation center -->
+    <link name="base_link"/>
+
+    <joint name="base_footprint_joint" type="fixed">
+        <parent link="base_footprint"/>
+        <child link="base_link"/>
+        <origin xyz="0 0 ${F_clearance}" rpy="0 0 0"/>
+    </joint>
+
+    <!-- articulation_link: center point of articulated steering -->
     <link name="articulation_link"/>
 
-    <joint name="base_joint" type="fixed">
-        <parent link="base_footprint"/>
+    <joint name="base_to_articulation_joint" type="fixed">
+        <parent link="base_link"/>
         <child link="articulation_link"/>
         <origin xyz="0 0 0" rpy="0 0 0"/>
     </joint>
@@ -99,5 +110,24 @@
   <!-- Front axle wheels (placed at x = +half_wb in front_chassis frame) -->
   <xacro:wheel name="front_left_wheel"  parent="front_chassis" x="${ half_wb}" y="${ wheel_y}"/>
   <xacro:wheel name="front_right_wheel" parent="front_chassis" x="${ half_wb}" y="${-wheel_y}"/>
+
+  <!-- ===== Sensor Frames ===== -->
+  <!-- LiDAR sensor (mounted on top of front chassis, centered) -->
+  <link name="laser_frame"/>
+  <joint name="laser_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="laser_frame"/>
+    <!-- Position: on top of robot, centered -->
+    <origin xyz="0.0 0.0 ${H_height - F_clearance}" rpy="0 0 0"/>
+  </joint>
+
+  <!-- IMU sensor (mounted at base_link, centered) -->
+  <link name="imu_link"/>
+  <joint name="imu_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="imu_link"/>
+    <!-- Position: at base_link center -->
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+  </joint>
 
 </robot>
