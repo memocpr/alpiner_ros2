@@ -52,4 +52,44 @@ ros2 run tf2_tools view_frames
 ### Meshes
 - Empty directory (ready for 3D mesh files)
 
-# Documentation
+
+
+# ros2_interfaces
+This package defines custom ROS2 interfaces (messages, services, actions) for the AlpineR project
+# ros2_interfaces
+
+ROS2 package providing custom messages for the retrofit kit communication interface between the ROS2 navigation system and the machine control stack.
+
+## Messages
+* MachineSetAll — command message sent to the machine
+* MachineSetOptions — command options and control flags
+* MachineIndAll — full machine state feedback
+* MachineIndOthers — additional machine state indicators
+* MachineIndErrors — machine error states
+
+## Setup
+
+Create the package:
+```bash
+cd ~/ros2_ws/src
+ros2 pkg create ros2_interfaces --build-type ament_cmake
+```
+
+Create the message directory and files:
+
+## package.xml
+Add required dependencies:
+
+## CMakeLists.txt
+Enable message generation:
+
+## Build and Verify
+```bash
+cd ~/ros2_ws
+colcon build --packages-select ros2_interfaces
+source install/setup.bash
+
+ros2 interface show ros2_interfaces/msg/MachineSetAll
+ros2 interface show ros2_interfaces/msg/MachineIndAll
+```
+
