@@ -54,8 +54,7 @@ ros2 run tf2_tools view_frames
 
 
 
-# ros2_interfaces
-This package defines custom ROS2 interfaces (messages, services, actions) for the AlpineR project
+
 # ros2_interfaces
 
 ROS2 package providing custom messages for the retrofit kit communication interface between the ROS2 navigation system and the machine control stack.
