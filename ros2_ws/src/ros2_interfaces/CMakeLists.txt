@@ -16,7 +16,10 @@ find_package(std_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
         "msg/MachineSetAll.msg"
+        "msg/MachineSetOptions.msg"
         "msg/MachineIndAll.msg"
+        "msg/MachineIndOthers.msg"
+        "msg/MachineIndErrors.msg"
         DEPENDENCIES std_msgs
 )
 
