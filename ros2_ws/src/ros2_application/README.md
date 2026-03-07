@@ -284,10 +284,49 @@ if (use_articulated_steering_mode_ && use_articulated_path_smoothing_) {
 }
 ```
 
-## Recommended Next Steps
+## Action 6: RViz integration test (full stack)
 
-1. **Integration testing** with simulated articulated vehicle in Gazebo
-2. **Real hardware validation** on retrofit kit loader
-3. **Parameter tuning** for specific articulated geometry once hardware integration begins
-4. **Proceed to Action 6**: RViz integration test of full navigation stack
+New launch file:
 
+- `launch/action6_rviz_integration.launch.py`
+
+This launch starts:
+
+- `robot_state_publisher` + `joint_state_publisher` (robot model / TF)
+- Action 3 localization (`ukf_node` + optional sim odometry/IMU)
+- Action 4 mapping (`rtabmap` + optional sim scan)
+- Nav2 navigation stack (`navigation_launch.py`)
+- RViz (Nav2 default config)
+
+### Build and run
+
+```bash
+cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
+source /opt/ros/humble/setup.bash
+colcon build --packages-select ros2_application
+source install/setup.bash
+ros2 launch ros2_application action6_rviz_integration.launch.py
+```
+
+### Step-by-step checks (Action 6)
+
+1. In RViz, confirm TF chain is present: `map -> odom -> base_link`.
+2. Set **2D Pose Estimate** (initial pose) in RViz.
+3. Send **2D Nav Goal** in RViz.
+4. Verify a global/local path appears and updates.
+5. Verify path-following behavior and monitor `/cmd_vel`:
+
+```bash
+ros2 topic echo /cmd_vel
+```
+
+### Notes
+
+- This Action 6 flow does **not** include P12 or `ros2_control`.
+- For hardware scan input, disable sim scan and set topic:
+
+```bash
+ros2 launch ros2_application action6_rviz_integration.launch.py \
+  use_sim_scan:=false \
+  scan_topic:=/your_real_scan_topic
+```

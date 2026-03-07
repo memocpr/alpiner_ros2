@@ -1,3 +1,4 @@
+from glob import glob
 from setuptools import find_packages, setup
 
 package_name = 'ros2_application'
@@ -12,11 +13,7 @@ setup(
             ['resource/' + package_name],
         ),
         ('share/' + package_name, ['package.xml']),
-        ('share/' + package_name + '/launch', [
-            'launch/localization.launch.py',
-            'launch/mapping.launch.py',
-            'launch/mapping_hw.launch.py',
-        ]),
+        ('share/' + package_name + '/launch', glob('launch/*.launch.py')),
         ('share/' + package_name + '/config', [
             'config/ukf_params.yaml',
             'config/rtabmap_params.yaml',
