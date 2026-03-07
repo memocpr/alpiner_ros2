@@ -15,7 +15,7 @@ class ModbusRtuDriver;
 /**
  * @brief Hardware Interface for Komatsu loader retrofit kit
  *
- * This class implements the ROS2 Control SystemInterface for the articulated
+ * This class implements the ROS2_examples Control SystemInterface for the articulated
  * steering Komatsu loader. It interfaces with the existing retrofit kit through
  * Modbus communication (bridge_write/bridge_read).
  *
