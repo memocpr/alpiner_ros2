@@ -61,7 +61,7 @@ class CmdVelJointStatePublisher(Node):
         self.last_cmd_stamp = self.get_clock().now()
 
     def _compute_articulation_angle(self, linear_x: float, angular_z: float) -> float:
-        if abs(linear_x) < 1e-3:
+        if abs(linear_x) < 1e-3 or abs(angular_z) < 1e-6:
             return 0.0
 
         curvature = angular_z / linear_x
@@ -73,7 +73,7 @@ class CmdVelJointStatePublisher(Node):
         now = self.get_clock().now()
         dt = (now - self.last_update_stamp).nanoseconds * 1e-9
         self.last_update_stamp = now
-        if dt <= 0.0:
+        if dt <= 0.0 or dt > 1.0:
             return
 
         cmd_age = (now - self.last_cmd_stamp).nanoseconds * 1e-9
@@ -84,8 +84,10 @@ class CmdVelJointStatePublisher(Node):
             linear_x = float(self.last_cmd.linear.x)
             angular_z = float(self.last_cmd.angular.z)
 
+        # Compute articulation angle from current command
         articulation_angle = self._compute_articulation_angle(linear_x, angular_z)
 
+        # Compute wheel velocities
         left_velocity = linear_x - 0.5 * self.track_width * angular_z
         right_velocity = linear_x + 0.5 * self.track_width * angular_z
 
@@ -96,11 +98,15 @@ class CmdVelJointStatePublisher(Node):
             wheel_left_rad_s = left_velocity / self.wheel_radius
             wheel_right_rad_s = right_velocity / self.wheel_radius
 
+        # Update articulation (follows command directly)
         self.joint_positions['articulation_to_front'] = articulation_angle
-        self.joint_positions['front_left_wheel_joint'] += wheel_left_rad_s * dt
-        self.joint_positions['rear_left_wheel_joint'] += wheel_left_rad_s * dt
-        self.joint_positions['front_right_wheel_joint'] += wheel_right_rad_s * dt
-        self.joint_positions['rear_right_wheel_joint'] += wheel_right_rad_s * dt
+
+        # Update wheel positions (integrate only when moving)
+        if abs(wheel_left_rad_s) > 1e-6 or abs(wheel_right_rad_s) > 1e-6:
+            self.joint_positions['front_left_wheel_joint'] += wheel_left_rad_s * dt
+            self.joint_positions['rear_left_wheel_joint'] += wheel_left_rad_s * dt
+            self.joint_positions['front_right_wheel_joint'] += wheel_right_rad_s * dt
+            self.joint_positions['rear_right_wheel_joint'] += wheel_right_rad_s * dt
 
         msg = JointState()
         msg.header.stamp = now.to_msg()

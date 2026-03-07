@@ -377,8 +377,14 @@ cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
 ./src/ros2_application/scripts/action6_quick_check.sh
 ```
 
-This checks:
-- Filtered odometry velocity is ~0
-- No cmd_vel published (robot idle)
-- Joint states show zero articulation angle
+Expected static behavior:
+- Filtered odometry velocity: ~0
+- No `/cmd_vel` published (robot idle)
+- Joint positions: all zero (articulation=0, wheels=0)
+
+Expected behavior when Nav2 goal is active:
+- Robot moves toward goal in RViz
+- Articulation joint reflects turning (non-zero when turning, zero when straight)
+- Wheel joints rotate continuously in direction of motion
+- Joints hold their position when robot stops (wheels keep rotation angle, articulation returns to zero)
 
