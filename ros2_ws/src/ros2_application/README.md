@@ -164,3 +164,93 @@ This script validates:
 - Valid/invalid articulated wheelbase and joint limits
 - Articulated mode and yaw-rate clamp toggles
 - Valid/invalid path-smoothing parameter updates
+
+
+# Action 5 Completion Summary - Articulated Vehicle Path Tracking
+
+## Completed in This Session
+
+### 1. **Articulated In-Place Rotation Guard** ✅
+- **Implementation**: Added `canArticulatedRotateInPlace()` method to `RegulatedPurePursuitController`
+- **Location**: `nav2_regulated_pure_pursuit_controller/src/regulated_pure_pursuit_controller.cpp`
+- **Functionality**:
+  - Prevents infeasible in-place rotations for articulated vehicles
+  - Returns `true` if:
+    - Articulated mode is disabled, OR
+    - Steering joint can reach straight-ahead configuration (max_joint_angle > 0)
+  - Returns `false` if max_joint_angle ≤ 0 (rigid joint, no steering possible)
+- **Integration**: Guard is called during `shouldRotateToGoalHeading` and `shouldRotateToPath` decisions
+- **Fallback behavior**: When rotation is infeasible, controller follows path at minimum velocity instead
+
+### 2. **Focused Unit Tests** ✅
+- **Test File**: `test/test_articulated_guard.cpp`
+- **Test Count**: 9 comprehensive tests
+- **Test Coverage**:
+  - ✅ Non-articulated vehicles can always rotate
+  - ✅ Articulated with sufficient joint angle can rotate
+  - ✅ Articulated with very small angle can still rotate (straight configuration achievable)
+  - ✅ Articulated with negative/invalid angle cannot rotate
+  - ✅ Curvature↔articulation angle mapping produces finite values
+  - ✅ Articulation angle↔curvature bidirectional mapping
+  - ✅ Yaw rate clamping produces finite values and respects limits
+  - ✅ Guard consistency with varying joint angles
+  - ✅ Mode switching between articulated/non-articulated
+- **Status**: ALL TESTS PASSING (9/9)
+
+### 3. **Documentation** ✅
+- **Location**: `README.md` - Added new section "Articulated Vehicle Steering"
+- **Content**:
+  - Explained articulated mode parameters
+  - Documented in-place rotation guard behavior
+  - Listed all articulated-specific parameters with descriptions
+  - Explained fallback behavior for infeasible rotations
+  - Added clarifications on kinematic constraints
+
+## Key Design Decisions
+
+1. **Guard Logic**: Simple and robust - checks if max_joint_angle allows zero steering angle
+2. **Error Handling**: Graceful fallback to path-following with throttled warnings
+3. **Parameter Validation**: Guard integrates seamlessly with existing articulated mode logic
+4. **Testing**: Comprehensive edge-case coverage without requiring full node initialization
+
+## Remaining Action 5 Items
+
+As noted in the status, the following items from Action 5 remain:
+
+⏳ **Path smoothing for articulated geometry** (trajectory post-processing)
+- Purpose: Reduce sharp turns in planned trajectories to improve tracking for articulated geometry
+- Suggested approach: Window-based smoothing filter that respects min_turning_radius constraints
+
+## Build & Test Results
+
+```
+Compilation:  ✅ SUCCESS (no errors)
+Unit Tests:   ✅ SUCCESS (9/9 passing)
+Package:      ✅ BUILDS CLEAN
+```
+
+## Integration Points
+
+The guard is integrated at two critical decision points in `computeVelocityCommands`:
+
+1. **`shouldRotateToGoalHeading` branch**: Checks before rotating to goal orientation
+2. **`shouldRotateToPath` branch**: Checks before rotating to path heading
+
+Both use the same guard pattern:
+```cpp
+if (canArticulatedRotateInPlace()) {
+  rotateToHeading(...);  // Safe to command rotation
+} else {
+  // Fallback: follow path at minimum velocity
+  applyConstraints(...);
+  RCLCPP_WARN_THROTTLE(..., "Cannot rotate...");
+}
+```
+
+## Recommended Next Steps
+
+1. **Implement path smoothing** (step 3 of remaining items) for trajectory post-processing
+2. **Integration testing** with simulated articulated vehicle
+3. **Real hardware validation** on retrofit kit loader
+4. **Parameter tuning** for specific articulated geometry once hardware integration begins
+
