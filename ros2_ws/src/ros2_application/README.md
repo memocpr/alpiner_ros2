@@ -305,7 +305,7 @@ cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source /opt/ros/humble/setup.bash
 colcon build --packages-select ros2_application
 source install/setup.bash
-ros2 launch ros2_application action6_rviz_integration.launch.py
+ros2 launch ros2_application rviz_integration.launch.py
 ```
 
 ### Step-by-step checks (Action 6)
@@ -326,7 +326,7 @@ ros2 topic echo /cmd_vel
 - For hardware scan input, disable sim scan and set topic:
 
 ```bash
-ros2 launch ros2_application action6_rviz_integration.launch.py \
+ros2 launch ros2_application rviz_integration.launch.py \
   use_sim_scan:=false \
   scan_topic:=/your_real_scan_topic
 ```
