@@ -96,8 +96,8 @@ fi
 echo ""
 
 # Test 9: Valid max joint angle update
-echo "Test 9: Set articulated_max_joint_angle to valid value (0.392)"
-if ros2 param set ${CONTROLLER_NODE} ${PARAM_PREFIX}.articulated_max_joint_angle 0.392; then
+echo "Test 9: Set articulated_max_joint_angle to valid value (0.35)"
+if ros2 param set ${CONTROLLER_NODE} ${PARAM_PREFIX}.articulated_max_joint_angle 0.35; then
     echo "✓ PASS: Valid articulated_max_joint_angle accepted"
 else
     echo "✗ FAIL: Valid articulated_max_joint_angle rejected"

@@ -97,7 +97,7 @@ Baseline integration changes for Action 5:
     - `articulated_curvature_scale` (default `1.0`)
     - `articulated_min_turning_radius` (default `0.0`, disabled)
     - `articulated_wheelbase` (default `3.03`)
-    - `articulated_max_joint_angle` (default `0.392`)
+    - `articulated_max_joint_angle` (default `0.35`)
     - `articulated_max_joint_angular_velocity` (default `0.196`)
     - `use_articulated_yaw_rate_clamp` (default `true`)
     - `use_articulated_path_smoothing` (default `false`)
