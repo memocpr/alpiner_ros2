@@ -163,6 +163,49 @@ else
 fi
 echo ""
 
+# Test 15: Toggle articulated path smoothing
+echo "Test 15: Toggle use_articulated_path_smoothing"
+if ros2 param set ${CONTROLLER_NODE} ${PARAM_PREFIX}.use_articulated_path_smoothing true; then
+    echo "✓ PASS: Articulated path smoothing enabled"
+else
+    echo "✗ FAIL: Failed to enable articulated path smoothing"
+fi
+echo ""
+
+if ros2 param set ${CONTROLLER_NODE} ${PARAM_PREFIX}.use_articulated_path_smoothing false; then
+    echo "✓ PASS: Articulated path smoothing disabled"
+else
+    echo "✗ FAIL: Failed to disable articulated path smoothing"
+fi
+echo ""
+
+# Test 16: Valid smoothing window
+echo "Test 16: Set articulated_path_smoothing_window to valid value (5)"
+if ros2 param set ${CONTROLLER_NODE} ${PARAM_PREFIX}.articulated_path_smoothing_window 5; then
+    echo "✓ PASS: Valid articulated_path_smoothing_window accepted"
+else
+    echo "✗ FAIL: Valid articulated_path_smoothing_window rejected"
+fi
+echo ""
+
+# Test 17: Invalid smoothing window (even)
+echo "Test 17: Set articulated_path_smoothing_window to invalid value (4) - should reject"
+if ros2 param set ${CONTROLLER_NODE} ${PARAM_PREFIX}.articulated_path_smoothing_window 4 2>&1 | grep -q "Failed"; then
+    echo "✓ PASS: Invalid articulated_path_smoothing_window (4) rejected as expected"
+else
+    echo "✗ FAIL: Invalid articulated_path_smoothing_window (4) was accepted (should reject)"
+fi
+echo ""
+
+# Test 18: Invalid smoothing window (too small)
+echo "Test 18: Set articulated_path_smoothing_window to invalid value (1) - should reject"
+if ros2 param set ${CONTROLLER_NODE} ${PARAM_PREFIX}.articulated_path_smoothing_window 1 2>&1 | grep -q "Failed"; then
+    echo "✓ PASS: Invalid articulated_path_smoothing_window (1) rejected as expected"
+else
+    echo "✗ FAIL: Invalid articulated_path_smoothing_window (1) was accepted (should reject)"
+fi
+echo ""
+
 # Display current parameter values
 echo "========================================="
 echo "Current articulated parameter values:"
@@ -174,6 +217,8 @@ ros2 param get ${CONTROLLER_NODE} ${PARAM_PREFIX}.articulated_wheelbase
 ros2 param get ${CONTROLLER_NODE} ${PARAM_PREFIX}.articulated_max_joint_angle
 ros2 param get ${CONTROLLER_NODE} ${PARAM_PREFIX}.articulated_max_joint_angular_velocity
 ros2 param get ${CONTROLLER_NODE} ${PARAM_PREFIX}.use_articulated_yaw_rate_clamp
+ros2 param get ${CONTROLLER_NODE} ${PARAM_PREFIX}.use_articulated_path_smoothing
+ros2 param get ${CONTROLLER_NODE} ${PARAM_PREFIX}.articulated_path_smoothing_window
 echo ""
 
 echo "========================================="

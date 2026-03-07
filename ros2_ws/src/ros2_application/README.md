@@ -96,6 +96,12 @@ Baseline integration changes for Action 5:
     - `use_articulated_steering_mode` (default `false`)
     - `articulated_curvature_scale` (default `1.0`)
     - `articulated_min_turning_radius` (default `0.0`, disabled)
+    - `articulated_wheelbase` (default `3.03`)
+    - `articulated_max_joint_angle` (default `0.392`)
+    - `articulated_max_joint_angular_velocity` (default `0.196`)
+    - `use_articulated_yaw_rate_clamp` (default `true`)
+    - `use_articulated_path_smoothing` (default `false`)
+    - `articulated_path_smoothing_window` (default `3`, odd >= 3)
 - `planner_server` remains `GridBased` (`nav2_navfn_planner/NavfnPlanner`) for stable baseline before articulated-specific planner changes
 
 ### Build (focused)
@@ -124,9 +130,20 @@ ros2 launch nav2_bringup navigation_launch.py \
 
 - Keep Action 5 changes minimal and incremental: first parameter-level baseline, then gated code updates in RPP/planner.
 - For local test flow: launch Action 3 and Action 4 first so `/odometry/filtered`, `/scan`, and map TF chain are available.
-- RPP now includes a first gated articulated hook: when `use_articulated_steering_mode:=true`, computed curvature is scaled by `articulated_curvature_scale`.
-- Added runtime validation in RPP dynamic parameters: `articulated_curvature_scale > 0` is required.
-- Added a second gated articulated constraint hook: if `articulated_min_turning_radius > 0`, curvature is clamped to `|k| <= 1 / articulated_min_turning_radius`.
+- RPP articulated hooks now include:
+  - curvature scaling and min-turning-radius clamp
+  - curvature <-> articulation-angle mapping with max joint angle constraint
+  - articulation-aware yaw-rate clamp based on max joint angular velocity
+  - rotate-to-path in-place guard when articulated mode is enabled
+  - optional local path smoothing (default off)
+- Dynamic parameter validation now rejects:
+  - `articulated_curvature_scale <= 0`
+  - `articulated_min_turning_radius < 0`
+  - `articulated_wheelbase <= 0`
+  - `articulated_max_joint_angle <= 0` or `>= pi/2`
+  - `articulated_max_joint_angular_velocity <= 0`
+  - `articulated_path_smoothing_window` not odd or `< 3`
+  - inconsistent turning radius vs wheelbase/joint-angle limits
 - Default behavior parity is preserved when articulated mode is disabled (`false`).
 
 ### Quick runtime test
@@ -139,8 +156,7 @@ cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
 ```
 
 This script validates:
-- Valid curvature scale values are accepted (e.g., `1.5`)
-- Invalid curvature scale values are rejected (e.g., `0.0`, `-1.0`)
-- Valid min turning radius values are accepted (e.g., `2.5`, `0.0`)
-- Invalid min turning radius values are rejected (e.g., `-1.0`)
-- Articulated mode toggle works correctly
+- Valid/invalid articulated curvature and turning-radius updates
+- Valid/invalid articulated wheelbase and joint limits
+- Articulated mode and yaw-rate clamp toggles
+- Valid/invalid path-smoothing parameter updates
