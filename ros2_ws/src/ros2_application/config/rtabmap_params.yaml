@@ -1,0 +1,17 @@
+rtabmap:
+  ros__parameters:
+    use_sim_time: false
+    frame_id: base_link
+    map_frame_id: map
+    odom_frame_id: odom
+    subscribe_scan: true
+    subscribe_depth: false
+    subscribe_rgb: false
+    subscribe_odom_info: false
+    approx_sync: false
+    queue_size: 30
+
+    # Keep mapping in 2D style for farm ground operation.
+    Reg/Force3DoF: "true"
+    Mem/IncrementalMemory: "true"
+

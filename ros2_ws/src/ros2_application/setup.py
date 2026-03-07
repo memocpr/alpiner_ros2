@@ -12,8 +12,14 @@ setup(
             ['resource/' + package_name],
         ),
         ('share/' + package_name, ['package.xml']),
-        ('share/' + package_name + '/launch', ['launch/localization.launch.py']),
-        ('share/' + package_name + '/config', ['config/ukf_params.yaml']),
+        ('share/' + package_name + '/launch', [
+            'launch/localization.launch.py',
+            'launch/mapping.launch.py',
+        ]),
+        ('share/' + package_name + '/config', [
+            'config/ukf_params.yaml',
+            'config/rtabmap_params.yaml',
+        ]),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -30,6 +36,7 @@ setup(
         'console_scripts': [
             'sim_odometry_publisher = ros2_application.sim_odometry_publisher:main',
             'sim_imu_publisher = ros2_application.sim_imu_publisher:main',
+            'sim_scan_publisher = ros2_application.sim_scan_publisher:main',
         ],
     },
 )

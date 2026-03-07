@@ -35,3 +35,37 @@ ros2 launch ros2_application localization.launch.py
   - `use_sim_odometry:=false`
   - `use_sim_imu:=false`
 
+## Action 4: Mapping pipeline (RTAB-Map)
+
+This package now includes a minimal local-test mapping setup:
+
+- `launch/mapping.launch.py`
+- `config/rtabmap_params.yaml`
+- `ros2_application/sim_scan_publisher.py`
+
+### Topics
+
+- Inputs:
+  - `/odometry/filtered` (`nav_msgs/msg/Odometry`)
+  - `/scan` (`sensor_msgs/msg/LaserScan`)
+- Output:
+  - `/map`
+- TF:
+  - `map -> odom` (published by RTAB-Map)
+  - `base_link -> laser_frame` (static TF, only in sim scan mode)
+
+### Run
+
+```bash
+cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
+colcon build --packages-select ros2_application
+source install/setup.bash
+ros2 launch ros2_application mapping.launch.py
+```
+
+### Notes
+
+- Start Action 3 first so `/odometry/filtered` is available.
+- Use real hardware scan by setting:
+  - `use_sim_scan:=false`
+  - `scan_topic:=<your_real_scan_topic>`
