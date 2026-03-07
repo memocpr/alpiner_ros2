@@ -89,7 +89,7 @@
         <child link="front_chassis"/>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <axis xyz="0 0 1"/>
-        <limit lower="-0.392" upper="0.392" effort="5000" velocity="0.196"/>
+        <limit lower="-0.35" upper="0.35" effort="5000" velocity="0.196"/>
     </joint>
 
     <joint name="articulation_to_rear" type="revolute">
@@ -97,7 +97,7 @@
         <child link="rear_chassis"/>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <axis xyz="0 0 1"/>
-        <limit lower="-0.392" upper="0.392" effort="5000" velocity="0.196"/>
+        <limit lower="-0.35" upper="0.35" effort="5000" velocity="0.196"/>
         <mimic joint="articulation_to_front" multiplier="-1" offset="0"/>
     </joint>
 
