@@ -35,6 +35,7 @@ setup(
             'sim_odometry_publisher = ros2_application.sim_odometry_publisher:main',
             'sim_imu_publisher = ros2_application.sim_imu_publisher:main',
             'sim_scan_publisher = ros2_application.sim_scan_publisher:main',
+            'cmd_vel_joint_state_publisher = ros2_application.cmd_vel_joint_state_publisher:main',
         ],
     },
 )

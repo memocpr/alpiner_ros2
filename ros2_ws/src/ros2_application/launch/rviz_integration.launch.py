@@ -4,7 +4,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch.conditions import IfCondition
+from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
@@ -50,6 +50,18 @@ def generate_launch_description():
         'use_sim_scan',
         default_value='true',
         description='Use simulated LaserScan source for RTAB-Map',
+    )
+
+    use_cmd_vel_joint_sim = DeclareLaunchArgument(
+        'use_cmd_vel_joint_sim',
+        default_value='true',
+        description='Publish wheel/articulation joint states from cmd_vel for RViz animation',
+    )
+
+    joint_cmd_topic = DeclareLaunchArgument(
+        'joint_cmd_topic',
+        default_value='/cmd_vel',
+        description='Twist topic used by cmd_vel_joint_state_publisher',
     )
 
     odom_topic = DeclareLaunchArgument(
@@ -103,6 +115,23 @@ def generate_launch_description():
         parameters=[{
             'use_sim_time': LaunchConfiguration('use_sim_time'),
         }],
+        condition=UnlessCondition(LaunchConfiguration('use_cmd_vel_joint_sim')),
+    )
+
+    cmd_vel_joint_state_publisher = Node(
+        package='ros2_application',
+        executable='cmd_vel_joint_state_publisher',
+        name='cmd_vel_joint_state_publisher',
+        output='screen',
+        parameters=[{
+            'cmd_vel_topic': LaunchConfiguration('joint_cmd_topic'),
+            'joint_state_topic': '/joint_states',
+            'wheel_radius': 0.8,
+            'track_width': 2.16,
+            'wheel_base': 3.03,
+            'max_articulation_angle': 0.35,
+        }],
+        condition=IfCondition(LaunchConfiguration('use_cmd_vel_joint_sim')),
     )
 
     localization_launch = IncludeLaunchDescription(
@@ -152,6 +181,8 @@ def generate_launch_description():
         use_sim_odometry,
         use_sim_imu,
         use_sim_scan,
+        use_cmd_vel_joint_sim,
+        joint_cmd_topic,
         odom_topic,
         scan_topic,
         params_file,
@@ -159,6 +190,7 @@ def generate_launch_description():
         rviz_config,
         robot_state_publisher,
         joint_state_publisher,
+        cmd_vel_joint_state_publisher,
         localization_launch,
         mapping_launch,
         nav2_launch,

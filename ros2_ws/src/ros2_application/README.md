@@ -320,6 +320,40 @@ ros2 launch ros2_application rviz_integration.launch.py
 ros2 topic echo /cmd_vel
 ```
 
+### Joint animation in RViz (Action 6)
+
+`rviz_integration.launch.py` now enables a lightweight joint simulator by default:
+
+- Node: `cmd_vel_joint_state_publisher`
+- Input: `/cmd_vel` (configurable via `joint_cmd_topic`)
+- Output: `/joint_states`
+- Animated joints:
+  - `articulation_to_front`
+  - `front_left_wheel_joint`
+  - `front_right_wheel_joint`
+  - `rear_left_wheel_joint`
+  - `rear_right_wheel_joint`
+
+This allows wheel/articulation motion in RViz when a Nav2 goal is active, without `ros2_control`.
+
+Example (use smoothed command topic):
+
+```bash
+ros2 launch ros2_application rviz_integration.launch.py joint_cmd_topic:=/cmd_vel
+```
+
+Optional (use raw controller output):
+
+```bash
+ros2 launch ros2_application rviz_integration.launch.py joint_cmd_topic:=/cmd_vel_nav
+```
+
+Disable this simulator and fall back to static `joint_state_publisher`:
+
+```bash
+ros2 launch ros2_application rviz_integration.launch.py use_cmd_vel_joint_sim:=false
+```
+
 ### Notes
 
 - This Action 6 flow does **not** include P12 or `ros2_control`.

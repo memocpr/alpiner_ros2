@@ -10,8 +10,9 @@ rtabmap:
     subscribe_odom_info: false
     approx_sync: false
     queue_size: 30
+    database_path: /tmp/rtabmap_action6.db
+    delete_db_on_start: true
 
     # Keep mapping in 2D style for farm ground operation.
     Reg/Force3DoF: "true"
     Mem/IncrementalMemory: "true"
-
