@@ -165,6 +165,19 @@ This script validates:
 - Articulated mode and yaw-rate clamp toggles
 - Valid/invalid path-smoothing parameter updates
 
+Test path smoothing functionality:
+
+```bash
+cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
+./src/ros2_application/scripts/test_path_smoothing.sh
+```
+
+This script tests:
+- Enabling/disabling path smoothing
+- Valid/invalid smoothing window sizes (must be odd, >= 3)
+- Minimum turning radius constraint integration
+- Parameter configuration and validation
+
 
 # Action 5 Completion Summary - Articulated Vehicle Path Tracking
 
@@ -206,26 +219,43 @@ This script validates:
   - Explained fallback behavior for infeasible rotations
   - Added clarifications on kinematic constraints
 
+### 4. **Path Smoothing for Articulated Geometry** ✅
+- **Implementation**: Enhanced `smoothArticulatedPath()` in `RegulatedPurePursuitController`
+- **Location**: `nav2_regulated_pure_pursuit_controller/src/regulated_pure_pursuit_controller.cpp`
+- **Functionality**:
+  - Moving average smoothing applied to both X and Y coordinates (preserves endpoints)
+  - Orientation updates to align with smoothed path segments
+  - Curvature validation using Menger curvature formula
+  - Automatic correction when curvature exceeds `articulated_min_turning_radius` constraint
+  - Blends back toward original path when turns are too sharp
+- **Parameters**:
+  - `use_articulated_path_smoothing` (default `false`) - Enable/disable smoothing
+  - `articulated_path_smoothing_window` (default `3`, odd >= 3) - Smoothing window size
+  - `articulated_min_turning_radius` (default `0.0`) - Used to validate/constrain curvature
+- **Test Coverage**: `test_path_smoothing.cpp` with 9 comprehensive tests
+
 ## Key Design Decisions
 
 1. **Guard Logic**: Simple and robust - checks if max_joint_angle allows zero steering angle
 2. **Error Handling**: Graceful fallback to path-following with throttled warnings
 3. **Parameter Validation**: Guard integrates seamlessly with existing articulated mode logic
 4. **Testing**: Comprehensive edge-case coverage without requiring full node initialization
+5. **Path Smoothing**: Three-stage approach (smooth positions → update orientations → validate curvature)
 
-## Remaining Action 5 Items
+## Action 5 Status
 
-As noted in the status, the following items from Action 5 remain:
-
-⏳ **Path smoothing for articulated geometry** (trajectory post-processing)
-- Purpose: Reduce sharp turns in planned trajectories to improve tracking for articulated geometry
-- Suggested approach: Window-based smoothing filter that respects min_turning_radius constraints
+✅ **All Action 5 items completed:**
+1. ✅ Articulated steering mode with curvature scaling and constraints
+2. ✅ Articulation angle ↔ curvature bidirectional mapping
+3. ✅ Yaw rate clamping based on joint angular velocity limits
+4. ✅ In-place rotation guard for articulated vehicles
+5. ✅ Path smoothing with curvature constraint enforcement
 
 ## Build & Test Results
 
 ```
 Compilation:  ✅ SUCCESS (no errors)
-Unit Tests:   ✅ SUCCESS (9/9 passing)
+Unit Tests:   ✅ SUCCESS (articulated guard: 9/9, path smoothing: 9/9)
 Package:      ✅ BUILDS CLEAN
 ```
 
@@ -247,10 +277,17 @@ if (canArticulatedRotateInPlace()) {
 }
 ```
 
+**Path smoothing integration**:
+```cpp
+if (use_articulated_steering_mode_ && use_articulated_path_smoothing_) {
+  smoothArticulatedPath(transformed_plan);
+}
+```
+
 ## Recommended Next Steps
 
-1. **Implement path smoothing** (step 3 of remaining items) for trajectory post-processing
-2. **Integration testing** with simulated articulated vehicle
-3. **Real hardware validation** on retrofit kit loader
-4. **Parameter tuning** for specific articulated geometry once hardware integration begins
+1. **Integration testing** with simulated articulated vehicle in Gazebo
+2. **Real hardware validation** on retrofit kit loader
+3. **Parameter tuning** for specific articulated geometry once hardware integration begins
+4. **Proceed to Action 6**: RViz integration test of full navigation stack
 
