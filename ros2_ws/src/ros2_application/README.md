@@ -128,3 +128,19 @@ ros2 launch nav2_bringup navigation_launch.py \
 - Added runtime validation in RPP dynamic parameters: `articulated_curvature_scale > 0` is required.
 - Added a second gated articulated constraint hook: if `articulated_min_turning_radius > 0`, curvature is clamped to `|k| <= 1 / articulated_min_turning_radius`.
 - Default behavior parity is preserved when articulated mode is disabled (`false`).
+
+### Quick runtime test
+
+After launching Nav2, test articulated parameter validation:
+
+```bash
+cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
+./src/ros2_application/scripts/test_articulated_params.sh
+```
+
+This script validates:
+- Valid curvature scale values are accepted (e.g., `1.5`)
+- Invalid curvature scale values are rejected (e.g., `0.0`, `-1.0`)
+- Valid min turning radius values are accepted (e.g., `2.5`, `0.0`)
+- Invalid min turning radius values are rejected (e.g., `-1.0`)
+- Articulated mode toggle works correctly
