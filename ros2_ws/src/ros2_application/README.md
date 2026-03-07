@@ -92,6 +92,9 @@ Baseline integration changes for Action 5:
 - `nav2_bringup/params/nav2_params.yaml`
   - `bt_navigator.odom_topic` set to `/odometry/filtered`
   - `controller_server.FollowPath.plugin` switched to `nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController`
+  - added RPP articulated-mode parameters:
+    - `use_articulated_steering_mode` (default `false`)
+    - `articulated_curvature_scale` (default `1.0`)
 - `planner_server` remains `GridBased` (`nav2_navfn_planner/NavfnPlanner`) for stable baseline before articulated-specific planner changes
 
 ### Build (focused)
@@ -120,4 +123,5 @@ ros2 launch nav2_bringup navigation_launch.py \
 
 - Keep Action 5 changes minimal and incremental: first parameter-level baseline, then gated code updates in RPP/planner.
 - For local test flow: launch Action 3 and Action 4 first so `/odometry/filtered`, `/scan`, and map TF chain are available.
-- Next step is adding an articulated mode flag in RPP with default-off behavior parity.
+- RPP now includes a first gated articulated hook: when `use_articulated_steering_mode:=true`, computed curvature is scaled by `articulated_curvature_scale`.
+- Default behavior parity is preserved when articulated mode is disabled (`false`).
