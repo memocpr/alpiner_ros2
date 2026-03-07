@@ -77,8 +77,62 @@ else
 fi
 echo ""
 
-# Test 7: Toggle articulated mode
-echo "Test 7: Toggle use_articulated_steering_mode"
+# Test 7: Valid wheelbase update
+echo "Test 7: Set articulated_wheelbase to valid value (3.03)"
+if ros2 param set ${CONTROLLER_NODE} ${PARAM_PREFIX}.articulated_wheelbase 3.03; then
+    echo "✓ PASS: Valid articulated_wheelbase accepted"
+else
+    echo "✗ FAIL: Valid articulated_wheelbase rejected"
+fi
+echo ""
+
+# Test 8: Invalid wheelbase (zero)
+echo "Test 8: Set articulated_wheelbase to invalid value (0.0) - should reject"
+if ros2 param set ${CONTROLLER_NODE} ${PARAM_PREFIX}.articulated_wheelbase 0.0 2>&1 | grep -q "Failed"; then
+    echo "✓ PASS: Invalid articulated_wheelbase (0.0) rejected as expected"
+else
+    echo "✗ FAIL: Invalid articulated_wheelbase (0.0) was accepted (should reject)"
+fi
+echo ""
+
+# Test 9: Valid max joint angle update
+echo "Test 9: Set articulated_max_joint_angle to valid value (0.392)"
+if ros2 param set ${CONTROLLER_NODE} ${PARAM_PREFIX}.articulated_max_joint_angle 0.392; then
+    echo "✓ PASS: Valid articulated_max_joint_angle accepted"
+else
+    echo "✗ FAIL: Valid articulated_max_joint_angle rejected"
+fi
+echo ""
+
+# Test 10: Invalid max joint angle (zero)
+echo "Test 10: Set articulated_max_joint_angle to invalid value (0.0) - should reject"
+if ros2 param set ${CONTROLLER_NODE} ${PARAM_PREFIX}.articulated_max_joint_angle 0.0 2>&1 | grep -q "Failed"; then
+    echo "✓ PASS: Invalid articulated_max_joint_angle (0.0) rejected as expected"
+else
+    echo "✗ FAIL: Invalid articulated_max_joint_angle (0.0) was accepted (should reject)"
+fi
+echo ""
+
+# Test 11: Valid max joint angular velocity update
+echo "Test 11: Set articulated_max_joint_angular_velocity to valid value (0.196)"
+if ros2 param set ${CONTROLLER_NODE} ${PARAM_PREFIX}.articulated_max_joint_angular_velocity 0.196; then
+    echo "✓ PASS: Valid articulated_max_joint_angular_velocity accepted"
+else
+    echo "✗ FAIL: Valid articulated_max_joint_angular_velocity rejected"
+fi
+echo ""
+
+# Test 12: Invalid max joint angular velocity (negative)
+echo "Test 12: Set articulated_max_joint_angular_velocity to invalid value (-0.1) - should reject"
+if ros2 param set ${CONTROLLER_NODE} ${PARAM_PREFIX}.articulated_max_joint_angular_velocity -0.1 2>&1 | grep -q "Failed"; then
+    echo "✓ PASS: Invalid articulated_max_joint_angular_velocity (-0.1) rejected as expected"
+else
+    echo "✗ FAIL: Invalid articulated_max_joint_angular_velocity (-0.1) was accepted (should reject)"
+fi
+echo ""
+
+# Test 13: Toggle articulated mode
+echo "Test 13: Toggle use_articulated_steering_mode"
 if ros2 param set ${CONTROLLER_NODE} ${PARAM_PREFIX}.use_articulated_steering_mode true; then
     echo "✓ PASS: Articulated mode enabled"
 else
@@ -93,6 +147,22 @@ else
 fi
 echo ""
 
+# Test 14: Toggle articulated yaw rate clamp
+echo "Test 14: Toggle use_articulated_yaw_rate_clamp"
+if ros2 param set ${CONTROLLER_NODE} ${PARAM_PREFIX}.use_articulated_yaw_rate_clamp true; then
+    echo "✓ PASS: Articulated yaw rate clamp enabled"
+else
+    echo "✗ FAIL: Failed to enable articulated yaw rate clamp"
+fi
+echo ""
+
+if ros2 param set ${CONTROLLER_NODE} ${PARAM_PREFIX}.use_articulated_yaw_rate_clamp false; then
+    echo "✓ PASS: Articulated yaw rate clamp disabled"
+else
+    echo "✗ FAIL: Failed to disable articulated yaw rate clamp"
+fi
+echo ""
+
 # Display current parameter values
 echo "========================================="
 echo "Current articulated parameter values:"
@@ -100,9 +170,12 @@ echo "========================================="
 ros2 param get ${CONTROLLER_NODE} ${PARAM_PREFIX}.use_articulated_steering_mode
 ros2 param get ${CONTROLLER_NODE} ${PARAM_PREFIX}.articulated_curvature_scale
 ros2 param get ${CONTROLLER_NODE} ${PARAM_PREFIX}.articulated_min_turning_radius
+ros2 param get ${CONTROLLER_NODE} ${PARAM_PREFIX}.articulated_wheelbase
+ros2 param get ${CONTROLLER_NODE} ${PARAM_PREFIX}.articulated_max_joint_angle
+ros2 param get ${CONTROLLER_NODE} ${PARAM_PREFIX}.articulated_max_joint_angular_velocity
+ros2 param get ${CONTROLLER_NODE} ${PARAM_PREFIX}.use_articulated_yaw_rate_clamp
 echo ""
 
 echo "========================================="
 echo "Test sequence completed"
 echo "========================================="
-
