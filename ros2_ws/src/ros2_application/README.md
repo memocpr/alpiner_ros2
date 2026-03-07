@@ -34,6 +34,7 @@ ros2 launch ros2_application localization.launch.py
 - You can disable simulation sources with:
   - `use_sim_odometry:=false`
   - `use_sim_imu:=false`
+- **Simulation behavior**: `sim_odometry_publisher` and `sim_imu_publisher` provide static robot state (position 0,0,0, zero velocity). Robot only moves when Nav2 commands are active.
 
 ## Action 4: Mapping pipeline (RTAB-Map)
 
@@ -80,6 +81,8 @@ ros2 launch ros2_application mapping_hw.launch.py scan_topic:=/your_real_scan_to
 - Start Action 3 first so `/odometry/filtered` is available.
 - For retrofit kit: update `scan_topic` and `laser_frame` to match actual hardware TF tree.
 - Static TF `base_link -> laser_frame` will be provided by your hardware driver or robot_description URDF.
+- **Simulation behavior**: `sim_scan_publisher` provides a static environment (fixed walls and obstacles). No dynamic obstacles that could trigger false motion detection.
+- RTAB-Map local test now uses `/tmp/rtabmap_action6.db` with `delete_db_on_start=true` to avoid stale DB conflicts during repeated launch/stop cycles.
 
 ## Action 5: Nav2 baseline for articulated-steering customization
 
@@ -364,3 +367,18 @@ ros2 launch ros2_application rviz_integration.launch.py \
   use_sim_scan:=false \
   scan_topic:=/your_real_scan_topic
 ```
+
+### Quick verification (robot should be static)
+
+After launching, verify the robot is idle without goals:
+
+```bash
+cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
+./src/ros2_application/scripts/action6_quick_check.sh
+```
+
+This checks:
+- Filtered odometry velocity is ~0
+- No cmd_vel published (robot idle)
+- Joint states show zero articulation angle
+

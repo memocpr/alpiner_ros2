@@ -10,7 +10,6 @@ class SimOdometryPublisher(Node):
         super().__init__('sim_odometry_publisher')
         self.publisher = self.create_publisher(Odometry, '/odometry/raw', 10)
         self.timer = self.create_timer(0.05, self._on_timer)
-        self.t = 0.0
 
     def _on_timer(self):
         msg = Odometry()
@@ -18,17 +17,21 @@ class SimOdometryPublisher(Node):
         msg.header.frame_id = 'odom'
         msg.child_frame_id = 'base_link'
 
-        # Gentle forward arc so UKF receives non-zero motion.
-        x = 0.2 * self.t
-        y = 0.5 * math.sin(0.2 * self.t)
-        yaw_rate = 0.2 * math.cos(0.2 * self.t)
-
-        msg.pose.pose.position.x = x
-        msg.pose.pose.position.y = y
+        # Static robot at origin - no motion unless commanded by Nav2
+        msg.pose.pose.position.x = 0.0
+        msg.pose.pose.position.y = 0.0
+        msg.pose.pose.position.z = 0.0
         msg.pose.pose.orientation.w = 1.0
+        msg.pose.pose.orientation.x = 0.0
+        msg.pose.pose.orientation.y = 0.0
+        msg.pose.pose.orientation.z = 0.0
 
-        msg.twist.twist.linear.x = 0.2
-        msg.twist.twist.angular.z = yaw_rate
+        msg.twist.twist.linear.x = 0.0
+        msg.twist.twist.linear.y = 0.0
+        msg.twist.twist.linear.z = 0.0
+        msg.twist.twist.angular.x = 0.0
+        msg.twist.twist.angular.y = 0.0
+        msg.twist.twist.angular.z = 0.0
 
         msg.pose.covariance[0] = 0.05
         msg.pose.covariance[7] = 0.05
@@ -37,7 +40,6 @@ class SimOdometryPublisher(Node):
         msg.twist.covariance[35] = 0.2
 
         self.publisher.publish(msg)
-        self.t += 0.05
 
 
 def main(args=None):

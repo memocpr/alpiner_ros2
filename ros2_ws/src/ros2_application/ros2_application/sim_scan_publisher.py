@@ -11,7 +11,6 @@ class SimScanPublisher(Node):
         super().__init__('sim_scan_publisher')
         self.publisher = self.create_publisher(LaserScan, '/scan', 10)
         self.timer = self.create_timer(0.1, self._on_timer)
-        self.t = 0.0
 
         self.num_beams = 360
         self.angle_min = -math.pi
@@ -31,18 +30,17 @@ class SimScanPublisher(Node):
         msg.range_min = 0.1
         msg.range_max = 25.0
 
-        # Simple synthetic environment with a moving frontal obstacle.
-        obstacle_distance = 3.0 + 0.5 * math.sin(0.2 * self.t)
+        # Static environment for stable mapping
         ranges = []
         for i in range(self.num_beams):
             angle = self.angle_min + i * self.angle_increment
             distance = 12.0
 
-            # Frontal sector: obstacle used to create map structure over time.
+            # Frontal wall at fixed distance
             if abs(angle) < 0.35:
-                distance = min(distance, obstacle_distance)
+                distance = min(distance, 5.0)
 
-            # Side corridor walls.
+            # Side corridor walls
             if abs(abs(angle) - math.pi / 2.0) < 0.15:
                 distance = min(distance, 4.0)
 
@@ -51,7 +49,6 @@ class SimScanPublisher(Node):
         msg.ranges = ranges
 
         self.publisher.publish(msg)
-        self.t += 0.1
 
 
 def main(args=None):
