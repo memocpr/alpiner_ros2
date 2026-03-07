@@ -145,6 +145,10 @@ ros2 launch nav2_bringup navigation_launch.py \
   - `articulated_path_smoothing_window` not odd or `< 3`
   - inconsistent turning radius vs wheelbase/joint-angle limits
 - Default behavior parity is preserved when articulated mode is disabled (`false`).
+- **Kinematics relationship**: `articulated_wheelbase` and `articulated_max_joint_angle` jointly determine the achievable minimum turning radius via:
+  - `min_radius_achievable = wheelbase / (2.0 * sin(max_joint_angle / 2.0))`
+  - Current defaults: 3.03 m wheelbase + 0.35 rad max angle ≈ 8.72 m minimum achievable radius
+  - If `articulated_min_turning_radius` is set (> 0), it must not exceed this achievable minimum; otherwise validation will warn
 
 ### Quick runtime test
 
