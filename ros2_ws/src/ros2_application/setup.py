@@ -15,6 +15,7 @@ setup(
         ('share/' + package_name + '/launch', [
             'launch/localization.launch.py',
             'launch/mapping.launch.py',
+            'launch/mapping_hw.launch.py',
         ]),
         ('share/' + package_name + '/config', [
             'config/ukf_params.yaml',

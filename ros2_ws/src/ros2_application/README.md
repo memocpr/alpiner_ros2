@@ -63,9 +63,20 @@ source install/setup.bash
 ros2 launch ros2_application mapping.launch.py
 ```
 
+### Hardware Adaptation
+
+Switch from simulated to real sensor input:
+
+```bash
+# Option A: Disable sim scan, remap to real topic
+ros2 launch ros2_application mapping.launch.py use_sim_scan:=false scan_topic:=/your_real_scan_topic
+
+# Option B: Use dedicated hardware launch (cleaner)
+ros2 launch ros2_application mapping_hw.launch.py scan_topic:=/your_real_scan_topic laser_frame:=/your_laser_frame
+```
+
 ### Notes
 
 - Start Action 3 first so `/odometry/filtered` is available.
-- Use real hardware scan by setting:
-  - `use_sim_scan:=false`
-  - `scan_topic:=<your_real_scan_topic>`
+- For retrofit kit: update `scan_topic` and `laser_frame` to match actual hardware TF tree.
+- Static TF `base_link -> laser_frame` will be provided by your hardware driver or robot_description URDF.
