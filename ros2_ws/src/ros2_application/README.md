@@ -34,7 +34,7 @@ ros2 launch ros2_application localization.launch.py
 - You can disable simulation sources with:
   - `use_sim_odometry:=false`
   - `use_sim_imu:=false`
-- **Simulation behavior**: `sim_odometry_publisher` and `sim_imu_publisher` provide static robot state (position 0,0,0, zero velocity). Robot only moves when Nav2 commands are active.
+- **Simulation behavior**: `sim_odometry_publisher` integrates `/cmd_vel` into `/odometry/raw` (with timeout), and `sim_imu_publisher` stays simple/static for local testing.
 
 ## Action 4: Mapping pipeline (RTAB-Map)
 
@@ -379,8 +379,8 @@ cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
 
 Expected static behavior:
 - Filtered odometry velocity: ~0
-- No `/cmd_vel` published (robot idle)
-- Joint positions: all zero (articulation=0, wheels=0)
+- `/cmd_vel` stays near zero
+- Joint positions hold last state
 
 Expected behavior when Nav2 goal is active:
 - Robot moves toward goal in RViz
