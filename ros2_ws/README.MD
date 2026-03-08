@@ -1,4 +1,3 @@
-
 # Launching the robot model on RViz:
 ```bash
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
@@ -14,6 +13,26 @@ colcon build --cmake-clean-cache
 source install/setup.bash
 ros2 launch robot_description view_robot.launch.py
 ```
+
+# Gazebo + RViz + Nav2 (Complete Stack)
+
+**Quick Start:** See **RVIZ_QUICKSTART.md** for step-by-step instructions to run Gazebo + RViz + Nav2 together and set navigation goals.
+
+**Complete Guide:** See **GAZEBO_RVIZ_GUIDE.md** for detailed explanations of each component.
+
+**Auto-Launcher (optional):** 
+```bash
+./start_complete_stack.sh
+```
+
+This opens 5 terminals automatically:
+1. Gazebo simulation
+2. Localization (UKF)
+3. Mapping (RTAB-Map)
+4. Nav2 navigation
+5. RViz visualization
+
+---
 
 # See the TF
 First launch the urdf on rviz:
@@ -98,4 +117,3 @@ source install/setup.bash
 ros2 interface show ros2_interfaces/msg/MachineSetAll
 ros2 interface show ros2_interfaces/msg/MachineIndAll
 ```
-

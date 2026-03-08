@@ -394,21 +394,12 @@ Expected behavior when Nav2 goal is active:
 - `rviz_integration.launch.py` now prints startup diagnostics for sim source flags and topic wiring (`odom_topic`, `scan_topic`) to simplify launch-time debugging.
 - In this Action 6 SLAM flow, Nav2 AMCL/map_server lifecycle is not started (Nav2 panel may show localization as disabled).
 
-## Action 7: Optional Gazebo Simulation
+## Action 7: Gazebo + RViz quick run
 
-Gazebo simulation provides realistic robot motion and sensor feedback for testing Nav2 integration without hardware.
-
-### Features
-
-- **Differential drive plugin**: Consumes `/cmd_vel` and produces realistic odometry
-- **LiDAR sensor**: Publishes `/scan` topic for mapping and navigation
-- **IMU sensor**: Publishes `/imu/data` for sensor fusion
-- **Ground truth odometry**: Optional `/ground_truth/odom` for testing
-- **Physics simulation**: Realistic wheel dynamics and articulated steering constraints
-
-### Launch Gazebo
+Run in 5 terminals (same workspace and sourced environment):
 
 ```bash
+# Terminal 1: Gazebo
 cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source /opt/ros/humble/setup.bash
 source install/setup.bash
@@ -416,60 +407,50 @@ ros2 launch robot_description gazebo.launch.py
 ```
 
 ```bash
-# Terminal 2: Launch localization (Gazebo sensors + sim time)
+# Terminal 2: Localization
+cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source /opt/ros/humble/setup.bash
-source /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws/install/setup.bash
+source install/setup.bash
 ros2 launch ros2_application localization.launch.py \
   use_sim_time:=true \
   use_sim_odometry:=false \
   use_sim_imu:=false
 ```
+
 ```bash
-# Terminal 3: Launch mapping (Gazebo LiDAR + sim time)
+# Terminal 3: Mapping
+cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source /opt/ros/humble/setup.bash
-source /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws/install/setup.bash
+source install/setup.bash
 ros2 launch ros2_application mapping.launch.py \
   use_sim_time:=true \
   use_sim_scan:=false
 ```
+
 ```bash
-# Terminal 4: Launch Nav2 only (avoid duplicate localization/mapping nodes)
+# Terminal 4: Nav2
+cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source /opt/ros/humble/setup.bash
-source /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws/install/setup.bash
+source install/setup.bash
 ros2 launch nav2_bringup navigation_launch.py \
   use_sim_time:=true \
   params_file:=/home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/navigation2/nav2_bringup/params/nav2_params.yaml
 ```
 
-### Pipeline Flow with Gazebo
-
-```
-Nav2 Controller (RPP)
-  ↓
-/cmd_vel (Twist)
-  ↓
-Gazebo Diff Drive Plugin
-  ↓
-Robot motion in simulation
-  ↓
-Sensors (LiDAR, IMU, odometry)
-  ↓
-Localization & Mapping
-  ↓
-Nav2 Planner
+```bash
+# Terminal 5: RViz
+cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+ros2 run rviz2 rviz2 \
+  -d /opt/ros/humble/share/nav2_bringup/rviz/nav2_default_view.rviz
 ```
 
-### Files
+In RViz:
+- Click `2D Pose Estimate`, set initial pose.
+- Click `Nav2 Goal`, set a simple goal.
+- Check movement in both Gazebo and RViz.
 
-- URDF: `src/robot_description/urdf/komatsu_gazebo.urdf.xacro`
-- Launch: `src/robot_description/launch/gazebo.launch.py`
-- World: `src/robot_description/worlds/farm_field.world`
-
-### Notes
-
-- Gazebo provides motion simulation; articulated joint visualization still uses simplified kinematic model
-- Use `use_sim_time:=true` parameter for all nodes when running with Gazebo
-- For Gazebo flow, do not launch `rviz_integration.launch.py` together with separate Action 3/4 terminals (it already includes localization + mapping)
-- Ground truth odometry available at `/ground_truth/odom` for accuracy evaluation (Action 10)
-- Differential drive plugin simplifies articulated steering to differential model for initial testing
-
+Notes:
+- Keep `use_sim_time:=true` for all launched nodes.
+- Do not run `rviz_integration.launch.py` together with separate Action 3/4 terminals.
