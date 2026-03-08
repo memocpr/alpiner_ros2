@@ -1,5 +1,18 @@
 # ros2_application
 
+## Robot Description: Inertia Implementation
+
+Robot URDF now uses physically accurate inertia calculations following ROS2 best practices:
+
+- **Created** `robot_description/urdf/common_properties.xacro` with inertia macros:
+  - `box_inertia` - For chassis components (uses formula: `ixx = (m/12) * (y² + z²)`)
+  - `cylinder_inertia` - For wheels (uses formula: `ixx = (m/12) * (3r² + l²)`, `izz = (m/2) * r²`)
+  - `sphere_inertia` - For future use
+
+- **Updated** `komatsu.urdf.xacro` and `wheels.xacro` to use inertia macros instead of hardcoded values
+
+- **Result**: Chassis and wheels now have correct inertia tensors calculated from actual geometry, improving Gazebo physics simulation accuracy
+
 ## Action 3: Localization pipeline (UKF)
 
 This package now includes a minimal local-test localization setup:
