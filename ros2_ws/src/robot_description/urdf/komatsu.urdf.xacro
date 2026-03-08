@@ -1,13 +1,16 @@
 <?xml version="1.0"?>
 <robot name="komatsu" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
+    <!-- Include common properties (inertia macros) -->
+    <xacro:include filename="$(find robot_description)/urdf/common_properties.xacro"/>
+
     <!-- Include wheel macro -->
     <xacro:include filename="$(find robot_description)/urdf/wheels.xacro"/>
 
+    <!-- Materials -->
     <material name="grey">
       <color rgba="0.7 0.7 0.7 1.0"/>
     </material>
-
 
     <material name="black">
       <color rgba="0.1 0.1 0.1 1.0"/>
@@ -20,6 +23,7 @@
     <material name="red">
       <color rgba="1.0 0.0 0.0 1.0"/>
     </material>
+
 
   <!-- ===== Dimensions (meters) ===== -->
   <xacro:property name="A_len" value="8.350"/>   <!-- Overall length -->
@@ -90,11 +94,12 @@
                 <box size="${rear_box_len} ${box_w} ${box_h}"/>
             </geometry>
         </collision>
-        <inertial>
-            <mass value="5000.0"/>
-            <origin xyz="${-rear_box_len/2.0} 0 ${F_clearance + box_h/2.0 - 0.10}" rpy="0 0 0"/>
-            <inertia ixx="1000.0" ixy="0.0" ixz="0.0" iyy="2000.0" iyz="0.0" izz="1500.0"/>
-        </inertial>
+        <xacro:box_inertia m="5000.0"
+                           x="${rear_box_len}"
+                           y="${box_w}"
+                           z="${box_h}"
+                           o_xyz="${-rear_box_len/2.0} 0 ${F_clearance + box_h/2.0 - 0.10}"
+                           o_rpy="0 0 0"/>
     </link>
 
     <link name="front_chassis">
@@ -111,11 +116,12 @@
                 <box size="${front_box_len} ${box_w} ${box_h}"/>
             </geometry>
         </collision>
-        <inertial>
-            <mass value="5000.0"/>
-            <origin xyz="${front_box_len/2.0} 0 ${F_clearance + box_h/2.0 - 0.10}" rpy="0 0 0"/>
-            <inertia ixx="1000.0" ixy="0.0" ixz="0.0" iyy="2000.0" iyz="0.0" izz="1500.0"/>
-        </inertial>
+        <xacro:box_inertia m="5000.0"
+                           x="${front_box_len}"
+                           y="${box_w}"
+                           z="${box_h}"
+                           o_xyz="${front_box_len/2.0} 0 ${F_clearance + box_h/2.0 - 0.10}"
+                           o_rpy="0 0 0"/>
     </link>
 
     <joint name="articulation_to_front" type="revolute">

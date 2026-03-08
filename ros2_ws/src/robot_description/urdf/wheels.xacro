@@ -11,6 +11,7 @@
       - y: y position relative to parent
       - radius: wheel radius (default: 0.80)
       - width: wheel width (default: 0.65)
+    Note: Requires cylinder_inertia macro from common_properties.xacro
   -->
   <xacro:macro name="wheel" params="name parent x y radius:=0.80 width:=0.65">
     <link name="${name}">
@@ -27,11 +28,11 @@
           <cylinder radius="${radius}" length="${width}"/>
         </geometry>
       </collision>
-      <inertial>
-        <mass value="50.0"/>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <inertia ixx="5.0" ixy="0.0" ixz="0.0" iyy="10.0" iyz="0.0" izz="5.0"/>
-      </inertial>
+      <xacro:cylinder_inertia m="50.0"
+                              r="${radius}"
+                              l="${width}"
+                              o_xyz="0 0 0"
+                              o_rpy="0 0 0"/>
     </link>
 
     <joint name="${name}_joint" type="continuous">
