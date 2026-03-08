@@ -12,12 +12,12 @@ find_package(ament_cmake REQUIRED)
 # find_package(<dependency> REQUIRED)
 
 install(
-        DIRECTORY urdf meshes rviz
+        DIRECTORY urdf meshes rviz worlds
         DESTINATION share/${PROJECT_NAME}
 )
 
 install(
-        PROGRAMS launch/view_robot.launch.py
+        PROGRAMS launch/view_robot.launch.py launch/gazebo.launch.py
         DESTINATION share/${PROJECT_NAME}/launch
 )
 

@@ -21,6 +21,17 @@
         </geometry>
         <material name="black"/>
       </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
+        <geometry>
+          <cylinder radius="${radius}" length="${width}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="50.0"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <inertia ixx="5.0" ixy="0.0" ixz="0.0" iyy="10.0" iyz="0.0" izz="5.0"/>
+      </inertial>
     </link>
 
     <joint name="${name}_joint" type="continuous">

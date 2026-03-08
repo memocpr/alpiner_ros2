@@ -393,3 +393,78 @@ Expected behavior when Nav2 goal is active:
 - `sim_scan_publisher` now publishes LaserScan angles with consistent metadata (`angle_min/angle_max/angle_increment` matches beam count). This avoids RTAB-Map scan conversion failures that can prevent `/map` updates and Nav2 planning.
 - `rviz_integration.launch.py` now prints startup diagnostics for sim source flags and topic wiring (`odom_topic`, `scan_topic`) to simplify launch-time debugging.
 - In this Action 6 SLAM flow, Nav2 AMCL/map_server lifecycle is not started (Nav2 panel may show localization as disabled).
+
+## Action 7: Optional Gazebo Simulation
+
+Gazebo simulation provides realistic robot motion and sensor feedback for testing Nav2 integration without hardware.
+
+### Features
+
+- **Differential drive plugin**: Consumes `/cmd_vel` and produces realistic odometry
+- **LiDAR sensor**: Publishes `/scan` topic for mapping and navigation
+- **IMU sensor**: Publishes `/imu/data` for sensor fusion
+- **Ground truth odometry**: Optional `/ground_truth/odom` for testing
+- **Physics simulation**: Realistic wheel dynamics and articulated steering constraints
+
+### Launch Gazebo
+
+```bash
+cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
+source install/setup.bash
+ros2 launch robot_description gazebo.launch.py
+```
+
+### Full Stack with Gazebo
+
+To run complete navigation stack with Gazebo:
+
+```bash
+# Terminal 1: Launch Gazebo
+ros2 launch robot_description gazebo.launch.py
+
+# Terminal 2: Launch localization (disable sim publishers, use Gazebo sensors)
+ros2 launch ros2_application localization.launch.py \
+  use_sim_odometry:=false \
+  use_sim_imu:=false
+
+# Terminal 3: Launch mapping (disable sim scan, use Gazebo LiDAR)
+ros2 launch ros2_application mapping.launch.py \
+  use_sim_scan:=false
+
+# Terminal 4: Launch Nav2 with articulated mode
+ros2 launch ros2_application rviz_integration.launch.py \
+  use_sim_scan:=false \
+  use_cmd_vel_joint_sim:=false
+```
+
+### Pipeline Flow with Gazebo
+
+```
+Nav2 Controller (RPP)
+  ↓
+/cmd_vel (Twist)
+  ↓
+Gazebo Diff Drive Plugin
+  ↓
+Robot motion in simulation
+  ↓
+Sensors (LiDAR, IMU, odometry)
+  ↓
+Localization & Mapping
+  ↓
+Nav2 Planner
+```
+
+### Files
+
+- URDF: `src/robot_description/urdf/komatsu_gazebo.urdf.xacro`
+- Launch: `src/robot_description/launch/gazebo.launch.py`
+- World: `src/robot_description/worlds/farm_field.world`
+
+### Notes
+
+- Gazebo provides motion simulation; articulated joint visualization still uses simplified kinematic model
+- Use `use_sim_time:=true` parameter for all nodes when running with Gazebo
+- Ground truth odometry available at `/ground_truth/odom` for accuracy evaluation (Action 10)
+- Differential drive plugin simplifies articulated steering to differential model for initial testing
+
