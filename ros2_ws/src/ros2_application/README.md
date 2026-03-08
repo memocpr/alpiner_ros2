@@ -410,26 +410,35 @@ Gazebo simulation provides realistic robot motion and sensor feedback for testin
 
 ```bash
 cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
+source /opt/ros/humble/setup.bash
 source install/setup.bash
 ros2 launch robot_description gazebo.launch.py
 ```
 
 ```bash
-# Terminal 2: Launch localization (disable sim publishers, use Gazebo sensors)
+# Terminal 2: Launch localization (Gazebo sensors + sim time)
+source /opt/ros/humble/setup.bash
+source /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws/install/setup.bash
 ros2 launch ros2_application localization.launch.py \
+  use_sim_time:=true \
   use_sim_odometry:=false \
   use_sim_imu:=false
 ```
 ```bash
-# Terminal 3: Launch mapping (disable sim scan, use Gazebo LiDAR)
+# Terminal 3: Launch mapping (Gazebo LiDAR + sim time)
+source /opt/ros/humble/setup.bash
+source /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws/install/setup.bash
 ros2 launch ros2_application mapping.launch.py \
+  use_sim_time:=true \
   use_sim_scan:=false
 ```
 ```bash
-# Terminal 4: Launch Nav2 with articulated mode
-ros2 launch ros2_application rviz_integration.launch.py \
-  use_sim_scan:=false \
-  use_cmd_vel_joint_sim:=false
+# Terminal 4: Launch Nav2 only (avoid duplicate localization/mapping nodes)
+source /opt/ros/humble/setup.bash
+source /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws/install/setup.bash
+ros2 launch nav2_bringup navigation_launch.py \
+  use_sim_time:=true \
+  params_file:=/home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/navigation2/nav2_bringup/params/nav2_params.yaml
 ```
 
 ### Pipeline Flow with Gazebo
@@ -460,6 +469,7 @@ Nav2 Planner
 
 - Gazebo provides motion simulation; articulated joint visualization still uses simplified kinematic model
 - Use `use_sim_time:=true` parameter for all nodes when running with Gazebo
+- For Gazebo flow, do not launch `rviz_integration.launch.py` together with separate Action 3/4 terminals (it already includes localization + mapping)
 - Ground truth odometry available at `/ground_truth/odom` for accuracy evaluation (Action 10)
 - Differential drive plugin simplifies articulated steering to differential model for initial testing
 

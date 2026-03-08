@@ -140,6 +140,7 @@ def generate_launch_description():
             os.path.join(ros2_app_dir, 'launch', 'localization.launch.py')
         ),
         launch_arguments={
+            'use_sim_time': LaunchConfiguration('use_sim_time'),
             'use_sim_odometry': LaunchConfiguration('use_sim_odometry'),
             'use_sim_imu': LaunchConfiguration('use_sim_imu'),
         }.items(),
@@ -150,6 +151,7 @@ def generate_launch_description():
             os.path.join(ros2_app_dir, 'launch', 'mapping.launch.py')
         ),
         launch_arguments={
+            'use_sim_time': LaunchConfiguration('use_sim_time'),
             'use_sim_scan': LaunchConfiguration('use_sim_scan'),
             'odom_topic': LaunchConfiguration('odom_topic'),
             'scan_topic': LaunchConfiguration('scan_topic'),

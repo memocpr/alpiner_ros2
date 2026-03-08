@@ -14,6 +14,12 @@ def generate_launch_description():
     ros2_app_dir = get_package_share_directory('ros2_application')
     ukf_params_file = os.path.join(ros2_app_dir, 'config', 'ukf_params.yaml')
 
+    use_sim_time = DeclareLaunchArgument(
+        'use_sim_time',
+        default_value='false',
+        description='Use simulation clock if available',
+    )
+
     use_sim_odometry = DeclareLaunchArgument(
         'use_sim_odometry',
         default_value='true',
@@ -31,7 +37,9 @@ def generate_launch_description():
         executable='ukf_node',
         name='ukf_filter_node',
         output='screen',
-        parameters=[ukf_params_file],
+        parameters=[ukf_params_file, {
+            'use_sim_time': LaunchConfiguration('use_sim_time'),
+        }],
     )
 
     sim_odometry_node = Node(
@@ -39,6 +47,9 @@ def generate_launch_description():
         executable='sim_odometry_publisher',
         name='sim_odometry',
         output='screen',
+        parameters=[{
+            'use_sim_time': LaunchConfiguration('use_sim_time'),
+        }],
         condition=IfCondition(LaunchConfiguration('use_sim_odometry')),
     )
 
@@ -47,10 +58,14 @@ def generate_launch_description():
         executable='sim_imu_publisher',
         name='sim_imu',
         output='screen',
+        parameters=[{
+            'use_sim_time': LaunchConfiguration('use_sim_time'),
+        }],
         condition=IfCondition(LaunchConfiguration('use_sim_imu')),
     )
 
     return LaunchDescription([
+        use_sim_time,
         use_sim_odometry,
         use_sim_imu,
         ukf_node,
