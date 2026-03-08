@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
@@ -66,7 +66,7 @@ def generate_launch_description():
         ])
     )
 
-    # Spawn robot in Gazebo
+    # Spawn robot in Gazebo (delayed to ensure Gazebo is ready)
     spawn_entity_node = Node(
         package='gazebo_ros',
         executable='spawn_entity.py',
@@ -78,6 +78,12 @@ def generate_launch_description():
             '-z', '0.5'
         ],
         output='screen'
+    )
+
+    # Delay spawn by 3 seconds to ensure Gazebo and robot_state_publisher are ready
+    delayed_spawn = TimerAction(
+        period=3.0,
+        actions=[spawn_entity_node]
     )
 
     # Declare launch arguments
@@ -99,6 +105,6 @@ def generate_launch_description():
         robot_state_publisher_node,
         gazebo_server,
         gazebo_client,
-        spawn_entity_node
+        delayed_spawn
     ])
 

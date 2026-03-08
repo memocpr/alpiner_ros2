@@ -414,23 +414,18 @@ source install/setup.bash
 ros2 launch robot_description gazebo.launch.py
 ```
 
-### Full Stack with Gazebo
-
-To run complete navigation stack with Gazebo:
-
 ```bash
-# Terminal 1: Launch Gazebo
-ros2 launch robot_description gazebo.launch.py
-
 # Terminal 2: Launch localization (disable sim publishers, use Gazebo sensors)
 ros2 launch ros2_application localization.launch.py \
   use_sim_odometry:=false \
   use_sim_imu:=false
-
+```
+```bash
 # Terminal 3: Launch mapping (disable sim scan, use Gazebo LiDAR)
 ros2 launch ros2_application mapping.launch.py \
   use_sim_scan:=false
-
+```
+```bash
 # Terminal 4: Launch Nav2 with articulated mode
 ros2 launch ros2_application rviz_integration.launch.py \
   use_sim_scan:=false \

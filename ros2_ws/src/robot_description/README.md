@@ -119,3 +119,25 @@ ros2 launch ros2_application rviz_integration.launch.py \
 - Articulated steering is simplified to differential drive in Gazebo for initial testing
 - For full articulated steering simulation, future work will add ros2_control integration
 
+## Troubleshooting
+
+### Robot not appearing in Gazebo
+
+**Issue**: Robot model doesn't show in Gazebo after launch.
+
+**Fixes applied**:
+1. **Xacro include paths**: Changed relative paths to absolute using `$(find robot_description)` syntax
+   - `komatsu_gazebo.urdf.xacro`: Fixed include path for `komatsu.urdf.xacro`
+   - `komatsu.urdf.xacro`: Fixed include path for `wheels.xacro`
+
+2. **Spawn timing**: Added 3-second delay to `spawn_entity` to ensure Gazebo and `robot_state_publisher` are ready
+
+**Test script**: Use `scripts/test_gazebo.sh` to verify setup
+
+### Gazebo "Address already in use" error
+
+Clean up existing Gazebo processes:
+```bash
+killall -9 gzserver gzclient
+```
+
