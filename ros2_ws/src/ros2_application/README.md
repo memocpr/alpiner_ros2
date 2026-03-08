@@ -401,6 +401,7 @@ Run in 5 terminals (same workspace and sourced environment):
 ```bash
 # Terminal 1: Gazebo
 cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
+colcon build 
 source /opt/ros/humble/setup.bash
 source install/setup.bash
 ros2 launch robot_description gazebo.launch.py
