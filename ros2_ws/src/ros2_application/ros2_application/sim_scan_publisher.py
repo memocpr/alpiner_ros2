@@ -14,8 +14,9 @@ class SimScanPublisher(Node):
 
         self.num_beams = 360
         self.angle_min = -math.pi
-        self.angle_max = math.pi
-        self.angle_increment = (self.angle_max - self.angle_min) / self.num_beams
+        # Keep metadata consistent with ranges length: N = ((max-min)/inc) + 1
+        self.angle_increment = (2.0 * math.pi) / (self.num_beams - 1)
+        self.angle_max = self.angle_min + self.angle_increment * (self.num_beams - 1)
 
     def _on_timer(self):
         msg = LaserScan()

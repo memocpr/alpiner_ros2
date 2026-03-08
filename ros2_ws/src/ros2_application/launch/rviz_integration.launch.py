@@ -3,7 +3,7 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, LogInfo
 from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, LaunchConfiguration
@@ -175,6 +175,16 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('use_rviz')),
     )
 
+    startup_logs = [
+        LogInfo(msg=['[Action6] use_sim_odometry=', LaunchConfiguration('use_sim_odometry'),
+                     ', use_sim_imu=', LaunchConfiguration('use_sim_imu'),
+                     ', use_sim_scan=', LaunchConfiguration('use_sim_scan')]),
+        LogInfo(msg=['[Action6] odom_topic=', LaunchConfiguration('odom_topic'),
+                     ', scan_topic=', LaunchConfiguration('scan_topic')]),
+        LogInfo(msg=['[Action6] Nav2 bringup launches navigation nodes only; '
+                     'AMCL/map_server lifecycle is not started in this SLAM flow.']),
+    ]
+
     return LaunchDescription([
         use_sim_time,
         autostart,
@@ -188,6 +198,7 @@ def generate_launch_description():
         params_file,
         use_rviz,
         rviz_config,
+        *startup_logs,
         robot_state_publisher,
         joint_state_publisher,
         cmd_vel_joint_state_publisher,

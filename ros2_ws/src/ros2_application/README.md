@@ -388,3 +388,8 @@ Expected behavior when Nav2 goal is active:
 - Wheel joints rotate continuously in direction of motion
 - Joints hold their position when robot stops (wheels keep rotation angle, articulation returns to zero)
 
+### Action 6 troubleshooting note
+
+- `sim_scan_publisher` now publishes LaserScan angles with consistent metadata (`angle_min/angle_max/angle_increment` matches beam count). This avoids RTAB-Map scan conversion failures that can prevent `/map` updates and Nav2 planning.
+- `rviz_integration.launch.py` now prints startup diagnostics for sim source flags and topic wiring (`odom_topic`, `scan_topic`) to simplify launch-time debugging.
+- In this Action 6 SLAM flow, Nav2 AMCL/map_server lifecycle is not started (Nav2 panel may show localization as disabled).
