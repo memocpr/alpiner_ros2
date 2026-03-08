@@ -130,6 +130,7 @@ def generate_launch_description():
             'track_width': 2.16,
             'wheel_base': 3.03,
             'max_articulation_angle': 0.35,
+            'max_articulation_rate': 0.175,
         }],
         condition=IfCondition(LaunchConfiguration('use_cmd_vel_joint_sim')),
     )

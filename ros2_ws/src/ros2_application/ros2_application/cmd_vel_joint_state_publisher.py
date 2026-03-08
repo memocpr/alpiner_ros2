@@ -19,6 +19,7 @@ class CmdVelJointStatePublisher(Node):
         self.declare_parameter('track_width', 2.16)
         self.declare_parameter('wheel_base', 3.03)
         self.declare_parameter('max_articulation_angle', 0.35)
+        self.declare_parameter('max_articulation_rate', 0.175)
         self.declare_parameter('cmd_timeout_sec', 0.5)
 
         self.cmd_vel_topic = str(self.get_parameter('cmd_vel_topic').value)
@@ -28,6 +29,7 @@ class CmdVelJointStatePublisher(Node):
         self.track_width = float(self.get_parameter('track_width').value)
         self.wheel_base = float(self.get_parameter('wheel_base').value)
         self.max_articulation_angle = float(self.get_parameter('max_articulation_angle').value)
+        self.max_articulation_rate = float(self.get_parameter('max_articulation_rate').value)
         self.cmd_timeout_sec = float(self.get_parameter('cmd_timeout_sec').value)
 
         self.joint_names = [
@@ -85,7 +87,15 @@ class CmdVelJointStatePublisher(Node):
             angular_z = float(self.last_cmd.angular.z)
 
         # Compute articulation angle from current command
-        articulation_angle = self._compute_articulation_angle(linear_x, angular_z)
+        articulation_angle_target = self._compute_articulation_angle(linear_x, angular_z)
+
+        # Apply rate limiting (realistic hydraulic actuator behavior)
+        current_articulation = self.joint_positions['articulation_to_front']
+        delta_angle = articulation_angle_target - current_articulation
+        max_delta = self.max_articulation_rate * dt
+        if abs(delta_angle) > max_delta:
+            delta_angle = max_delta if delta_angle > 0 else -max_delta
+        articulation_angle = current_articulation + delta_angle
 
         # Compute wheel velocities
         left_velocity = linear_x - 0.5 * self.track_width * angular_z
