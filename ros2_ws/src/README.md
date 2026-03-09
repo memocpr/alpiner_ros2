@@ -30,7 +30,25 @@ map
             └── imu_link
 ```
 
-## Usage
+## Interfaces
+
+### Custom Messages (ros2_interfaces)
+
+Package contains 5 custom messages for machine control:
+- `MachineIndAll` - Machine feedback (speed, angles, sensors, timestamps)
+- `MachineIndErrors` - Error and safety flags (emergency stops, sensors)
+- `MachineIndOthers` - Operating mode and status (engine, brake, PPC lock)
+- `MachineSetAll` - Control commands (throttle, brake, steering, gear)
+- `MachineSetOptions` - Additional options (parking brake, auto-dig, kick-down)
+
+Build and check:
+```bash
+cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
+colcon build --packages-select ros2_interfaces
+source install/setup.bash
+ros2 interface list | grep ros2_interfaces
+ros2 interface show ros2_interfaces/msg/MachineIndAll
+```
 
 ### Visualize in RViz
 
