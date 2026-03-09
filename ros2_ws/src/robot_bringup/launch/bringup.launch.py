@@ -1,70 +1,45 @@
 from launch import LaunchDescription
-from launch_ros.actions import Node
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration
+from launch.actions import DeclareLaunchArgument
 from ament_index_python.packages import get_package_share_directory
 import os
 
 
 def generate_launch_description():
+    use_sim_time = LaunchConfiguration('use_sim_time')
+    params_file = LaunchConfiguration('params_file')
 
-    params_file = os.path.join(
-        get_package_share_directory('ros2_bringup'),
+    nav2_bringup_dir = get_package_share_directory('nav2_bringup')
+    ros2_bringup_dir = get_package_share_directory('ros2_bringup')
+
+    default_params_file = os.path.join(
+        ros2_bringup_dir,
         'config',
         'nav2_params.yaml'
     )
 
-    planner_server = Node(
-        package='nav2_planner',
-        executable='planner_server',
-        name='planner_server',
-        output='screen',
-        parameters=[params_file]
-    )
-
-    controller_server = Node(
-        package='nav2_controller',
-        executable='controller_server',
-        name='controller_server',
-        output='screen',
-        parameters=[params_file]
-    )
-
-    bt_navigator = Node(
-        package='nav2_bt_navigator',
-        executable='bt_navigator',
-        name='bt_navigator',
-        output='screen',
-        parameters=[params_file]
-    )
-
-    behavior_server = Node(
-        package='nav2_behaviors',
-        executable='behavior_server',
-        name='behavior_server',
-        output='screen',
-        parameters=[params_file]
-    )
-
-    local_costmap = Node(
-        package='nav2_costmap_2d',
-        executable='nav2_costmap_2d',
-        name='local_costmap',
-        output='screen',
-        parameters=[params_file]
-    )
-
-    global_costmap = Node(
-        package='nav2_costmap_2d',
-        executable='nav2_costmap_2d',
-        name='global_costmap',
-        output='screen',
-        parameters=[params_file]
+    nav2_launch = os.path.join(
+        nav2_bringup_dir,
+        'launch',
+        'bringup_launch.py'
     )
 
     return LaunchDescription([
-        planner_server,
-        controller_server,
-        bt_navigator,
-        behavior_server,
-        local_costmap,
-        global_costmap
+        DeclareLaunchArgument(
+            'use_sim_time',
+            default_value='true'
+        ),
+        DeclareLaunchArgument(
+            'params_file',
+            default_value=default_params_file
+        ),
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(nav2_launch),
+            launch_arguments={
+                'use_sim_time': use_sim_time,
+                'params_file': params_file
+            }.items()
+        )
     ])
