@@ -137,7 +137,7 @@ def generate_launch_description():
 
     localization_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(ros2_app_dir, 'launch', 'localization.launch.py')
+            os.path.join(ros2_app_dir, 'launch', '../../ros2_application/launch/localization.launch.py')
         ),
         launch_arguments={
             'use_sim_time': LaunchConfiguration('use_sim_time'),
@@ -148,7 +148,7 @@ def generate_launch_description():
 
     mapping_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(ros2_app_dir, 'launch', 'mapping.launch.py')
+            os.path.join(ros2_app_dir, 'launch', '../../ros2_application/launch/mapping.launch.py')
         ),
         launch_arguments={
             'use_sim_time': LaunchConfiguration('use_sim_time'),
