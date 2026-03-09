@@ -12,10 +12,10 @@ def generate_launch_description():
     params_file = LaunchConfiguration('params_file')
 
     nav2_bringup_dir = get_package_share_directory('nav2_bringup')
-    ros2_bringup_dir = get_package_share_directory('ros2_bringup')
+    robot_bringup_dir = get_package_share_directory('robot_bringup')
 
     default_params_file = os.path.join(
-        ros2_bringup_dir,
+        robot_bringup_dir,
         'config',
         'nav2_params.yaml'
     )
