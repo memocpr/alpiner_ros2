@@ -172,6 +172,88 @@ ros2 launch ros2_application mapping_hw.launch.py scan_topic:=/your_real_scan_to
 - RTAB-Map local test now uses `/tmp/rtabmap_action6.db` with `delete_db_on_start=true` to avoid stale DB conflicts during repeated launch/stop cycles.
 
 
+## Action 5: Navigation stack (Nav2)
+
+### Overview
+
+Nav2 navigation stack configured with:
+- **Planner**: SmacPlannerHybrid (for articulated vehicles)
+- **Controller**: RegulatedPurePursuitController (RPP)
+- **Smoother**: SimpleSmoother with path inversion enforcement
+- **Velocity Smoother**: 20Hz with acceleration limits
+- **Collision Monitor**: Enabled with footprint approach detection
+
+### Launch
+
+```bash
+cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
+colcon build --packages-select robot_bringup
+source install/setup.bash
+ros2 launch robot_bringup nav2.launch.py
+```
+
+### Configuration
+
+Main config: `robot_bringup/config/nav2_params.yaml`
+
+**Planner Server (SmacPlannerHybrid)**:
+- Expected frequency: 20 Hz
+- Tolerance: 0.5 m
+- A* disabled (using Hybrid-A* for articulated steering)
+- Allows unknown space
+
+**Controller Server (RegulatedPurePursuitController)**:
+- Frequency: 20 Hz
+- Desired linear velocity: 0.5 m/s
+- Lookahead distance: 0.6 m (0.3-0.9 m range)
+- Use collision detection: enabled
+- Allow reversing: disabled
+- Rotate to heading: enabled (min angle 0.785 rad)
+
+**Velocity Smoother**:
+- Smoothing frequency: 20 Hz
+- Max velocity: [0.5, 0.0, 2.0] m/s, rad/s
+- Max acceleration: [2.5, 0.0, 3.2] m/s², rad/s²
+
+### Verify
+
+Check running nodes:
+```bash
+ros2 node list | grep -E "(planner|controller|bt_navigator)"
+```
+
+Expected output:
+- `/bt_navigator`
+- `/controller_server`
+- `/planner_server`
+- `/smoother_server`
+
+Check available actions:
+```bash
+ros2 action list
+```
+
+Expected:
+- `/navigate_to_pose`
+- `/navigate_through_poses`
+- `/follow_path`
+
+### Topics
+
+**Input**:
+- `/map` (nav_msgs/OccupancyGrid)
+- `/odom` (nav_msgs/Odometry)
+
+**Output**:
+- `/cmd_vel` (geometry_msgs/Twist) - velocity commands
+
+### Notes
+
+- Nav2 is configured for articulated vehicle dynamics
+- RPP controller provides smooth path tracking
+- Collision monitoring prevents unsafe commands
+- Ready for Action 6 RViz integration testing
+
 
 
 ## Action 6: RViz integration test (full stack)
