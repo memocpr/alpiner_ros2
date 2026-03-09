@@ -311,30 +311,6 @@ This script tests:
 - **Integration**: Guard is called during `shouldRotateToGoalHeading` and `shouldRotateToPath` decisions
 - **Fallback behavior**: When rotation is infeasible, controller follows path at minimum velocity instead
 
-### 2. **Focused Unit Tests** ✅
-- **Test File**: `test/test_articulated_guard.cpp`
-- **Test Count**: 9 comprehensive tests
-- **Test Coverage**:
-  - ✅ Non-articulated vehicles can always rotate
-  - ✅ Articulated with sufficient joint angle can rotate
-  - ✅ Articulated with very small angle can still rotate (straight configuration achievable)
-  - ✅ Articulated with negative/invalid angle cannot rotate
-  - ✅ Curvature↔articulation angle mapping produces finite values
-  - ✅ Articulation angle↔curvature bidirectional mapping
-  - ✅ Yaw rate clamping produces finite values and respects limits
-  - ✅ Guard consistency with varying joint angles
-  - ✅ Mode switching between articulated/non-articulated
-- **Status**: ALL TESTS PASSING (9/9)
-
-### 3. **Documentation** ✅
-- **Location**: `README.md` - Added new section "Articulated Vehicle Steering"
-- **Content**:
-  - Explained articulated mode parameters
-  - Documented in-place rotation guard behavior
-  - Listed all articulated-specific parameters with descriptions
-  - Explained fallback behavior for infeasible rotations
-  - Added clarifications on kinematic constraints
-
 ### 4. **Path Smoothing for Articulated Geometry** ✅
 - **Implementation**: Enhanced `smoothArticulatedPath()` in `RegulatedPurePursuitController`
 - **Location**: `nav2_regulated_pure_pursuit_controller/src/regulated_pure_pursuit_controller.cpp`
@@ -358,22 +334,6 @@ This script tests:
 4. **Testing**: Comprehensive edge-case coverage without requiring full node initialization
 5. **Path Smoothing**: Three-stage approach (smooth positions → update orientations → validate curvature)
 
-## Action 5 Status
-
-✅ **All Action 5 items completed:**
-1. ✅ Articulated steering mode with curvature scaling and constraints
-2. ✅ Articulation angle ↔ curvature bidirectional mapping
-3. ✅ Yaw rate clamping based on joint angular velocity limits
-4. ✅ In-place rotation guard for articulated vehicles
-5. ✅ Path smoothing with curvature constraint enforcement
-
-## Build & Test Results
-
-```
-Compilation:  ✅ SUCCESS (no errors)
-Unit Tests:   ✅ SUCCESS (articulated guard: 9/9, path smoothing: 9/9)
-Package:      ✅ BUILDS CLEAN
-```
 
 ## Integration Points
 
