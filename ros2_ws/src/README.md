@@ -1,3 +1,31 @@
+# ros2_application
+
+## Action 1: Interfaces
+
+### Custom Messages (ros2_interfaces)
+
+Package contains 5 custom messages for machine control:
+- `MachineIndAll` - Machine feedback (speed, angles, sensors, timestamps)
+- `MachineIndErrors` - Error and safety flags (emergency stops, sensors)
+- `MachineIndOthers` - Operating mode and status (engine, brake, PPC lock)
+- `MachineSetAll` - Control commands (throttle, brake, steering, gear)
+- `MachineSetOptions` - Additional options (parking brake, auto-dig, kick-down)
+
+Build and check:
+```bash
+cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
+colcon build --packages-select ros2_interfaces
+source install/setup.bash
+ros2 interface list | grep ros2_interfaces
+ros2 interface show ros2_interfaces/msg/MachineIndAll
+```
+
+
+
+
+
+## Action 2: Robot model
+
 # Robot Description Package
 
 ## Robot Specifications
@@ -30,28 +58,6 @@ map
             └── imu_link
 ```
 
-## Interfaces (action 1)
-
-### Custom Messages (ros2_interfaces)
-
-Package contains 5 custom messages for machine control:
-- `MachineIndAll` - Machine feedback (speed, angles, sensors, timestamps)
-- `MachineIndErrors` - Error and safety flags (emergency stops, sensors)
-- `MachineIndOthers` - Operating mode and status (engine, brake, PPC lock)
-- `MachineSetAll` - Control commands (throttle, brake, steering, gear)
-- `MachineSetOptions` - Additional options (parking brake, auto-dig, kick-down)
-
-Build and check:
-```bash
-cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
-colcon build --packages-select ros2_interfaces
-source install/setup.bash
-ros2 interface list | grep ros2_interfaces
-ros2 interface show ros2_interfaces/msg/MachineIndAll
-```
-
-# 
-
 
 ### Visualize in RViz
 
@@ -61,67 +67,7 @@ source install/setup.bash
 ros2 launch robot_description view_robot.launch.py
 ```
 
-### Gazebo Simulation (Action 7)
-
-**Prerequisites**: Install Gazebo and gazebo_ros packages:
-
-```bash
-sudo apt update
-sudo apt install ros-humble-gazebo-ros-pkgs ros-humble-gazebo-ros
-```
-
-**Launch Gazebo simulation**:
-
-```bash
-cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
-source install/setup.bash
-ros2 launch robot_description gazebo.launch.py
-```
-
-**Gazebo features**:
-- Differential drive plugin for cmd_vel consumption
-- Simulated LiDAR sensor (360° scan, 50m range)
-- IMU sensor
-- Ground truth odometry
-- Realistic physics with wheel friction and inertia
-
-**Topics provided by Gazebo**:
-- `/odom` (nav_msgs/Odometry) - Wheel odometry
-- `/scan` (sensor_msgs/LaserScan) - LiDAR data
-- `/imu/data` (sensor_msgs/Imu) - IMU data
-- `/ground_truth/odom` (nav_msgs/Odometry) - Perfect ground truth
-
-**Control interface**:
-- `/cmd_vel` (geometry_msgs/Twist) - Velocity commands
-
-## Integration with Navigation Stack
-
-See `ros2_application/README.md` for complete integration instructions (Action 7).
-
-Quick start with full stack:
-
-```bash
-# Terminal 1: Launch Gazebo
-ros2 launch robot_description gazebo.launch.py
-
-# Terminal 2: Launch full navigation stack
-ros2 launch ros2_application rviz_integration.launch.py \
-  use_sim_odometry:=false \
-  use_sim_imu:=false \
-  use_sim_scan:=false \
-  use_cmd_vel_joint_sim:=false
-```
-
-## Notes
-
-- Gazebo URDF includes collision and inertial properties required for physics simulation
-- Base URDF (komatsu.urdf.xacro) is suitable for RViz visualization and real hardware
-- Articulated steering is simplified to differential drive in Gazebo for initial testing
-- For full articulated steering simulation, future work will add ros2_control integration
-
-# ros2_application
-
-## Robot Description: Inertia Implementation
+### Inertia Implementation
 
 Robot URDF now uses physically accurate inertia calculations following ROS2 best practices:
 
@@ -133,6 +79,10 @@ Robot URDF now uses physically accurate inertia calculations following ROS2 best
 - **Updated** `komatsu.urdf.xacro` and `wheels.xacro` to use inertia macros instead of hardcoded values
 
 - **Result**: Chassis and wheels now have correct inertia tensors calculated from actual geometry, improving Gazebo physics simulation accuracy
+
+
+
+
 
 ## Action 3: Localization pipeline (UKF)
 
@@ -169,6 +119,9 @@ ros2 launch ros2_application localization.launch.py
   - `use_sim_odometry:=false`
   - `use_sim_imu:=false`
 - **Simulation behavior**: `sim_odometry_publisher` integrates `/cmd_vel` into `/odometry/raw` (with timeout), and `sim_imu_publisher` stays simple/static for local testing.
+
+
+
 
 ## Action 4: Mapping pipeline (RTAB-Map)
 
@@ -218,168 +171,8 @@ ros2 launch ros2_application mapping_hw.launch.py scan_topic:=/your_real_scan_to
 - **Simulation behavior**: `sim_scan_publisher` provides a static environment (fixed walls and obstacles). No dynamic obstacles that could trigger false motion detection.
 - RTAB-Map local test now uses `/tmp/rtabmap_action6.db` with `delete_db_on_start=true` to avoid stale DB conflicts during repeated launch/stop cycles.
 
-## Action 5: Nav2 baseline for articulated-steering customization
-
-This workspace now uses a local Nav2 source repo at:
-
-- `src/navigation2`
-
-Baseline integration changes for Action 5:
-
-- `nav2_bringup/params/nav2_params.yaml`
-  - `bt_navigator.odom_topic` set to `/odometry/filtered`
-  - `controller_server.FollowPath.plugin` switched to `nav2_regulated_pure_pursuit_controller`
-  - added RPP articulated-mode parameters:
-    - `use_articulated_steering_mode` (default `false`)
-    - `articulated_curvature_scale` (default `1.0`)
-    - `articulated_min_turning_radius` (default `0.0`, disabled)
-    - `articulated_wheelbase` (default `3.03`)
-    - `articulated_max_joint_angle` (default `0.35`)
-    - `articulated_max_joint_angular_velocity` (default `0.196`)
-    - `use_articulated_yaw_rate_clamp` (default `true`)
-    - `use_articulated_path_smoothing` (default `false`)
-    - `articulated_path_smoothing_window` (default `3`, odd >= 3)
-- `planner_server` remains `GridBased` (`nav2_navfn_planner/NavfnPlanner`) for stable baseline before articulated-specific planner changes
-
-### Build (focused)
-
-```bash
-cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
-source /opt/ros/humble/setup.bash
-colcon build --symlink-install \
-  --packages-select nav2_planner nav2_regulated_pure_pursuit_controller \
-  --allow-overriding nav2_planner nav2_regulated_pure_pursuit_controller
-source install/setup.bash
-```
-
-### Run Nav2 bringup with current baseline params
-
-```bash
-cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
-source /opt/ros/humble/setup.bash
-source install/setup.bash
-ros2 launch nav2_bringup navigation_launch.py \
-  use_sim_time:=true \
-  params_file:=/home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/navigation2/nav2_bringup/params/nav2_params.yaml
-```
-
-### Notes
-
-- Keep Action 5 changes minimal and incremental: first parameter-level baseline, then gated code updates in RPP/planner.
-- For local test flow: launch Action 3 and Action 4 first so `/odometry/filtered`, `/scan`, and map TF chain are available.
-- RPP articulated hooks now include:
-  - curvature scaling and min-turning-radius clamp
-  - curvature <-> articulation-angle mapping with max joint angle constraint
-  - articulation-aware yaw-rate clamp based on max joint angular velocity
-  - rotate-to-path in-place guard when articulated mode is enabled
-  - optional local path smoothing (default off)
-- Dynamic parameter validation now rejects:
-  - `articulated_curvature_scale <= 0`
-  - `articulated_min_turning_radius < 0`
-  - `articulated_wheelbase <= 0`
-  - `articulated_max_joint_angle <= 0` or `>= pi/2`
-  - `articulated_max_joint_angular_velocity <= 0`
-  - `articulated_path_smoothing_window` not odd or `< 3`
-  - inconsistent turning radius vs wheelbase/joint-angle limits
-- Default behavior parity is preserved when articulated mode is disabled (`false`).
-- **Kinematics relationship**: `articulated_wheelbase` and `articulated_max_joint_angle` jointly determine the achievable minimum turning radius via:
-  - `min_radius_achievable = wheelbase / (2.0 * sin(max_joint_angle / 2.0))`
-  - Current defaults: 3.03 m wheelbase + 0.35 rad max angle ≈ 8.72 m minimum achievable radius
-  - If `articulated_min_turning_radius` is set (> 0), it must not exceed this achievable minimum; otherwise validation will warn
-
-### Quick runtime test
-
-After launching Nav2, test articulated parameter validation:
-
-```bash
-cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
-./src/ros2_application/scripts/test_articulated_params.sh
-```
-
-This script validates:
-- Valid/invalid articulated curvature and turning-radius updates
-- Valid/invalid articulated wheelbase and joint limits
-- Articulated mode and yaw-rate clamp toggles
-- Valid/invalid path-smoothing parameter updates
-
-Test path smoothing functionality:
-
-```bash
-cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
-./src/ros2_application/scripts/test_path_smoothing.sh
-```
-
-This script tests:
-- Enabling/disabling path smoothing
-- Valid/invalid smoothing window sizes (must be odd, >= 3)
-- Minimum turning radius constraint integration
-- Parameter configuration and validation
 
 
-# Action 5 Completion Summary - Articulated Vehicle Path Tracking
-
-## Completed in This Session
-
-### 1. **Articulated In-Place Rotation Guard** ✅
-- **Implementation**: Added `canArticulatedRotateInPlace()` method to `RegulatedPurePursuitController`
-- **Location**: `nav2_regulated_pure_pursuit_controller/src/regulated_pure_pursuit_controller.cpp`
-- **Functionality**:
-  - Prevents infeasible in-place rotations for articulated vehicles
-  - Returns `true` if:
-    - Articulated mode is disabled, OR
-    - Steering joint can reach straight-ahead configuration (max_joint_angle > 0)
-  - Returns `false` if max_joint_angle ≤ 0 (rigid joint, no steering possible)
-- **Integration**: Guard is called during `shouldRotateToGoalHeading` and `shouldRotateToPath` decisions
-- **Fallback behavior**: When rotation is infeasible, controller follows path at minimum velocity instead
-
-### 4. **Path Smoothing for Articulated Geometry** ✅
-- **Implementation**: Enhanced `smoothArticulatedPath()` in `RegulatedPurePursuitController`
-- **Location**: `nav2_regulated_pure_pursuit_controller/src/regulated_pure_pursuit_controller.cpp`
-- **Functionality**:
-  - Moving average smoothing applied to both X and Y coordinates (preserves endpoints)
-  - Orientation updates to align with smoothed path segments
-  - Curvature validation using Menger curvature formula
-  - Automatic correction when curvature exceeds `articulated_min_turning_radius` constraint
-  - Blends back toward original path when turns are too sharp
-- **Parameters**:
-  - `use_articulated_path_smoothing` (default `false`) - Enable/disable smoothing
-  - `articulated_path_smoothing_window` (default `3`, odd >= 3) - Smoothing window size
-  - `articulated_min_turning_radius` (default `0.0`) - Used to validate/constrain curvature
-- **Test Coverage**: `test_path_smoothing.cpp` with 9 comprehensive tests
-
-## Key Design Decisions
-
-1. **Guard Logic**: Simple and robust - checks if max_joint_angle allows zero steering angle
-2. **Error Handling**: Graceful fallback to path-following with throttled warnings
-3. **Parameter Validation**: Guard integrates seamlessly with existing articulated mode logic
-4. **Testing**: Comprehensive edge-case coverage without requiring full node initialization
-5. **Path Smoothing**: Three-stage approach (smooth positions → update orientations → validate curvature)
-
-
-## Integration Points
-
-The guard is integrated at two critical decision points in `computeVelocityCommands`:
-
-1. **`shouldRotateToGoalHeading` branch**: Checks before rotating to goal orientation
-2. **`shouldRotateToPath` branch**: Checks before rotating to path heading
-
-Both use the same guard pattern:
-```cpp
-if (canArticulatedRotateInPlace()) {
-  rotateToHeading(...);  // Safe to command rotation
-} else {
-  // Fallback: follow path at minimum velocity
-  applyConstraints(...);
-  RCLCPP_WARN_THROTTLE(..., "Cannot rotate...");
-}
-```
-
-**Path smoothing integration**:
-```cpp
-if (use_articulated_steering_mode_ && use_articulated_path_smoothing_) {
-  smoothArticulatedPath(transformed_plan);
-}
-```
 
 ## Action 6: RViz integration test (full stack)
 
@@ -488,7 +281,53 @@ Expected behavior when Nav2 goal is active:
 - `rviz_integration.launch.py` now prints startup diagnostics for sim source flags and topic wiring (`odom_topic`, `scan_topic`) to simplify launch-time debugging.
 - In this Action 6 SLAM flow, Nav2 AMCL/map_server lifecycle is not started (Nav2 panel may show localization as disabled).
 
+
+
+
+
 ## Action 7: Gazebo + RViz quick run
+
+### Gazebo Simulation (Action 7)
+
+**Prerequisites**: Install Gazebo and gazebo_ros packages:
+
+```bash
+sudo apt update
+sudo apt install ros-humble-gazebo-ros-pkgs ros-humble-gazebo-ros
+```
+
+**Launch Gazebo simulation**:
+
+```bash
+cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
+source install/setup.bash
+ros2 launch robot_description gazebo.launch.py
+```
+
+**Gazebo features**:
+- Differential drive plugin for cmd_vel consumption
+- Simulated LiDAR sensor (360° scan, 50m range)
+- IMU sensor
+- Ground truth odometry
+- Realistic physics with wheel friction and inertia
+
+**Topics provided by Gazebo**:
+- `/odom` (nav_msgs/Odometry) - Wheel odometry
+- `/scan` (sensor_msgs/LaserScan) - LiDAR data
+- `/imu/data` (sensor_msgs/Imu) - IMU data
+- `/ground_truth/odom` (nav_msgs/Odometry) - Perfect ground truth
+
+**Control interface**:
+- `/cmd_vel` (geometry_msgs/Twist) - Velocity commands
+
+## Notes
+
+- Gazebo URDF includes collision and inertial properties required for physics simulation
+- Base URDF (komatsu.urdf.xacro) is suitable for RViz visualization and real hardware
+- Articulated steering is simplified to differential drive in Gazebo for initial testing
+- For full articulated steering simulation, future work will add ros2_control integration
+
+
 
 ### Quick start (recommended)
 
