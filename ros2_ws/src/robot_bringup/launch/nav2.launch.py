@@ -10,6 +10,7 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time')
     params_file = LaunchConfiguration('params_file')
     map_file = LaunchConfiguration('map')
+    autostart = LaunchConfiguration('autostart')
 
     nav2_bringup_dir = get_package_share_directory('nav2_bringup')
     robot_bringup_dir = get_package_share_directory('robot_bringup')
@@ -45,12 +46,17 @@ def generate_launch_description():
             'map',
             default_value=default_map_file
         ),
+        DeclareLaunchArgument(
+            'autostart',
+            default_value='true'
+        ),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(nav2_launch),
             launch_arguments={
                 'use_sim_time': use_sim_time,
                 'params_file': params_file,
-                'map': map_file
+                'map': map_file,
+                'autostart': autostart
             }.items()
         )
     ])
