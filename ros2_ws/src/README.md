@@ -247,6 +247,17 @@ Expected:
 **Output**:
 - `/cmd_vel` (geometry_msgs/Twist) - velocity commands
 
+### Check lifecycle states:
+
+```bash
+ros2 lifecycle get /controller_server
+ros2 lifecycle get /planner_server
+ros2 lifecycle get /bt_navigator
+```
+expected state: `active [3]`
+
+Meaning: the Nav2 stack is operational and ready for navigation.
+
 ### Notes
 
 - Nav2 is configured for articulated vehicle dynamics
