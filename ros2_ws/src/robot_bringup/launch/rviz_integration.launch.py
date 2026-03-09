@@ -17,9 +17,10 @@ def generate_launch_description():
     ros2_app_dir = get_package_share_directory('ros2_application')
     robot_desc_dir = get_package_share_directory('robot_description')
     nav2_bringup_dir = get_package_share_directory('nav2_bringup')
+    bringup_dir = get_package_share_directory('robot_bringup')
 
     urdf_file = os.path.join(robot_desc_dir, 'urdf', 'komatsu.urdf.xacro')
-    nav2_params_file = os.path.join(nav2_bringup_dir, 'params', 'nav2_params.yaml')
+    nav2_params_file = os.path.join(bringup_dir, 'config', 'nav2_params.yaml')
     nav2_rviz_config = os.path.join(nav2_bringup_dir, 'rviz', 'nav2_default_view.rviz')
 
     use_sim_time = DeclareLaunchArgument(
