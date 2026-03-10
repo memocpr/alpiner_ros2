@@ -284,11 +284,12 @@ This launch starts:
 ### Build and run
 
 ```bash
+pkill -f ros2 || true
 cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
-source /opt/ros/humble/setup.bash
 colcon build --packages-select ros2_application robot_bringup robot_description
+source /opt/ros/humble/setup.bash
 source install/setup.bash
-ros2 launch robot_bringup komatsu_rviz_integration.launch.py
+ros2 launch robot_bringup komatsu_rviz_integration.launch.py source_mode:=sim
 ```
 
 ### Step-by-step checks (Action 6)
