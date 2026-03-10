@@ -423,4 +423,5 @@ In RViz:
 Notes:
 - Keep `use_sim_time:=true` for all launched nodes.
 - Terminal 1 is Gazebo-only for this split workflow.
+- With `use_sim_odometry:=false`, localization now uses Gazebo `/odom` directly for UKF odometry input.
 - Do not run `komatsu_rviz_integration.launch.py` together with separate Action 3/4/5 terminals.

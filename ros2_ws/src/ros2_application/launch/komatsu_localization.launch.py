@@ -2,7 +2,7 @@
 import os
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.conditions import IfCondition
+from launch.conditions import IfCondition, UnlessCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
@@ -32,7 +32,7 @@ def generate_launch_description():
         description='Use simulated IMU input',
     )
 
-    ukf_node = Node(
+    ukf_node_sim = Node(
         package='robot_localization',
         executable='ukf_node',
         name='ukf_filter_node',
@@ -40,6 +40,19 @@ def generate_launch_description():
         parameters=[ukf_params_file, {
             'use_sim_time': LaunchConfiguration('use_sim_time'),
         }],
+        condition=IfCondition(LaunchConfiguration('use_sim_odometry')),
+    )
+
+    ukf_node_gazebo = Node(
+        package='robot_localization',
+        executable='ukf_node',
+        name='ukf_filter_node',
+        output='screen',
+        parameters=[ukf_params_file, {
+            'use_sim_time': LaunchConfiguration('use_sim_time'),
+            'odom0': '/odom',
+        }],
+        condition=UnlessCondition(LaunchConfiguration('use_sim_odometry')),
     )
 
     sim_odometry_node = Node(
@@ -68,7 +81,8 @@ def generate_launch_description():
         use_sim_time,
         use_sim_odometry,
         use_sim_imu,
-        ukf_node,
+        ukf_node_sim,
+        ukf_node_gazebo,
         sim_odometry_node,
         sim_imu_node,
     ])
