@@ -285,8 +285,8 @@ This launch starts:
 
 ```bash
 cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
-colcon build
 source /opt/ros/humble/setup.bash
+colcon build --packages-select ros2_application robot_bringup robot_description
 source install/setup.bash
 ros2 launch robot_bringup komatsu_rviz_integration.launch.py
 ```
