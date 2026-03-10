@@ -16,8 +16,9 @@ def generate_launch_description():
     ros2_app_dir = get_package_share_directory('ros2_application')
     nav2_bringup_dir = get_package_share_directory('nav2_bringup')
     gazebo_ros_dir = get_package_share_directory('gazebo_ros')
+    bringup_dir = get_package_share_directory('robot_bringup')
 
-    nav2_params_file = os.path.join(nav2_bringup_dir, 'params', 'nav2_params.yaml')
+    nav2_params_file = os.path.join(bringup_dir, 'config', 'nav2_params.yaml')
     nav2_rviz_config = os.path.join(nav2_bringup_dir, 'rviz', 'nav2_default_view.rviz')
 
     use_sim_time = DeclareLaunchArgument(
@@ -43,7 +44,7 @@ def generate_launch_description():
     # Localization (no sim sources, use Gazebo sensors)
     localization_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(ros2_app_dir, 'launch', 'localization.launch.py')
+            os.path.join(ros2_app_dir, 'launch', '../../ros2_application/launch/localization.launch.py')
         ),
         launch_arguments={
             'use_sim_time': 'true',
@@ -55,7 +56,7 @@ def generate_launch_description():
     # Mapping (no sim scan, use Gazebo lidar)
     mapping_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(ros2_app_dir, 'launch', 'mapping.launch.py')
+            os.path.join(ros2_app_dir, 'launch', '../../ros2_application/launch/mapping.launch.py')
         ),
         launch_arguments={
             'use_sim_time': 'true',

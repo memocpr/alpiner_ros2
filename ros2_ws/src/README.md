@@ -409,31 +409,7 @@ ros2 launch robot_description gazebo.launch.py
 
 
 
-### Quick start (recommended)
-
-```bash
-# Terminal 1: Build and launch
-cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
-colcon build --packages-select robot_description ros2_application
-/home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws/launch_action7.sh
-```
-
-Expect 15-30 seconds for all components to initialize (Gazebo, RViz, Nav2, etc.).
-
-```bash
-# Terminal 2: Send navigation goal programmatically
-cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
-source /opt/ros/humble/setup.bash
-source install/setup.bash
-ros2 run ros2_application send_nav_goal.py
-```
-
-Alternatively, use RViz (GUI):
-- Click `2D Pose Estimate`, set initial pose (origin)
-- Click `Nav2 Goal`, set a simple goal
-- Watch robot move in both Gazebo and RViz
-
-### Option B: Separate terminals (for debugging)
+### Quick start separate terminals (for debugging)
 
 Run in 5 terminals (same workspace and sourced environment):
 
