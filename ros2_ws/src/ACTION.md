@@ -194,7 +194,7 @@ ros2 launch robot_bringup komatsu_nav2.launch.py
 
 ### Configuration
 
-Main config: `robot_bringup/config/nav2_params.yaml`
+Main config: `robot_bringup/config/komatsu_nav2_params.yaml`
 
 **Planner Server (SmacPlannerHybrid)**:
 - Expected frequency: 20 Hz
@@ -366,9 +366,10 @@ sudo apt install ros-humble-gazebo-ros-pkgs ros-humble-gazebo-ros
 Run in 5 terminals (same workspace and sourced environment):
 
 ```bash
-# Terminal 1: Gazebo
+# Terminal 1: Gazebo only
+pkill -f ros2 || true
 cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
-colcon build 
+colcon build
 source /opt/ros/humble/setup.bash
 source install/setup.bash
 ros2 launch robot_bringup komatsu_gazebo.launch.py
@@ -402,7 +403,7 @@ source /opt/ros/humble/setup.bash
 source install/setup.bash
 ros2 launch nav2_bringup navigation_launch.py \
   use_sim_time:=true \
-  params_file:=/home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/navigation2/nav2_bringup/params/komatsu_nav2_params.yaml
+  params_file:=/home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/robot_bringup/config/komatsu_nav2_params.yaml
 ```
 
 ```bash
@@ -421,4 +422,5 @@ In RViz:
 
 Notes:
 - Keep `use_sim_time:=true` for all launched nodes.
-- Do not run `rviz_integration.launch.py` together with separate Action 3/4 terminals.
+- Terminal 1 is Gazebo-only for this split workflow.
+- Do not run `komatsu_rviz_integration.launch.py` together with separate Action 3/4/5 terminals.

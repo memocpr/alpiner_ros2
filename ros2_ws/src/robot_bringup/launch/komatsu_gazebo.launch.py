@@ -1,97 +1,79 @@
-"""Action 7 launch: Gazebo + Localization + Mapping + Nav2 + RViz (all-in-one)."""
+"""Action 7 launch: Gazebo-only bringup for the split-terminal workflow."""
 import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 
 
 def generate_launch_description():
-    """Generate Action 7 Gazebo + full stack launch."""
+    """Generate Gazebo-only launch description for Action 7 Terminal 1."""
 
     robot_desc_dir = get_package_share_directory('robot_description')
-    ros2_app_dir = get_package_share_directory('ros2_application')
-    nav2_bringup_dir = get_package_share_directory('nav2_bringup')
     gazebo_ros_dir = get_package_share_directory('gazebo_ros')
-    bringup_dir = get_package_share_directory('robot_bringup')
 
-    nav2_params_file = os.path.join(bringup_dir, 'config', 'komatsu_nav2_params.yaml')
-    nav2_rviz_config = os.path.join(nav2_bringup_dir, 'rviz', 'nav2_default_view.rviz')
+    urdf_file = os.path.join(robot_desc_dir, 'urdf', 'komatsu_gazebo.urdf.xacro')
 
     use_sim_time = DeclareLaunchArgument(
         'use_sim_time',
         default_value='true',
-        description='Use simulation time',
+        description='Use simulation clock',
     )
 
-    params_file = DeclareLaunchArgument(
-        'params_file',
-        default_value=nav2_params_file,
-        description='Nav2 params file',
+    robot_description_content = ParameterValue(
+        Command(['xacro ', urdf_file]),
+        value_type=str,
     )
 
-    # Gazebo (robot_description/komatsu_gazebo.launch.py)
-    gazebo_launch = IncludeLaunchDescription(
+    robot_state_publisher = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        name='robot_state_publisher',
+        output='screen',
+        parameters=[{
+            'robot_description': robot_description_content,
+            'use_sim_time': LaunchConfiguration('use_sim_time'),
+        }],
+    )
+
+    joint_state_publisher = Node(
+        package='joint_state_publisher',
+        executable='joint_state_publisher',
+        name='joint_state_publisher',
+        output='screen',
+        parameters=[{
+            'use_sim_time': LaunchConfiguration('use_sim_time'),
+        }],
+    )
+
+    gazebo_server = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(robot_desc_dir, 'launch', 'komatsu_gazebo.launch.py')
+            os.path.join(gazebo_ros_dir, 'launch', 'gzserver.launch.py')
         ),
-        launch_arguments={'use_sim_time': 'true'}.items(),
     )
 
-    # Localization (no sim sources, use Gazebo sensors)
-    localization_launch = IncludeLaunchDescription(
+    gazebo_client = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(ros2_app_dir, 'launch', '../../ros2_application/launch/komatsu_localization.launch.py')
+            os.path.join(gazebo_ros_dir, 'launch', 'gzclient.launch.py')
         ),
-        launch_arguments={
-            'use_sim_time': 'true',
-            'use_sim_odometry': 'false',
-            'use_sim_imu': 'false',
-        }.items(),
     )
 
-    # Mapping (no sim scan, use Gazebo lidar)
-    mapping_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(ros2_app_dir, 'launch', '../../ros2_application/launch/komatsu_mapping.launch.py')
-        ),
-        launch_arguments={
-            'use_sim_time': 'true',
-            'use_sim_scan': 'false',
-        }.items(),
-    )
-
-    # Nav2
-    nav2_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(nav2_bringup_dir, 'launch', 'navigation_launch.py')
-        ),
-        launch_arguments={
-            'use_sim_time': 'true',
-            'params_file': LaunchConfiguration('params_file'),
-        }.items(),
-    )
-
-    # RViz
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        arguments=['-d', nav2_rviz_config],
-        parameters=[{'use_sim_time': True}],
+    spawn_robot = Node(
+        package='gazebo_ros',
+        executable='spawn_entity.py',
+        arguments=['-entity', 'komatsu', '-topic', 'robot_description'],
         output='screen',
     )
 
     return LaunchDescription([
         use_sim_time,
-        params_file,
-        gazebo_launch,
-        localization_launch,
-        mapping_launch,
-        nav2_launch,
-        rviz_node,
+        robot_state_publisher,
+        joint_state_publisher,
+        gazebo_server,
+        gazebo_client,
+        spawn_robot,
     ])
-
