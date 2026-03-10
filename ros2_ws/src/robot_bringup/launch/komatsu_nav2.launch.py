@@ -18,7 +18,7 @@ def generate_launch_description():
     default_params_file = os.path.join(
         robot_bringup_dir,
         'config',
-        'nav2_params.yaml'
+        'komatsu_nav2_params.yaml'
     )
 
     default_map_file = os.path.join(

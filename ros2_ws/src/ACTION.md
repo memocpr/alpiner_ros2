@@ -64,7 +64,7 @@ map
 ```bash
 cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source install/setup.bash
-ros2 launch robot_description view_robot.launch.py
+ros2 launch robot_description komatsu_view_robot.launch.py
 ```
 
 ### Inertia Implementation
@@ -109,7 +109,7 @@ This package now includes a minimal local-test localization setup:
 cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application
 source install/setup.bash
-ros2 launch ros2_application localization.launch.py
+ros2 launch ros2_application komatsu_localization.launch.py
 ```
 
 ### Notes
@@ -148,7 +148,7 @@ This package now includes a minimal local-test mapping setup:
 cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application
 source install/setup.bash
-ros2 launch ros2_application mapping.launch.py
+ros2 launch ros2_application komatsu_mapping.launch.py
 ```
 
 ### Hardware Adaptation
@@ -157,10 +157,10 @@ Switch from simulated to real sensor input:
 
 ```bash
 # Option A: Disable sim scan, remap to real topic
-ros2 launch ros2_application mapping.launch.py use_sim_scan:=false scan_topic:=/your_real_scan_topic
+ros2 launch ros2_application komatsu_mapping.launch.py use_sim_scan:=false scan_topic:=/your_real_scan_topic
 
 # Option B: Use dedicated hardware launch (cleaner)
-ros2 launch ros2_application mapping_hw.launch.py scan_topic:=/your_real_scan_topic laser_frame:=/your_laser_frame
+ros2 launch ros2_application komatsu_mapping_hw.launch.py scan_topic:=/your_real_scan_topic laser_frame:=/your_laser_frame
 ```
 
 ### Notes
@@ -189,7 +189,7 @@ Nav2 navigation stack configured with:
 cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select robot_bringup
 source install/setup.bash
-ros2 launch robot_bringup nav2.launch.py
+ros2 launch robot_bringup komatsu_nav2.launch.py
 ```
 
 ### Configuration
@@ -271,7 +271,7 @@ Meaning: the Nav2 stack is operational and ready for navigation.
 
 New launch file:
 
-- `launch/action6_rviz_integration.launch.py`
+- `launch/komatsu_rviz_integration.launch.py`
 
 This launch starts:
 
@@ -285,10 +285,10 @@ This launch starts:
 
 ```bash
 cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
+colcon build
 source /opt/ros/humble/setup.bash
-colcon build --packages-select ros2_application
 source install/setup.bash
-ros2 launch ros2_application rviz_integration.launch.py
+ros2 launch robot_bringup komatsu_rviz_integration.launch.py
 ```
 
 ### Step-by-step checks (Action 6)
@@ -310,50 +310,11 @@ ros2 topic echo /map --once
 ros2 topic echo /scan --once
 ```
 
-### Joint animation in RViz (Action 6)
-
-`rviz_integration.launch.py` now enables a lightweight joint simulator by default:
-
-- Node: `cmd_vel_joint_state_publisher`
-- Input: `/cmd_vel` (configurable via `joint_cmd_topic`)
-- Output: `/joint_states`
-- Animated joints:
-  - `articulation_to_front`
-  - `front_left_wheel_joint`
-  - `front_right_wheel_joint`
-  - `rear_left_wheel_joint`
-  - `rear_right_wheel_joint`
-
-This allows wheel/articulation motion in RViz when a Nav2 goal is active, without `ros2_control`.
-
-Example (use smoothed command topic):
-
-```bash
-ros2 launch ros2_application rviz_integration.launch.py joint_cmd_topic:=/cmd_vel
-```
-
-Optional (use raw controller output):
-
-```bash
-ros2 launch ros2_application rviz_integration.launch.py joint_cmd_topic:=/cmd_vel_nav
-```
-
-Disable this simulator and fall back to static `joint_state_publisher`:
-
-```bash
-ros2 launch ros2_application rviz_integration.launch.py use_cmd_vel_joint_sim:=false
-```
-
 ### Notes
 
 - This Action 6 flow does **not** include P12 or `ros2_control`.
 - For hardware scan input, disable sim scan and set topic:
 
-```bash
-ros2 launch ros2_application rviz_integration.launch.py \
-  use_sim_scan:=false \
-  scan_topic:=/your_real_scan_topic
-```
 
 ### Action 6 troubleshooting note
 
@@ -367,21 +328,11 @@ ros2 launch ros2_application rviz_integration.launch.py \
 
 ## Action 7: Gazebo + RViz quick run
 
-### Gazebo Simulation (Action 7)
-
 **Prerequisites**: Install Gazebo and gazebo_ros packages:
 
 ```bash
 sudo apt update
 sudo apt install ros-humble-gazebo-ros-pkgs ros-humble-gazebo-ros
-```
-
-**Launch Gazebo simulation**:
-
-```bash
-cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
-source install/setup.bash
-ros2 launch robot_description gazebo.launch.py
 ```
 
 **Gazebo features**:
@@ -419,7 +370,7 @@ cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build 
 source /opt/ros/humble/setup.bash
 source install/setup.bash
-ros2 launch robot_description gazebo.launch.py
+ros2 launch robot_bringup komatsu_gazebo.launch.py
 ```
 
 ```bash
@@ -427,7 +378,7 @@ ros2 launch robot_description gazebo.launch.py
 cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source /opt/ros/humble/setup.bash
 source install/setup.bash
-ros2 launch ros2_application localization.launch.py \
+ros2 launch ros2_application komatsu_localization.launch.py \
   use_sim_time:=true \
   use_sim_odometry:=false \
   use_sim_imu:=false
@@ -438,7 +389,7 @@ ros2 launch ros2_application localization.launch.py \
 cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source /opt/ros/humble/setup.bash
 source install/setup.bash
-ros2 launch ros2_application mapping.launch.py \
+ros2 launch ros2_application komatsu_mapping.launch.py \
   use_sim_time:=true \
   use_sim_scan:=false
 ```
@@ -450,7 +401,7 @@ source /opt/ros/humble/setup.bash
 source install/setup.bash
 ros2 launch nav2_bringup navigation_launch.py \
   use_sim_time:=true \
-  params_file:=/home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/navigation2/nav2_bringup/params/nav2_params.yaml
+  params_file:=/home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/navigation2/nav2_bringup/params/komatsu_nav2_params.yaml
 ```
 
 ```bash

@@ -17,7 +17,7 @@ install(
 )
 
 install(
-        PROGRAMS launch/view_robot.launch.py launch/gazebo.launch.py
+        PROGRAMS launch/komatsu_view_robot.launch.py
         DESTINATION share/${PROJECT_NAME}/launch
 )
 

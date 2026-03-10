@@ -20,7 +20,7 @@ def generate_launch_description():
     bringup_dir = get_package_share_directory('robot_bringup')
 
     urdf_file = os.path.join(robot_desc_dir, 'urdf', 'komatsu.urdf.xacro')
-    nav2_params_file = os.path.join(bringup_dir, 'config', 'nav2_params.yaml')
+    nav2_params_file = os.path.join(bringup_dir, 'config', 'komatsu_nav2_params.yaml')
     nav2_rviz_config = os.path.join(nav2_bringup_dir, 'rviz', 'nav2_default_view.rviz')
 
     use_sim_time = DeclareLaunchArgument(
@@ -138,7 +138,7 @@ def generate_launch_description():
 
     localization_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(ros2_app_dir, 'launch', '../../ros2_application/launch/localization.launch.py')
+            os.path.join(ros2_app_dir, 'launch', '../../ros2_application/launch/komatsu_localization.launch.py')
         ),
         launch_arguments={
             'use_sim_time': LaunchConfiguration('use_sim_time'),
@@ -149,7 +149,7 @@ def generate_launch_description():
 
     mapping_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(ros2_app_dir, 'launch', '../../ros2_application/launch/mapping.launch.py')
+            os.path.join(ros2_app_dir, 'launch', '../../ros2_application/launch/komatsu_mapping.launch.py')
         ),
         launch_arguments={
             'use_sim_time': LaunchConfiguration('use_sim_time'),

@@ -18,7 +18,7 @@ def generate_launch_description():
     gazebo_ros_dir = get_package_share_directory('gazebo_ros')
     bringup_dir = get_package_share_directory('robot_bringup')
 
-    nav2_params_file = os.path.join(bringup_dir, 'config', 'nav2_params.yaml')
+    nav2_params_file = os.path.join(bringup_dir, 'config', 'komatsu_nav2_params.yaml')
     nav2_rviz_config = os.path.join(nav2_bringup_dir, 'rviz', 'nav2_default_view.rviz')
 
     use_sim_time = DeclareLaunchArgument(
@@ -33,10 +33,10 @@ def generate_launch_description():
         description='Nav2 params file',
     )
 
-    # Gazebo (robot_description/gazebo.launch.py)
+    # Gazebo (robot_description/komatsu_gazebo.launch.py)
     gazebo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(robot_desc_dir, 'launch', 'gazebo.launch.py')
+            os.path.join(robot_desc_dir, 'launch', 'komatsu_gazebo.launch.py')
         ),
         launch_arguments={'use_sim_time': 'true'}.items(),
     )
@@ -44,7 +44,7 @@ def generate_launch_description():
     # Localization (no sim sources, use Gazebo sensors)
     localization_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(ros2_app_dir, 'launch', '../../ros2_application/launch/localization.launch.py')
+            os.path.join(ros2_app_dir, 'launch', '../../ros2_application/launch/komatsu_localization.launch.py')
         ),
         launch_arguments={
             'use_sim_time': 'true',
@@ -56,7 +56,7 @@ def generate_launch_description():
     # Mapping (no sim scan, use Gazebo lidar)
     mapping_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(ros2_app_dir, 'launch', '../../ros2_application/launch/mapping.launch.py')
+            os.path.join(ros2_app_dir, 'launch', '../../ros2_application/launch/komatsu_mapping.launch.py')
         ),
         launch_arguments={
             'use_sim_time': 'true',
