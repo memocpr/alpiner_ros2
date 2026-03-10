@@ -302,6 +302,13 @@ ros2 launch ros2_application rviz_integration.launch.py
 ```bash
 ros2 topic echo /cmd_vel
 ```
+```bash
+ros2 topic echo /map --once
+```
+
+```bash
+ros2 topic echo /scan --once
+```
 
 ### Joint animation in RViz (Action 6)
 
@@ -347,26 +354,6 @@ ros2 launch ros2_application rviz_integration.launch.py \
   use_sim_scan:=false \
   scan_topic:=/your_real_scan_topic
 ```
-
-### Quick verification (robot should be static)
-
-After launching, verify the robot is idle without goals:
-
-```bash
-cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
-./src/ros2_application/scripts/action6_quick_check.sh
-```
-
-Expected static behavior:
-- Filtered odometry velocity: ~0
-- `/cmd_vel` stays near zero
-- Joint positions hold last state
-
-Expected behavior when Nav2 goal is active:
-- Robot moves toward goal in RViz
-- Articulation joint reflects turning (non-zero when turning, zero when straight)
-- Wheel joints rotate continuously in direction of motion
-- Joints hold their position when robot stops (wheels keep rotation angle, articulation returns to zero)
 
 ### Action 6 troubleshooting note
 
