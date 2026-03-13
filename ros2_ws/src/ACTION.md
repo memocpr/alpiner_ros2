@@ -403,6 +403,7 @@ source /opt/ros/humble/setup.bash
 source install/setup.bash
 ros2 launch nav2_bringup navigation_launch.py \
   use_sim_time:=true \
+  autostart:=true \
   params_file:=/home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/robot_bringup/config/komatsu_nav2_params.yaml
 ```
 
@@ -424,4 +425,11 @@ Notes:
 - Keep `use_sim_time:=true` for all launched nodes.
 - Terminal 1 is Gazebo-only for this split workflow.
 - With `use_sim_odometry:=false`, localization now uses Gazebo `/odom` directly for UKF odometry input.
+- Use `autostart:=true` in Terminal 4 so Nav2 lifecycle nodes activate automatically.
 - Do not run `komatsu_rviz_integration.launch.py` together with separate Action 3/4/5 terminals.
+- If Nav2 is still inactive, check:
+```bash
+ros2 lifecycle get /bt_navigator
+ros2 lifecycle get /controller_server
+ros2 lifecycle get /planner_server
+```
