@@ -146,9 +146,9 @@ This package now includes a minimal local-test mapping setup:
 
 ```bash
 cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
-colcon build --packages-select ros2_application
+source /opt/ros/humble/setup.bash
 source install/setup.bash
-ros2 launch ros2_application komatsu_mapping.launch.py
+ros2 launch ros2_application komatsu_localization.launch.py
 ```
 
 ### Hardware Adaptation
