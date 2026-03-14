@@ -13,7 +13,7 @@ Package contains 5 custom messages for machine control:
 
 Build and check:
 ```bash
-cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_interfaces
 source install/setup.bash
 ros2 interface list | grep ros2_interfaces
@@ -62,7 +62,7 @@ map
 ### Visualize in RViz
 
 ```bash
-cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source install/setup.bash
 ros2 launch robot_description komatsu_view_robot.launch.py
 ```
@@ -106,7 +106,7 @@ This package now includes a minimal local-test localization setup:
 ### Run
 
 ```bash
-cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application
 source install/setup.bash
 ros2 launch ros2_application komatsu_localization.launch.py
@@ -145,7 +145,7 @@ This package now includes a minimal local-test mapping setup:
 ### Run
 
 ```bash
-cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application
 source install/setup.bash
 ros2 launch ros2_application komatsu_mapping.launch.py
@@ -186,7 +186,7 @@ Nav2 navigation stack configured with:
 ### Launch
 
 ```bash
-cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select robot_bringup
 source install/setup.bash
 ros2 launch robot_bringup komatsu_nav2.launch.py
@@ -285,7 +285,7 @@ This launch starts:
 
 ```bash
 pkill -f ros2 || true
-cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application robot_bringup robot_description
 source /opt/ros/humble/setup.bash
 source install/setup.bash
@@ -368,7 +368,7 @@ Run in 5 terminals (same workspace and sourced environment):
 ```bash
 # Terminal 1: Gazebo only
 pkill -f ros2 || true
-cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build
 source /opt/ros/humble/setup.bash
 source install/setup.bash
@@ -377,7 +377,7 @@ ros2 launch robot_bringup komatsu_gazebo.launch.py
 
 ```bash
 # Terminal 2: Localization
-cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source /opt/ros/humble/setup.bash
 source install/setup.bash
 ros2 launch ros2_application komatsu_localization.launch.py \
@@ -388,7 +388,7 @@ ros2 launch ros2_application komatsu_localization.launch.py \
 
 ```bash
 # Terminal 3: Mapping
-cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source /opt/ros/humble/setup.bash
 source install/setup.bash
 ros2 launch ros2_application komatsu_mapping.launch.py \
@@ -398,18 +398,18 @@ ros2 launch ros2_application komatsu_mapping.launch.py \
 
 ```bash
 # Terminal 4: Nav2
-cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source /opt/ros/humble/setup.bash
 source install/setup.bash
 ros2 launch nav2_bringup navigation_launch.py \
   use_sim_time:=true \
   autostart:=true \
-  params_file:=/home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/robot_bringup/config/komatsu_nav2_params.yaml
+  params_file:=/home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/robot_bringup/config/komatsu_nav2_params.yaml
 ```
 
 ```bash
 # Terminal 5: RViz
-cd /home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source /opt/ros/humble/setup.bash
 source install/setup.bash
 ros2 run rviz2 rviz2 \
