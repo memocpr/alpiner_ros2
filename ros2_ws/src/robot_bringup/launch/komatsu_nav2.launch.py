@@ -30,7 +30,7 @@ def generate_launch_description():
     nav2_launch = os.path.join(
         nav2_bringup_dir,
         'launch',
-        'bringup_launch.py'
+        'navigation_launch.py'
     )
 
     return LaunchDescription([
@@ -55,7 +55,6 @@ def generate_launch_description():
             launch_arguments={
                 'use_sim_time': use_sim_time,
                 'params_file': params_file,
-                'map': map_file,
                 'autostart': autostart
             }.items()
         )
