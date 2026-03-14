@@ -14,7 +14,7 @@ def generate_launch_description():
     rviz_config_file = os.path.join(robot_description_dir, 'rviz', 'urdf_config.rviz')
     # Process xacro file
     robot_description_content = ParameterValue(
-        Command(['xacro ', urdf_file]),
+        Command(['xacro', ' ', urdf_file]),
         value_type=str
     )
     # Robot State Publisher node
