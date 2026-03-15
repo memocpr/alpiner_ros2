@@ -123,11 +123,11 @@
 
   <!-- ===== Wheel macro ===== -->
 
-  <xacro:wheel name="rear_left_wheel"  parent="rear_chassis" x="${-half_wb}" y="${ wheel_y}"/>
-  <xacro:wheel name="rear_right_wheel" parent="rear_chassis" x="${-half_wb}" y="${-wheel_y}"/>
+  <xacro:wheel name="rear_left_wheel"  parent="rear_chassis" x="${-half_wb}" y="${ wheel_y}" z="${wheel_radius - F_clearance}"/>
+  <xacro:wheel name="rear_right_wheel" parent="rear_chassis" x="${-half_wb}" y="${-wheel_y}" z="${wheel_radius - F_clearance}"/>
 
-  <xacro:wheel name="front_left_wheel"  parent="front_chassis" x="${ half_wb}" y="${ wheel_y}"/>
-  <xacro:wheel name="front_right_wheel" parent="front_chassis" x="${ half_wb}" y="${-wheel_y}"/>
+  <xacro:wheel name="front_left_wheel"  parent="front_chassis" x="${ half_wb}" y="${ wheel_y}" z="${wheel_radius - F_clearance}"/>
+  <xacro:wheel name="front_right_wheel" parent="front_chassis" x="${ half_wb}" y="${-wheel_y}" z="${wheel_radius - F_clearance}"/>
 
   <!-- ===== Navigation reference frames ===== -->
 
@@ -151,7 +151,7 @@
   <joint name="laser_joint" type="fixed">
     <parent link="rear_chassis"/>
     <child link="laser_frame"/>
-    <origin xyz="0.0 0.0 ${box_h}" rpy="0 0 0"/>
+    <origin xyz="0.0 0.0 ${box_h + 0.03}" rpy="0 0 0"/>
   </joint>
 
   <link name="imu_link"/>
