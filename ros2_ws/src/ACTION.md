@@ -197,7 +197,7 @@ Nav2 navigation stack configured with:
 
 ```bash
 cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
-colcon build --packages-select robot_bringup
+colcon build --packages-select robot_bringup robot_description
 source install/setup.bash
 ros2 launch robot_bringup komatsu_nav2.launch.py
 ```
