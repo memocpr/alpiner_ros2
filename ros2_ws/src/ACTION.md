@@ -158,7 +158,7 @@ This package now includes a minimal local-test mapping setup:
 cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source /opt/ros/humble/setup.bash
 source install/setup.bash
-ros2 launch ros2_application komatsu_localization.launch.py
+ros2 launch ros2_application komatsu_mapping.launch.py
 ```
 
 ### Hardware Adaptation
@@ -183,6 +183,8 @@ ros2 launch ros2_application komatsu_mapping_hw.launch.py scan_topic:=/your_real
 
 
 ## Action 5: Navigation stack (Nav2)
+
+Run action 3 and action 4 first to provide `/odometry/filtered` and `/map` inputs for Nav2.
 
 ### Overview
 
@@ -229,7 +231,7 @@ Main config: `robot_bringup/config/komatsu_nav2_params.yaml`
 
 Check running nodes:
 ```bash
-ros2 node list | grep -E "(planner|controller|bt_navigator)"
+ros2 node list | grep -E "(planner|controller|bt_navigator|smoother)"
 ```
 
 Expected output:
@@ -251,8 +253,8 @@ Expected:
 ### Topics
 
 **Input**:
-- `/map` (nav_msgs/OccupancyGrid)
-- `/odom` (nav_msgs/Odometry)
+- `/map` (nav_msgs/OccupancyGrid) — published by RTAB-Map (Action 4)
+- `/odometry/filtered` (nav_msgs/Odometry) — published by UKF (Action 3)
 
 **Output**:
 - `/cmd_vel` (geometry_msgs/Twist) - velocity commands
