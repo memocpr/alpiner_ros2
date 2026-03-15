@@ -26,6 +26,7 @@ Panels:
     Name: Time
     SyncMode: 0
     SyncSource: ""
+
 Visualization Manager:
   Class: ""
   Displays:
@@ -47,6 +48,7 @@ Visualization Manager:
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
       Value: true
+
     - Alpha: 1
       Class: rviz_default_plugins/RobotModel
       Collision Enabled: false
@@ -74,17 +76,47 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        caster_wheel_link:
+        articulation_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        left_wheel_link:
+        rear_chassis:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        right_wheel_link:
+        front_chassis:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rear_left_wheel:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rear_right_wheel:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        front_left_wheel:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        front_right_wheel:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        laser_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        imu_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -97,6 +129,7 @@ Visualization Manager:
       Update Interval: 0
       Value: true
       Visual Enabled: true
+
     - Class: rviz_default_plugins/TF
       Enabled: true
       Frame Timeout: 15
@@ -106,11 +139,23 @@ Visualization Manager:
           Value: true
         base_link:
           Value: true
-        caster_wheel_link:
+        articulation_link:
           Value: true
-        left_wheel_link:
+        rear_chassis:
           Value: true
-        right_wheel_link:
+        front_chassis:
+          Value: true
+        rear_left_wheel:
+          Value: true
+        rear_right_wheel:
+          Value: true
+        front_left_wheel:
+          Value: true
+        front_right_wheel:
+          Value: true
+        laser_frame:
+          Value: true
+        imu_link:
           Value: true
       Marker Scale: 1
       Name: TF
@@ -120,20 +165,27 @@ Visualization Manager:
       Tree:
         base_footprint:
           base_link:
-            caster_wheel_link:
-              {}
-            left_wheel_link:
-              {}
-            right_wheel_link:
-              {}
+            articulation_link:
+              front_chassis:
+                front_left_wheel: {}
+                front_right_wheel: {}
+              rear_chassis:
+                rear_left_wheel: {}
+                rear_right_wheel: {}
+            imu_link: {}
+            laser_frame: {}
       Update Interval: 0
       Value: true
+
   Enabled: true
+
   Global Options:
     Background Color: 48; 48; 48
     Fixed Frame: base_footprint
     Frame Rate: 30
+
   Name: root
+
   Tools:
     - Class: rviz_default_plugins/Interact
       Hide Inactive Objects: true
@@ -167,10 +219,13 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /clicked_point
+
   Transformation:
     Current:
       Class: rviz_default_plugins/TF
+
   Value: true
+
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
@@ -194,6 +249,7 @@ Visualization Manager:
       Value: Orbit (rviz)
       Yaw: 5.628585338592529
     Saved: ~
+
 Window Geometry:
   Displays:
     collapsed: false
