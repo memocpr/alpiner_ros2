@@ -50,13 +50,16 @@ map
             ├── articulation_link
             │   ├── rear_chassis
             │   │   ├── rear_left_wheel
-            │   │   └── rear_right_wheel
+            │   │   ├── rear_right_wheel
+            │   │   ├── laser_frame
+            │   │   └── base_rear
             │   └── front_chassis
             │       ├── front_left_wheel
-            │       └── front_right_wheel
-            ├── laser_frame
+            │       ├── front_right_wheel
+            │       └── base_front
             └── imu_link
 ```
+(`map → odom` published by Nav2/UKF at runtime; rest are static from `robot_description`)
 
 
 ### Visualize in RViz
@@ -66,6 +69,12 @@ cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select robot_description
 source install/setup.bash
 ros2 launch robot_description komatsu_view_robot.launch.py
+```
+
+create/update TF tree diagram:
+```bash
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/robot_description/TFs
+ros2 run tf2_tools view_frames
 ```
 
 ### Inertia Implementation
