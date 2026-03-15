@@ -64,13 +64,13 @@
     <!-- rear body -->
     <link name="rear_chassis">
         <visual>
-            <origin xyz="${-rear_box_len/2.0} 0 ${box_h/2.0 - 0.10}"/>
+            <origin xyz="${-rear_box_len/2.0} 0 ${box_h/2.0}"/>
             <geometry><box size="${rear_box_len} ${box_w} ${box_h}"/></geometry>
             <material name="red"/>
         </visual>
 
         <collision>
-            <origin xyz="${-rear_box_len/2.0} 0 ${box_h/2.0 - 0.10}"/>
+            <origin xyz="${-rear_box_len/2.0} 0 ${box_h/2.0}"/>
             <geometry><box size="${rear_box_len} ${box_w} ${box_h}"/></geometry>
         </collision>
 
@@ -79,20 +79,20 @@
             x="${rear_box_len}"
             y="${box_w}"
             z="${box_h}"
-            o_xyz="${-rear_box_len/2.0} 0 ${box_h/2.0 - 0.10}"
+            o_xyz="${-rear_box_len/2.0} 0 ${box_h/2.0}"
             o_rpy="0 0 0"/>
     </link>
 
     <!-- front body -->
     <link name="front_chassis">
         <visual>
-            <origin xyz="${front_box_len/2.0} 0 ${box_h/2.0 - 0.10}"/>
+            <origin xyz="${front_box_len/2.0} 0 ${box_h/2.0}"/>
             <geometry><box size="${front_box_len} ${box_w} ${box_h}"/></geometry>
             <material name="green"/>
         </visual>
 
         <collision>
-            <origin xyz="${front_box_len/2.0} 0 ${box_h/2.0 - 0.10}"/>
+            <origin xyz="${front_box_len/2.0} 0 ${box_h/2.0}"/>
             <geometry><box size="${front_box_len} ${box_w} ${box_h}"/></geometry>
         </collision>
 
@@ -101,7 +101,7 @@
             x="${front_box_len}"
             y="${box_w}"
             z="${box_h}"
-            o_xyz="${front_box_len/2.0} 0 ${box_h/2.0 - 0.10}"
+            o_xyz="${front_box_len/2.0} 0 ${box_h/2.0}"
             o_rpy="0 0 0"/>
     </link>
 
