@@ -329,6 +329,9 @@ This launch starts:
 
 ```bash
 pkill -f ros2 || true
+ros2 daemon stop
+ros2 daemon start
+
 cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application robot_bringup robot_description
 source /opt/ros/humble/setup.bash
