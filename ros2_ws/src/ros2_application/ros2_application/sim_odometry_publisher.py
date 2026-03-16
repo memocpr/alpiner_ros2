@@ -1,17 +1,15 @@
 import math
 
 import rclpy
-from geometry_msgs.msg import Twist, TransformStamped
+from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
-from tf2_ros import TransformBroadcaster
 
 
 class SimOdometryPublisher(Node):
     def __init__(self):
         super().__init__('sim_odometry_publisher')
         self.publisher = self.create_publisher(Odometry, '/odometry/raw', 10)
-        self.tf_broadcaster = TransformBroadcaster(self)
         self.subscription = self.create_subscription(Twist, '/cmd_vel', self._on_cmd_vel, 10)
         self.timer = self.create_timer(0.05, self._on_timer)
 
@@ -30,8 +28,8 @@ class SimOdometryPublisher(Node):
         self.cmd_timeout_sec = 0.5
 
         self.get_logger().info(
-            f'Sim odometry integrates /cmd_vel into /odometry/raw and broadcasts '
-            f'{self.odom_frame}->{self.base_frame} TF'
+            f'Sim odometry integrates /cmd_vel into /odometry/raw '
+            f'(TF {self.odom_frame}->{self.base_frame} published by UKF)'
         )
 
     def _on_cmd_vel(self, msg: Twist):
@@ -82,19 +80,6 @@ class SimOdometryPublisher(Node):
 
         self.publisher.publish(msg)
 
-        # Broadcast TF so RViz can visualize base frame motion
-        t = TransformStamped()
-        t.header.stamp = now.to_msg()
-        t.header.frame_id = self.odom_frame
-        t.child_frame_id = self.base_frame
-        t.transform.translation.x = self.x
-        t.transform.translation.y = self.y
-        t.transform.translation.z = 0.0
-        t.transform.rotation.w = math.cos(self.yaw * 0.5)
-        t.transform.rotation.x = 0.0
-        t.transform.rotation.y = 0.0
-        t.transform.rotation.z = math.sin(self.yaw * 0.5)
-        self.tf_broadcaster.sendTransform(t)
 
 
 def main(args=None):

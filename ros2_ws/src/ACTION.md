@@ -877,6 +877,9 @@ Expected:
 - `sim_scan_publisher` now publishes LaserScan angles with consistent metadata (`angle_min/angle_max/angle_increment` matches beam count). This avoids RTAB-Map scan conversion failures that can prevent `/map` updates and Nav2 planning.
 - `rviz_integration.launch.py` now prints startup diagnostics for sim source flags and topic wiring (`odom_topic`, `scan_topic`) to simplify launch-time debugging.
 - Nav2 requires TF chain `map -> odom -> base_footprint -> base_link`.
+- **Robot shaking / not moving in RViz**: caused by multiple nodes publishing `odom -> base_footprint` simultaneously. 
+- The UKF (`publish_tf: true`) must be the **sole** publisher of this transform. Do **not** add a `static_transform_publisher` for `odom -> base_footprint` in the launch file, and do **not** broadcast TF from `sim_odometry_publisher` — it must only publish `/odometry/raw`. 
+- Having both a static `[0,0,0]` TF and a dynamic UKF TF for the same frame pair causes the robot pose to snap back to origin on every static update, producing the shaking/spinning behaviour.
 - If `odom -> base_footprint` is missing, publish it for testing:
 
 Expected:

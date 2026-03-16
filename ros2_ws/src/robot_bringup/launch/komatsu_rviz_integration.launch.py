@@ -136,11 +136,6 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('use_cmd_vel_joint_sim')),
     )
 
-    odom_base_tf = Node(
-        package="tf2_ros",
-        executable="static_transform_publisher",
-        arguments=["0","0","0","0","0","0","odom","base_footprint"],
-    )
 
     localization_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -212,7 +207,6 @@ def generate_launch_description():
         robot_state_publisher,
         joint_state_publisher,
         cmd_vel_joint_state_publisher,
-        odom_base_tf,
         localization_launch,
         mapping_launch,
         nav2_launch,
