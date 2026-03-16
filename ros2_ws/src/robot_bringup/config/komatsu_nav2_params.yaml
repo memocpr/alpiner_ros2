@@ -184,8 +184,8 @@ local_costmap:
       robot_base_frame: base_footprint
 
       rolling_window: true
-      width: 12.0
-      height: 12.0
+      width: 12
+      height: 12
       resolution: 0.05
 
       # One conservative 2D footprint polygon for the whole articulated machine.
