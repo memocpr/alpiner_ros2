@@ -230,7 +230,6 @@ Main config: `robot_bringup/config/komatsu_nav2_params.yaml`
 Check running nodes:
 ```bash
 ros2 daemon stop
-pkill -f ros2
 ros2 daemon start
 ros2 node list | grep -E "(planner|controller|bt_navigator|smoother)"
 ```
