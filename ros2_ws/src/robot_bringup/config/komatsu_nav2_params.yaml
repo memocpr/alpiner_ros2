@@ -210,7 +210,7 @@ local_costmap:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
         # Increase inflation for safer clearance around a large machine.
-        inflation_radius: 1.00
+        inflation_radius: 2.00
 
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
@@ -304,7 +304,7 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 1.00
+        inflation_radius: 2.00
 
       always_send_full_costmap: true
       introspection_mode: "disabled"
