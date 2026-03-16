@@ -184,8 +184,6 @@ ros2 launch ros2_application komatsu_mapping_hw.launch.py scan_topic:=/your_real
 
 ## Action 5: Navigation stack (Nav2)
 
-Run action 3 and action 4 first to provide `/odometry/filtered` and `/map` inputs for Nav2.
-
 ### Overview
 
 Nav2 navigation stack configured with:
@@ -196,7 +194,7 @@ Nav2 navigation stack configured with:
 - **Collision Monitor**: Enabled with footprint approach detection
 
 ### Launch
-
+Run action 3 and action 4 first to provide `/odometry/filtered` and `/map` inputs for Nav2.
 ```bash
 cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select robot_bringup robot_description
@@ -276,6 +274,38 @@ Meaning: the Nav2 stack is operational and ready for navigation.
 - RPP controller provides smooth path tracking
 - Collision monitoring prevents unsafe commands
 - Ready for Action 6 RViz integration testing
+
+### Robot Footprint (Nav2)
+
+Nav2 requires a **2D footprint** to represent the robot in the costmaps for collision checking during planning and control.
+
+In this project, the articulated loader is simplified to **one rigid navigation footprint**, even though the vehicle consists of two bodies connected by an articulation joint. Nav2 uses a single reference frame (`base_footprint`) and therefore only one footprint is defined.
+
+The footprint approximates the **outer collision envelope of the vehicle**, including a safety margin to account for articulation sweep.
+
+Vehicle dimensions (approx.)
+
+* Length: ~8.3 m
+* Width: ~2.8 m
+
+Navigation footprint used in Nav2:
+
+```yaml
+footprint: [
+  [4.90, 1.60],
+  [4.90, -1.60],
+  [-3.85, -1.60],
+  [-3.85, 1.60]
+]
+```
+
+This results in a navigation envelope of approximately:
+
+* Length: ~8.7 m
+* Width: ~3.2 m
+
+The footprint is defined in the `base_footprint` frame and used by the **global and local costmaps** for obstacle avoidance and path feasibility checking.
+
 
 
 
