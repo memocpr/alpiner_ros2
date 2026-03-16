@@ -353,6 +353,223 @@ ros2 launch ros2_application komatsu_mapping.launch.py use_sim_scan:=false scan_
 ros2 launch ros2_application komatsu_mapping_hw.launch.py scan_topic:=/your_real_scan_topic laser_frame:=/your_laser_frame
 ```
 
+````md
+## Action 4 Verification Commands
+
+### Check Running Nodes
+```bash
+ros2 node list
+```
+Expected:
+- Mapping, localization, and robot model nodes are running.
+- Important nodes include:
+  - `robot_state_publisher`
+  - `joint_state_publisher`
+  - `rtabmap`
+  - `ukf_filter_node`
+  - `sim_odometry`
+  - `sim_imu`
+  - `sim_scan`
+
+Example output:
+```bash
+/joint_state_publisher
+/robot_state_publisher
+/rtabmap
+/rviz
+/sim_imu
+/sim_odometry
+/sim_scan
+/ukf_filter_node
+```
+
+---
+
+### Check Required Topics
+```bash
+ros2 topic list | grep -E "odometry|imu|scan|map|tf"
+```
+
+Expected important topics:
+```bash
+/odometry/raw
+/odometry/filtered
+/imu/data
+/scan
+/map
+/tf
+/tf_static
+```
+
+Example output may also include:
+```bash
+/cloud_map
+/grid_prob_map
+/mapData
+/mapGraph
+/mapOdomCache
+/mapPath
+```
+
+---
+
+### Verify TF: Odom → Base Footprint
+```bash
+ros2 run tf2_ros tf2_echo odom base_footprint
+```
+
+Expected:
+Continuous transform output:
+```bash
+Translation: [x, y, 0]
+Rotation: [0, 0, yaw]
+```
+
+Example:
+```bash
+Translation: [0.000, 0.000, 0.000]
+Rotation: [0.000, 0.000, 0.000, 1.000]
+```
+
+---
+
+### Verify TF: Base Footprint → Base Link
+```bash
+ros2 run tf2_ros tf2_echo base_footprint base_link
+```
+
+Expected:
+Static transform from robot model:
+```bash
+Translation: [0.000, 0.000, 0.455]
+Rotation: [0.000, 0.000, 0.000, 1.000]
+```
+
+Published by:
+```bash
+robot_state_publisher
+```
+
+---
+
+### Verify TF: Map → Odom
+```bash
+ros2 run tf2_ros tf2_echo map odom
+```
+
+Expected:
+Continuous transform output:
+```bash
+Translation: [x, y, 0]
+Rotation: [0, 0, yaw]
+```
+
+Example:
+```bash
+Translation: [0.000, 0.000, 0.000]
+Rotation: [0.000, 0.000, 0.000, 1.000]
+```
+
+Published by:
+```bash
+rtabmap
+```
+
+---
+
+### Verify Occupancy Map
+```bash
+ros2 topic echo /map --once
+```
+
+Expected:
+```bash
+header.frame_id: map
+info:
+  resolution: 0.05
+  width: ...
+  height: ...
+data:
+  -1
+```
+
+Example message:
+```bash
+header:
+  frame_id: map
+info:
+  resolution: 0.05000000074505806
+  width: 485
+  height: 495
+```
+
+---
+
+### Verify Laser Scan
+```bash
+ros2 topic echo /scan --once
+```
+
+Expected:
+```bash
+header.frame_id: laser_frame
+angle_min: ...
+angle_max: ...
+angle_increment: ...
+ranges:
+```
+
+Example message:
+```bash
+header:
+  frame_id: laser_frame
+angle_min: -3.1415927410125732
+angle_max: 3.1415927410125732
+range_min: 0.10000000149011612
+range_max: 25.0
+```
+
+---
+
+### Inspect TF Topics
+```bash
+ros2 topic list | grep tf
+```
+
+Expected:
+```bash
+/tf
+/tf_static
+```
+
+---
+
+### Optional: Generate TF Tree PDF
+```bash
+ros2 run tf2_tools view_frames
+```
+
+Expected:
+- A `frames.pdf` file is generated.
+- TF tree should contain:
+```bash
+map -> odom -> base_footprint -> base_link -> laser_frame
+```
+
+---
+
+### Action 4 Success Criteria
+```bash
+# Mapping is considered verified if:
+# 1. /rtabmap is running
+# 2. /map is published
+# 3. /scan is published
+# 4. map -> odom -> base_footprint -> base_link TF chain exists
+# 5. OccupancyGrid data is available on /map
+```
+````
+
+
 ### Notes
 
 - Start Action 3 first so `/odometry/filtered` is available.
