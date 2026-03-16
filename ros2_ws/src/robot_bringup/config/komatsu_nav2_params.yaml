@@ -1,3 +1,14 @@
+# komatsu_nav2_params.yaml
+#
+# Key points for articulated vehicle navigation:
+# 1) Use base_footprint as the main 2D navigation frame.
+# 2) Use one Nav2 footprint polygon, not robot_radius.
+# 3) Keep URDF body collisions separate, but use one conservative 2D footprint here.
+# 4) This footprint is a rectangular envelope around the whole machine in plan view.
+#    It is referenced to the articulation / base_footprint area.
+# 5) Footprint values below are based on your current xacro dimensions with a small safety margin.
+#    If needed, enlarge them further for wheel/attachment sweep in tight maneuvers.
+
 #amcl:
 #  ros__parameters:
 #    alpha1: 0.2
@@ -5,7 +16,8 @@
 #    alpha3: 0.2
 #    alpha4: 0.2
 #    alpha5: 0.2
-#    base_frame_id: "base_link"
+#    # If AMCL is enabled later, keep the 2D base frame on ground level.
+#    base_frame_id: "base_footprint"
 #    beam_skip_distance: 0.5
 #    beam_skip_error_threshold: 0.9
 #    beam_skip_threshold: 0.3
@@ -43,7 +55,8 @@
 bt_navigator:
   ros__parameters:
     global_frame: map
-    robot_base_frame: base_link
+    # Use the ground-projected navigation frame, not the elevated base_link.
+    robot_base_frame: base_footprint
     odom_topic: /odometry/filtered
     bt_loop_duration: 10
     filter_duration: 0.3
@@ -110,18 +123,21 @@ controller_server:
       plugin: "nav2_controller::SimpleProgressChecker"
       required_movement_radius: 0.5
       movement_time_allowance: 10.0
+
     # Goal checker parameters
     #precise_goal_checker:
     #  plugin: "nav2_controller::SimpleGoalChecker"
     #  xy_goal_tolerance: 0.25
     #  yaw_goal_tolerance: 0.25
     #  stateful: true
+
     general_goal_checker:
       stateful: true
       plugin: "nav2_controller::SimpleGoalChecker"
       xy_goal_tolerance: 0.25
       yaw_goal_tolerance: 0.25
       path_length_tolerance: 1.0
+
     PathHandler:
       plugin: "nav2_controller::FeasiblePathHandler"
       prune_distance: 2.0
@@ -131,6 +147,7 @@ controller_server:
       inversion_yaw_tolerance: 0.4
       minimum_rotation_angle: 0.785
       reject_unit_path: false
+
     FollowPath:
       plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
       desired_linear_vel: 0.5
@@ -162,23 +179,39 @@ local_costmap:
       update_frequency: 5.0
       publish_frequency: 2.0
       global_frame: odom
-      robot_base_frame: base_link
+
+      # Main 2D navigation frame for articulated vehicle.
+      robot_base_frame: base_footprint
+
       rolling_window: true
-      width: 3
-      height: 3
+      width: 12.0
+      height: 12.0
       resolution: 0.05
-      robot_radius: 0.22
+
+      # One conservative 2D footprint polygon for the whole articulated machine.
+      # Coordinates are [x, y] in meters in base_footprint.
+      # Approximate envelope from xacro:
+      #   front extent  ~ +4.715 m
+      #   rear extent   ~ -3.635 m
+      #   total width   ~ 2.81 m incl. wheels
+      # Safety margin added here.
+      footprint: "[[4.90, 1.60], [4.90, -1.60], [-3.85, -1.60], [-3.85, 1.60]]"
+
       plugins: ["voxel_layer", "inflation_layer"]
-#      keepout_filter:
-#        plugin: "nav2_costmap_2d::KeepoutFilter"
-#        enabled: KEEPOUT_ZONE_ENABLED
-#        filter_info_topic: "keepout_costmap_filter_info"
-#        override_lethal_cost: true
-#        lethal_override_cost: 200
+
+      #      keepout_filter:
+      #        plugin: "nav2_costmap_2d::KeepoutFilter"
+      #        enabled: KEEPOUT_ZONE_ENABLED
+      #        filter_info_topic: "keepout_costmap_filter_info"
+      #        override_lethal_cost: true
+      #        lethal_override_cost: 200
+
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.70
+        # Increase inflation for safer clearance around a large machine.
+        inflation_radius: 1.00
+
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
         enabled: true
@@ -201,13 +234,15 @@ local_costmap:
           clearing: true
           marking: true
           data_type: "LaserScan"
-          raytrace_max_range: 3.0
+          raytrace_max_range: 8.0
           raytrace_min_range: 0.0
-          obstacle_max_range: 2.5
+          obstacle_max_range: 6.0
           obstacle_min_range: 0.0
+
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
         map_subscribe_transient_local: true
+
       always_send_full_costmap: true
       introspection_mode: "disabled"
 
@@ -217,22 +252,30 @@ global_costmap:
       update_frequency: 1.0
       publish_frequency: 1.0
       global_frame: map
-      robot_base_frame: base_link
-      robot_radius: 0.22
+
+      # Main 2D navigation frame for articulated vehicle.
+      robot_base_frame: base_footprint
+
+      # Same global planning footprint as local costmap.
+      footprint: "[[4.90, 1.60], [4.90, -1.60], [-3.85, -1.60], [-3.85, 1.60]]"
+
       resolution: 0.05
       track_unknown_space: true
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
-#      keepout_filter:
-#        plugin: "nav2_costmap_2d::KeepoutFilter"
-#        enabled: KEEPOUT_ZONE_ENABLED
-#        filter_info_topic: "keepout_costmap_filter_info"
-#        override_lethal_cost: true
-#        lethal_override_cost: 200
-#      speed_filter:
-#        plugin: "nav2_costmap_2d::SpeedFilter"
-#        enabled: SPEED_ZONE_ENABLED
-#        filter_info_topic: "speed_costmap_filter_info"
-#        speed_limit_topic: "speed_limit"
+
+      #      keepout_filter:
+      #        plugin: "nav2_costmap_2d::KeepoutFilter"
+      #        enabled: KEEPOUT_ZONE_ENABLED
+      #        filter_info_topic: "keepout_costmap_filter_info"
+      #        override_lethal_cost: true
+      #        lethal_override_cost: 200
+
+      #      speed_filter:
+      #        plugin: "nav2_costmap_2d::SpeedFilter"
+      #        enabled: SPEED_ZONE_ENABLED
+      #        filter_info_topic: "speed_costmap_filter_info"
+      #        speed_limit_topic: "speed_limit"
+
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: true
@@ -249,17 +292,20 @@ global_costmap:
           clearing: true
           marking: true
           data_type: "LaserScan"
-          raytrace_max_range: 3.0
+          raytrace_max_range: 8.0
           raytrace_min_range: 0.0
-          obstacle_max_range: 2.5
+          obstacle_max_range: 6.0
           obstacle_min_range: 0.0
+
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
         map_subscribe_transient_local: true
+
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.7
+        inflation_radius: 1.00
+
       always_send_full_costmap: true
       introspection_mode: "disabled"
 
@@ -268,7 +314,7 @@ global_costmap:
 # file & provide full path to map below. If CLI map configuration or launch default is provided, that will be used.
 map_server:
   ros__parameters:
-    yaml_filename: "/home/evomrx22/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/robot_bringup/maps/map.yaml"
+    yaml_filename: "/home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/robot_bringup/maps/map.yaml"
     introspection_mode: "disabled"
 
 #keepout_filter_mask_server:
@@ -312,6 +358,7 @@ planner_server:
     planner_plugins: ["GridBased"]
     costmap_update_timeout: 1.0
     introspection_mode: "disabled"
+
     GridBased:
       plugin: "nav2_smac_planner/SmacPlannerHybrid"
       tolerance: 0.5
@@ -321,6 +368,7 @@ planner_server:
 smoother_server:
   ros__parameters:
     smoother_plugins: ["simple_smoother", "route_smoother"]
+
     simple_smoother:
       plugin: "nav2_smoother::SimpleSmoother"
       tolerance: 1.0e-10
@@ -329,6 +377,7 @@ smoother_server:
       # True for Hybrid A* or State Lattice to not smooth over directional changes
       enforce_path_inversion: true
       do_refinement: true
+
     route_smoother:
       plugin: "nav2_smoother::SimpleSmoother"
       tolerance: 1.0e-10
@@ -347,25 +396,31 @@ behavior_server:
     cycle_frequency: 10.0
     behavior_plugins:
       ["spin", "backup", "drive_on_heading", "assisted_teleop", "wait"]
+
     spin:
       plugin: "nav2_behaviors/Spin"
+
     backup:
       plugin: "nav2_behaviors/BackUp"
       acceleration_limit: 2.5
       deceleration_limit: -2.5
       minimum_speed: 0.10
+
     drive_on_heading:
       plugin: "nav2_behaviors/DriveOnHeading"
       acceleration_limit: 2.5
       deceleration_limit: -2.5
       minimum_speed: 0.10
+
     wait:
       plugin: "nav2_behaviors/Wait"
+
     assisted_teleop:
       plugin: "nav2_behaviors/AssistedTeleop"
+
     local_frame: odom
     global_frame: map
-    robot_base_frame: base_link
+    robot_base_frame: base_footprint
     transform_tolerance: 0.1
     simulate_ahead_time: 2.0
     max_rotational_vel: 1.0
@@ -378,6 +433,7 @@ waypoint_follower:
     stop_on_failure: false
     introspection_mode: "disabled"
     waypoint_task_executor_plugin: "wait_at_waypoint"
+
     wait_at_waypoint:
       plugin: "nav2_waypoint_follower::WaitAtWaypoint"
       enabled: true
@@ -393,16 +449,22 @@ route_server:
     radius_to_achieve_node: 2.0
     smooth_corners: true
     operations: ["AdjustSpeedLimit", "ReroutingService", "CollisionMonitor"]
+
     ReroutingService:
       plugin: "nav2_route::ReroutingService"
+
     AdjustSpeedLimit:
       plugin: "nav2_route::AdjustSpeedLimit"
+
     CollisionMonitor:
       plugin: "nav2_route::CollisionMonitor"
       max_collision_dist: 3.0
+
     edge_cost_functions: ["DistanceScorer", "CostmapScorer"]
+
     DistanceScorer:
       plugin: "nav2_route::DistanceScorer"
+
     CostmapScorer:
       plugin: "nav2_route::CostmapScorer"
 
@@ -423,7 +485,10 @@ velocity_smoother:
 collision_monitor:
   ros__parameters:
     enabled: true
-    base_frame_id: "base_link"
+
+    # Keep collision monitor on the same 2D navigation base frame.
+    base_frame_id: "base_footprint"
+
     odom_frame_id: "odom"
     cmd_vel_in_topic: "cmd_vel_smoothed"
     cmd_vel_out_topic: "cmd_vel"
@@ -432,9 +497,11 @@ collision_monitor:
     source_timeout: 1.0
     base_shift_correction: true
     stop_pub_timeout: 2.0
+
     # Polygons represent zone around the robot for "stop", "slowdown" and "limit" action types,
     # and robot footprint for "approach" action type.
     polygons: ["FootprintApproach"]
+
     FootprintApproach:
       type: "polygon"
       action_type: "approach"
@@ -444,7 +511,9 @@ collision_monitor:
       min_points: 6
       visualize: false
       enabled: true
+
     observation_sources: ["scan"]
+
     scan:
       type: "scan"
       topic: "scan"
@@ -461,13 +530,17 @@ docking_server:
     undock_linear_tolerance: 0.05
     undock_angular_tolerance: 0.1
     max_retries: 3
-    base_frame: "base_link"
+
+    # Keep docking base frame consistent too.
+    base_frame: "base_footprint"
+
     fixed_frame: "odom"
     dock_prestaging_tolerance: 0.5
     introspection_mode: "disabled"
 
     # Types of docks
     dock_plugins: ["simple_charging_dock"]
+
     simple_charging_dock:
       plugin: "opennav_docking::SimpleChargingDock"
       docking_threshold: 0.05
@@ -508,7 +581,8 @@ docking_server:
 
 loopback_simulator:
   ros__parameters:
-    base_frame_id: "base_link"
+    # Keep simulator base frame aligned with Nav2 main base frame.
+    base_frame_id: "base_footprint"
     odom_frame_id: "odom"
     map_frame_id: "map"
     scan_frame_id: "base_scan" # tb4_loopback_simulator.launch.py remaps to 'rplidar_link'
@@ -518,4 +592,3 @@ loopback_simulator:
     scan_angle_min: -3.1415
     scan_angle_max: 3.1415
     scan_angle_increment: 0.02617
-    scan_use_inf: true
