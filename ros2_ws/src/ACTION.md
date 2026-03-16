@@ -738,7 +738,7 @@ ros2 launch robot_bringup komatsu_rviz_integration.launch.py source_mode:=sim
 
 ### Step-by-step checks (Action 6)
 
-1. In RViz, confirm TF chain is present: `map -> odom -> base_link`.
+1. In RViz, confirm TF chain is present: `map -> odom -> base_footprint -> base_link`.
 2. Set **2D Pose Estimate** (initial pose) in RViz.
 3. Send **2D Nav Goal** in RViz.
 4. Verify a global/local path appears and updates.
@@ -747,6 +747,7 @@ ros2 launch robot_bringup komatsu_rviz_integration.launch.py source_mode:=sim
 ```bash
 ros2 topic echo /cmd_vel
 ```
+
 ```bash
 ros2 topic echo /map --once
 ```
@@ -758,16 +759,36 @@ ros2 topic echo /scan --once
 ### Notes
 
 - This Action 6 flow does **not** include P12 or `ros2_control`.
-- For hardware scan input, disable sim scan and set topic:
+- In this SLAM-based pipeline, localization is provided by **RTAB-Map + UKF**, therefore the `static_layer` was removed from `global_costmap`
+- AMCL and `map_server` are not used in this step, so the **Nav2 RViz panel may show "Localization inactive"**. This is expected.
+- For hardware scan input, disable sim scan and set topic.
+- When using a **static map workflow** (`map_server` + `AMCL`), the `static_layer` should be enabled so Nav2 costmaps subscribe to the map provided by `map_server`.
+- If `static_layer` is enabled without a running `map_server`, Nav2 may report warnings such as "Can't update static costmap layer, no map received".
 
+1. SLAM + Nav2 (your current setup)
+   Robot builds the map while driving.
+`   RTAB-Map → creates map
+   UKF → odom
+   Nav2 → navigate`
+   RTAB-Map publishes: `map → odom`
+
+2. Static map + AMCL
+   Robot uses a pre-built map for localization and navigation.
+  `map_server → load map
+  AMCL → localize robot
+  Nav2 → navigate`
+   AMCL publishes: `map → odom`
 
 ### Action 6 troubleshooting note
 
 - `sim_scan_publisher` now publishes LaserScan angles with consistent metadata (`angle_min/angle_max/angle_increment` matches beam count). This avoids RTAB-Map scan conversion failures that can prevent `/map` updates and Nav2 planning.
 - `rviz_integration.launch.py` now prints startup diagnostics for sim source flags and topic wiring (`odom_topic`, `scan_topic`) to simplify launch-time debugging.
-- In this Action 6 SLAM flow, Nav2 AMCL/map_server lifecycle is not started (Nav2 panel may show localization as disabled).
+- Nav2 requires TF chain `map -> odom -> base_footprint -> base_link`.
+- If `odom -> base_footprint` is missing, publish it for testing:
 
-
+```bash
+ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 odom base_footprint
+```
 
 
 

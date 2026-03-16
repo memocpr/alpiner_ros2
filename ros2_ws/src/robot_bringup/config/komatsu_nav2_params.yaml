@@ -239,9 +239,9 @@ local_costmap:
           obstacle_max_range: 6.0
           obstacle_min_range: 0.0
 
-      static_layer:
-        plugin: "nav2_costmap_2d::StaticLayer"
-        map_subscribe_transient_local: true
+#      static_layer:
+#        plugin: "nav2_costmap_2d::StaticLayer"
+#        map_subscribe_transient_local: true
 
       always_send_full_costmap: true
       introspection_mode: "disabled"
