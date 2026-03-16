@@ -744,9 +744,28 @@ ros2 launch robot_bringup komatsu_rviz_integration.launch.py use_sim_time:=false
 4. Verify a global/local path appears and updates.
 5. Verify path-following behavior and monitor `/cmd_vel`:
 
+
+## Action 6 Additional Verification Commands
+
+### Check Key Topics Rate
+```bash
+ros2 topic hz /scan
+ros2 topic hz /odometry/filtered
+ros2 topic hz /map
+```
+Expected:
+- `/scan` publishes continuously
+- `/odometry/filtered` publishes continuously
+- `/map` updates continuously in SLAM mode
+
+---
+
+### Check Nav2 Velocity Output
 ```bash
 ros2 topic echo /cmd_vel
 ```
+Expected:
+- Non-zero `linear.x` and/or `angular.z` after sending a short goal
 
 ```bash
 ros2 topic echo /map --once
@@ -755,6 +774,71 @@ ros2 topic echo /map --once
 ```bash
 ros2 topic echo /scan --once
 ```
+
+
+### Check TF Chain
+```bash
+ros2 run tf2_ros tf2_echo map odom
+ros2 run tf2_ros tf2_echo odom base_footprint
+ros2 run tf2_ros tf2_echo base_footprint base_link
+```
+Expected:
+- All transforms resolve successfully
+- Chain is complete: `map -> odom -> base_footprint -> base_link`
+
+---
+
+### Check Nav2 Lifecycle
+```bash
+ros2 lifecycle get /controller_server
+ros2 lifecycle get /planner_server
+ros2 lifecycle get /bt_navigator
+```
+Expected:
+```bash
+active [3]
+```
+
+---
+
+### Check Action Server
+```bash
+ros2 action info /navigate_to_pose
+```
+Expected:
+- `/bt_navigator` appears as action server
+
+---
+
+### Send Short Test Goal
+```bash
+ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose \
+"{pose: {header: {frame_id: map}, pose: {position: {x: 0.2, y: -0.8, z: 0.0}, orientation: {w: 1.0}}}}"
+```
+Expected:
+- Goal accepted
+- Robot publishes `/cmd_vel`
+
+---
+
+### Check Published Footprint
+```bash
+ros2 topic echo /local_costmap/published_footprint --once
+```
+Expected:
+- Footprint polygon is published in costmap frame
+
+---
+
+### Check Costmap Output
+```bash
+ros2 topic echo /global_costmap/costmap --once
+ros2 topic echo /local_costmap/costmap --once
+```
+Expected:
+- Costmap messages are published successfully
+
+---
 
 ### Notes
 
@@ -785,6 +869,16 @@ ros2 topic echo /scan --once
 - `rviz_integration.launch.py` now prints startup diagnostics for sim source flags and topic wiring (`odom_topic`, `scan_topic`) to simplify launch-time debugging.
 - Nav2 requires TF chain `map -> odom -> base_footprint -> base_link`.
 - If `odom -> base_footprint` is missing, publish it for testing:
+
+Expected:
+- Full stack starts successfully.
+- `/scan`, `/map`, `/odometry/filtered`, and `/cmd_vel` are active.
+- A short nearby navigation goal is accepted and `/cmd_vel` is published.
+
+Note:
+- In RTAB-Map SLAM mode, `2D Pose Estimate` in RViz is ignored.
+- Short local goals are recommended for verification.
+- Larger goals may fail if the conservative articulated footprint starts inside inflated/lethal costmap cells.
 
 ```bash
 ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 odom base_footprint
