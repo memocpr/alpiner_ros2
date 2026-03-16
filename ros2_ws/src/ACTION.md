@@ -863,6 +863,15 @@ Expected:
   Nav2 → navigate`
    AMCL publishes: `map → odom`
 
+3. Typical GNSS pipeline:
+   GNSS + IMU + odom
+   ↓
+   navsat_transform_node
+   ↓
+   robot_localization (UKF)
+   ↓
+   map → odom → base_link
+
 ### Action 6 troubleshooting note
 
 - `sim_scan_publisher` now publishes LaserScan angles with consistent metadata (`angle_min/angle_max/angle_increment` matches beam count). This avoids RTAB-Map scan conversion failures that can prevent `/map` updates and Nav2 planning.
