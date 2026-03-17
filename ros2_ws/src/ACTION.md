@@ -66,8 +66,7 @@ map
 
 ```bash
 cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
-source /opt/ros/humble/setup.bash
-colcon build --packages-select robot_description --symlink-install
+colcon build --packages-select robot_description
 source install/setup.bash
 ros2 launch robot_description komatsu_view_robot.launch.py
 ```

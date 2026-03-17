@@ -44,7 +44,7 @@
     <joint name="base_footprint_joint" type="fixed">
         <parent link="base_footprint"/>
         <child link="base_link"/>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <origin xyz="0 0 ${F_clearance}" rpy="0 0 0"/>
     </joint>
 
     <!-- articulation center -->
@@ -64,13 +64,13 @@
     <!-- rear body -->
     <link name="rear_chassis">
         <visual>
-            <origin xyz="${-rear_box_len/2.0} 0 ${(box_h/2.0)+F_clearance}"/>
+            <origin xyz="${-rear_box_len/2.0} 0 ${box_h/2.0}"/>
             <geometry><box size="${rear_box_len} ${box_w} ${box_h}"/></geometry>
             <material name="red"/>
         </visual>
 
         <collision>
-            <origin xyz="${-rear_box_len/2.0} 0 ${(box_h/2.0)+F_clearance}"/>
+            <origin xyz="${-rear_box_len/2.0} 0 ${box_h/2.0}"/>
             <geometry><box size="${rear_box_len} ${box_w} ${box_h}"/></geometry>
         </collision>
 
@@ -86,13 +86,13 @@
     <!-- front body -->
     <link name="front_chassis">
         <visual>
-            <origin xyz="${front_box_len/2.0} 0 ${(box_h/2.0)+F_clearance}"/>
+            <origin xyz="${front_box_len/2.0} 0 ${box_h/2.0}"/>
             <geometry><box size="${front_box_len} ${box_w} ${box_h}"/></geometry>
             <material name="green"/>
         </visual>
 
         <collision>
-            <origin xyz="${front_box_len/2.0} 0 ${(box_h/2.0)+F_clearance}"/>
+            <origin xyz="${front_box_len/2.0} 0 ${box_h/2.0}"/>
             <geometry><box size="${front_box_len} ${box_w} ${box_h}"/></geometry>
         </collision>
 
@@ -123,11 +123,11 @@
 
   <!-- ===== Wheel macro ===== -->
 
-  <xacro:wheel name="rear_left_wheel"  parent="rear_chassis" x="${-half_wb}" y="${ wheel_y}" z="${wheel_radius}"/>
-  <xacro:wheel name="rear_right_wheel" parent="rear_chassis" x="${-half_wb}" y="${-wheel_y}" z="${wheel_radius}"/>
+  <xacro:wheel name="rear_left_wheel"  parent="rear_chassis" x="${-half_wb}" y="${ wheel_y}" z="${wheel_radius - F_clearance}"/>
+  <xacro:wheel name="rear_right_wheel" parent="rear_chassis" x="${-half_wb}" y="${-wheel_y}" z="${wheel_radius - F_clearance}"/>
 
-  <xacro:wheel name="front_left_wheel"  parent="front_chassis" x="${ half_wb}" y="${ wheel_y}" z="${wheel_radius}"/>
-  <xacro:wheel name="front_right_wheel" parent="front_chassis" x="${ half_wb}" y="${-wheel_y}" z="${wheel_radius}"/>
+  <xacro:wheel name="front_left_wheel"  parent="front_chassis" x="${ half_wb}" y="${ wheel_y}" z="${wheel_radius - F_clearance}"/>
+  <xacro:wheel name="front_right_wheel" parent="front_chassis" x="${ half_wb}" y="${-wheel_y}" z="${wheel_radius - F_clearance}"/>
 
   <!-- ===== Navigation reference frames ===== -->
 
