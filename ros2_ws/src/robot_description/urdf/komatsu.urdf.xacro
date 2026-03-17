@@ -105,20 +105,20 @@
             o_rpy="0 0 0"/>
     </link>
 
-    <!-- articulation joints -->
+    <!-- rear chassis fixed to articulation center -->
+    <joint name="articulation_to_rear" type="fixed">
+        <parent link="articulation_link"/>
+        <child link="rear_chassis"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+
+    <!-- single physical articulation joint -->
     <joint name="articulation_to_front" type="revolute">
         <parent link="articulation_link"/>
         <child link="front_chassis"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
         <axis xyz="0 0 1"/>
         <limit lower="-0.35" upper="0.35" effort="5000" velocity="0.196"/>
-    </joint>
-
-    <joint name="articulation_to_rear" type="revolute">
-        <parent link="articulation_link"/>
-        <child link="rear_chassis"/>
-        <axis xyz="0 0 1"/>
-        <limit lower="-0.35" upper="0.35" effort="5000" velocity="0.196"/>
-        <mimic joint="articulation_to_front" multiplier="-1"/>
     </joint>
 
   <!-- ===== Wheel macro ===== -->
