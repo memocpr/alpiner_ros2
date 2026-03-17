@@ -13,15 +13,23 @@ from launch_ros.parameter_descriptions import ParameterValue
 def generate_launch_description():
     """Generate Gazebo-only launch description for Action 7 Terminal 1."""
 
+    bringup_dir = get_package_share_directory('robot_bringup')
     robot_desc_dir = get_package_share_directory('robot_description')
     gazebo_ros_dir = get_package_share_directory('gazebo_ros')
 
     urdf_file = os.path.join(robot_desc_dir, 'urdf', 'komatsu_gazebo.urdf.xacro')
+    default_world = os.path.join(bringup_dir, 'worlds', 'test_field.world')
 
     use_sim_time = DeclareLaunchArgument(
         'use_sim_time',
         default_value='true',
         description='Use simulation clock',
+    )
+
+    world = DeclareLaunchArgument(
+        'world',
+        default_value=default_world,
+        description='Absolute path to Gazebo world file',
     )
 
     robot_description_content = ParameterValue(
@@ -54,6 +62,9 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(
             os.path.join(gazebo_ros_dir, 'launch', 'gzserver.launch.py')
         ),
+        launch_arguments={
+            'world': LaunchConfiguration('world'),
+        }.items(),
     )
 
     gazebo_client = IncludeLaunchDescription(
@@ -71,6 +82,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         use_sim_time,
+        world,
         robot_state_publisher,
         joint_state_publisher,
         gazebo_server,
