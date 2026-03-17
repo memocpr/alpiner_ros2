@@ -940,8 +940,8 @@ Run in 5 terminals (same workspace and sourced environment):
 # Terminal 1: Gazebo only
 pkill -f ros2 || true
 cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
-colcon build
 source /opt/ros/humble/setup.bash
+colcon build --packages-select robot_bringup
 source install/setup.bash
 ros2 launch robot_bringup komatsu_gazebo.launch.py
 ```
