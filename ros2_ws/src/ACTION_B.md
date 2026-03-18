@@ -280,98 +280,9 @@ Translation: [0, 0, 0]
 Rotation: [0, 0, 0, 1]
 ```
 
----
 
-## Action 4: Optional Gazebo Validation
 
-This step is optional. It validates motion and control on local PC before hardware.
-
-### Gazebo Validation Goal
-- spawn robot
-- verify motion from `/cmd_vel`
-- verify odom / TF / joints
-- validate local control behavior
-
-### Build and Launch Gazebo
-```bash
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
-colcon build --packages-select robot_bringup robot_description ros2_application
-source install/setup.bash
-ros2 launch robot_bringup komatsu_gazebo_validation.launch.py
-```
-
-Expected:
-- Gazebo opens.
-- Robot spawns correctly.
-- TF tree is connected.
-- Control nodes start.
-
-### Check Running Nodes
-```bash
-ros2 node list | grep -E "gazebo|spawn|controller|robot_state_publisher|joint_state_broadcaster"
-```
-
-Expected:
-```bash
-/controller_manager
-/gazebo
-/joint_state_broadcaster
-/robot_state_publisher
-/spawn_entity
-```
-
-### Check Topics
-```bash
-ros2 topic list | grep -E "cmd_vel|odom|joint_states|scan|tf"
-```
-
-Expected:
-```bash
-/cmd_vel
-/joint_states
-/odom
-/scan
-/tf
-/tf_static
-```
-
-### Test Motion Command
-```bash
-ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.5}, angular: {z: 0.0}}" -r 10
-```
-
-Expected:
-- Robot moves forward in Gazebo.
-- Odom changes.
-- Joint states update.
-
-### Verify Odom
-```bash
-ros2 topic echo /odom --once
-```
-
-Expected:
-```bash
-header.frame_id: odom
-child_frame_id: base_footprint
-```
-
-### Verify Joint States
-```bash
-ros2 topic echo /joint_states --once
-```
-
-Expected:
-- Wheel and articulation joint states are published.
-
-### Notes
-- Gazebo is optional.
-- It is for validation only.
-- Main GNSS architecture remains hardware-first.
-
----
-
-## Action 5: GNSS Localization Pipeline
+## Action 4: GNSS Localization Pipeline
 
 This is the real GNSS localization step after local validation.
 
@@ -474,7 +385,7 @@ Rotation: [0, 0, yaw]
 
 ---
 
-## Action 6: Static Map Server
+## Action 5: Static Map Server
 
 This step replaces RTAB-Map online mapping with a predefined static map.
 
@@ -519,7 +430,7 @@ Expected:
 
 ---
 
-## Action 7: Navigation Stack (Nav2)
+## Action 6: Navigation Stack (Nav2)
 
 ### Inputs
 - `/map`
@@ -599,7 +510,7 @@ angular:
 
 ---
 
-## Action 8: GNSS + Static Map + Nav2 Integration
+## Action 7: GNSS + Static Map + Nav2 Integration
 
 This step combines localization, map server, Nav2, and RViz.
 
@@ -620,6 +531,11 @@ cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application robot_bringup robot_description
 source install/setup.bash
 ros2 launch robot_bringup komatsu_gnss_rviz_integration.launch.py
+```
+
+### Teleoperation (RViz)
+```bash
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
 
 Expected:
@@ -682,6 +598,97 @@ Expected:
 - Goal accepted.
 - Planner generates path.
 - Controller publishes `/cmd_vel`.
+
+---
+
+---
+
+## Action 8: Optional Gazebo Validation
+
+This step is optional. It validates motion and control on local PC before hardware.
+
+### Gazebo Validation Goal
+- spawn robot
+- verify motion from `/cmd_vel`
+- verify odom / TF / joints
+- validate local control behavior
+
+### Build and Launch Gazebo
+```bash
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+colcon build --packages-select robot_bringup robot_description ros2_application
+source install/setup.bash
+ros2 launch robot_bringup komatsu_gazebo_validation.launch.py
+```
+
+Expected:
+- Gazebo opens.
+- Robot spawns correctly.
+- TF tree is connected.
+- Control nodes start.
+
+### Check Running Nodes
+```bash
+ros2 node list | grep -E "gazebo|spawn|controller|robot_state_publisher|joint_state_broadcaster"
+```
+
+Expected:
+```bash
+/controller_manager
+/gazebo
+/joint_state_broadcaster
+/robot_state_publisher
+/spawn_entity
+```
+
+### Check Topics
+```bash
+ros2 topic list | grep -E "cmd_vel|odom|joint_states|scan|tf"
+```
+
+Expected:
+```bash
+/cmd_vel
+/joint_states
+/odom
+/scan
+/tf
+/tf_static
+```
+
+### Test Motion Command
+```bash
+ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.5}, angular: {z: 0.0}}" -r 10
+```
+
+Expected:
+- Robot moves forward in Gazebo.
+- Odom changes.
+- Joint states update.
+
+### Verify Odom
+```bash
+ros2 topic echo /odom --once
+```
+
+Expected:
+```bash
+header.frame_id: odom
+child_frame_id: base_footprint
+```
+
+### Verify Joint States
+```bash
+ros2 topic echo /joint_states --once
+```
+
+Expected:
+- Wheel and articulation joint states are published.
+
+### Notes
+- Gazebo is optional.
+- It is for validation only.
+- Main GNSS architecture remains hardware-first.
 
 ---
 
