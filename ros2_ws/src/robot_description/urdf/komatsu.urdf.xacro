@@ -146,19 +146,27 @@
   </joint>
 
   <!-- ===== Sensors ===== -->
+  <!-- Action_B: mount imu, gnss, laser on rear_chassis -->
 
   <link name="laser_frame"/>
   <joint name="laser_joint" type="fixed">
     <parent link="rear_chassis"/>
     <child link="laser_frame"/>
-    <origin xyz="0.0 0.0 ${box_h + 0.03}" rpy="0 0 0"/>
+    <origin xyz="0.0 0.0 ${box_h + 0.30}" rpy="0 0 0"/>
   </joint>
 
   <link name="imu_link"/>
   <joint name="imu_joint" type="fixed">
-    <parent link="base_link"/>
+    <parent link="rear_chassis"/>
     <child link="imu_link"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <origin xyz="0.0 0.0 ${box_h - 0.20}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="gnss_link"/>
+  <joint name="gnss_joint" type="fixed">
+    <parent link="rear_chassis"/>
+    <child link="gnss_link"/>
+    <origin xyz="0.0 0.0 ${box_h - 0.10}" rpy="0 0 0"/>
   </joint>
 
 </robot>
