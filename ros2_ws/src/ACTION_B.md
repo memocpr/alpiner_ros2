@@ -127,14 +127,18 @@ map -> odom -> base_footprint -> base_link
 first launch the robot model to load the TF tree, then launch the mock publishers and localization nodes:
 ```bash
 cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
-colcon build --packages-select ros2_application robot_description
+source /opt/ros/humble/setup.bash
+colcon build --packages-select robot_description --symlink-install
 source install/setup.bash
 ros2 launch robot_description komatsu_view_robot.launch.py
 ```
+
 ```bash
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+colcon build --packages-select ros2_application robot_description
+source install/setup.bash
 ros2 launch ros2_application komatsu_gnss_local_mock.launch.py
 ```
-
 
 Expected:
 - Mock publishers start.
