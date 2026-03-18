@@ -402,7 +402,11 @@ Rotation: [0, 0, yaw]
 
 ---
 
-## Action 5: Static Map Server
+
+
+
+
+## Action 5: Static Map Server (Nav2)
 
 This step replaces RTAB-Map online mapping with a predefined static map.
 
@@ -411,11 +415,24 @@ This step replaces RTAB-Map online mapping with a predefined static map.
 - `robot_bringup/maps/map.pgm`
 
 ### Build and Launch
+
+
+run the robot model first to load the TF tree, then launch the localization nodes:
+
 ```bash
 cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
-colcon build --packages-select robot_bringup
+source /opt/ros/humble/setup.bash
+colcon build --packages-select robot_description ros2_application robot_bringup --symlink-install
 source install/setup.bash
-ros2 launch robot_bringup komatsu_map_server.launch.py
+ros2 launch robot_description komatsu_view_robot.launch.py
+```
+
+```bash
+ros2 launch ros2_application komatsu_localization.launch.py
+```
+
+```bash
+ros2 launch robot_bringup komatsu_nav2.launch.py
 ```
 
 Expected:
@@ -424,7 +441,9 @@ Expected:
 
 ### Verify Map Topic
 ```bash
-ros2 topic echo /map --once
+ros2 node list | grep map
+ros2 topic info /map -v
+ros2 node info /map_server
 ```
 
 Expected:
@@ -442,6 +461,24 @@ Expected:
 /map_server
 
 ---
+
+### Verify Nav2 Nodes
+```bash
+ros2 node list | grep -E "robot_state_publisher|map_server|planner_server|controller_server|bt_navigator|amcl"
+ros2 run tf2_ros tf2_echo odom base_footprint
+ros2 action info /navigate_to_pose
+```
+Expected:
+robot_state_publisher exists
+map_server exists
+Nav2 nodes exist
+odom -> base_footprint exists
+/navigate_to_pose server exists
+
+
+
+
+
 
 ## Action 6: Navigation Stack (Nav2)
 
