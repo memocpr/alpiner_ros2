@@ -137,7 +137,7 @@ ros2 launch robot_description komatsu_view_robot.launch.py
 cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application robot_description
 source install/setup.bash
-ros2 launch ros2_application komatsu_gnss_local_mock.launch.py
+ros2 launch ros2_application komatsu_localization.launch.py use_mock_gnss:=false
 ```
 
 Expected:
@@ -280,6 +280,12 @@ Translation: [0, 0, 0]
 Rotation: [0, 0, 0, 1]
 ```
 
+### Notes
+Action 3 (fallback)
+odom + imu → UKF
+
+Action 4 (default)
+odom + imu → UKF + GNSS → navsat → global localization
 
 
 ## Action 4: GNSS Localization Pipeline
@@ -311,7 +317,7 @@ map -> odom -> base_footprint -> base_link
 cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application robot_description
 source install/setup.bash
-ros2 launch ros2_application komatsu_gnss_localization.launch.py
+ros2 launch ros2_application komatsu_localization.launch.py
 ```
 
 Expected:

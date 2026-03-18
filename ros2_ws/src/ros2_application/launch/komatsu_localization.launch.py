@@ -1,5 +1,6 @@
-"""Launch file for robot_localization (UKF node)."""
+"""Launch file for GNSS localization pipeline (UKF + navsat_transform)."""
 import os
+
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition, UnlessCondition
@@ -30,6 +31,12 @@ def generate_launch_description():
         'use_sim_imu',
         default_value='true',
         description='Use simulated IMU input',
+    )
+
+    use_mock_gnss = DeclareLaunchArgument(
+        'use_mock_gnss',
+        default_value='true',
+        description='Use simulated GNSS input instead of real /gps/fix',
     )
 
     ukf_node_sim = Node(
@@ -77,12 +84,52 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('use_sim_imu')),
     )
 
+    sim_gnss_node = Node(
+        package='ros2_application',
+        executable='sim_gnss_publisher',
+        name='sim_gnss',
+        output='screen',
+        parameters=[{
+            'use_sim_time': LaunchConfiguration('use_sim_time'),
+            'frame_id': 'gnss_link',
+        }],
+        condition=IfCondition(LaunchConfiguration('use_mock_gnss')),
+    )
+
+    navsat_transform_node = Node(
+        package='robot_localization',
+        executable='navsat_transform_node',
+        name='navsat_transform_node',
+        output='screen',
+        parameters=[{
+            'use_sim_time': LaunchConfiguration('use_sim_time'),
+            'frequency': 30.0,
+            'delay': 0.0,
+            'magnetic_declination_radians': 0.0,
+            'yaw_offset': 0.0,
+            'zero_altitude': True,
+            'broadcast_utm_transform': False,
+            'publish_filtered_gps': True,
+            'use_odometry_yaw': True,
+            'wait_for_datum': False,
+        }],
+        remappings=[
+            ('imu/data', '/imu/data'),
+            ('gps/fix', '/gps/fix'),
+            ('gps/filtered', '/gps/filtered'),
+            ('odometry/filtered', '/odometry/filtered'),
+        ],
+    )
+
     return LaunchDescription([
         use_sim_time,
         use_sim_odometry,
         use_sim_imu,
+        use_mock_gnss,
         ukf_node_sim,
         ukf_node_gazebo,
         sim_odometry_node,
         sim_imu_node,
+        sim_gnss_node,
+        navsat_transform_node,
     ])
