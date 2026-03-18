@@ -339,6 +339,37 @@ Expected:
 /tf
 /tf_static
 
+
+### Check UKF Parameters
+```bash
+ros2 param get /ukf_local_node world_frame
+ros2 param get /ukf_local_node odom_frame
+ros2 param get /ukf_local_node base_link_frame
+ros2 param get /ukf_global_node world_frame
+ros2 param get /ukf_global_node odom_frame
+ros2 param get /ukf_global_node base_link_frame
+ros2 param get /ukf_global_node publish_tf
+```
+
+Expected:
+String value is: odom
+String value is: odom
+String value is: base_footprint
+String value is: map
+String value is: odom
+String value is: base_footprint
+Boolean value is: True
+
+
+
+### Verify Parameter Files
+```bash
+ls install/ros2_application/share/ros2_application/config/
+```
+
+Expected:
+rtabmap_params.yaml  ukf_global.yaml  ukf_params.yaml
+
 ### Verify GNSS Data
 ```bash
 ros2 topic echo /gps/fix --once

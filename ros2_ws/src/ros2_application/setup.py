@@ -16,6 +16,7 @@ setup(
         ('share/' + package_name + '/launch', glob('launch/*.launch.py')),
         ('share/' + package_name + '/config', [
             'config/ukf_params.yaml',
+            'config/ukf_global.yaml',
             'config/rtabmap_params.yaml',
         ]),
     ],
