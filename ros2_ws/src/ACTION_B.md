@@ -476,32 +476,6 @@ odom -> base_footprint exists
 /navigate_to_pose server exists
 
 
-
-
-
-
-## Action 6: Navigation Stack (Nav2)
-
-### Inputs
-- `/map`
-- `/odometry/filtered`
-
-### Output
-- `/cmd_vel`
-
-### Build and Launch
-```bash
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
-colcon build --packages-select robot_bringup robot_description
-source install/setup.bash
-ros2 launch robot_bringup komatsu_nav2.launch.py
-```
-
-Expected:
-- Nav2 lifecycle nodes start.
-- Planner and controller become active.
-- `/navigate_to_pose` is available.
-
 ### Check Running Nodes
 ```bash
 ros2 daemon stop
@@ -536,7 +510,17 @@ ros2 lifecycle get /bt_navigator
 Expected:
 active [3]
 
-### Verify Output Command
+### Verify Output Command 
+
+
+first send a short goal to trigger the planner and controller:
+
+```bash
+ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose "{pose: {header: {frame_id: map}, pose: {position: {x: 1.0, y: 0.0, z: 0.0}, orientation: {w: 1.0}}}}"
+```
+
+then check the output command:
+
 ```bash
 ros2 topic echo /cmd_vel
 ```
@@ -552,9 +536,29 @@ angular:
   z: 0.2
 ```
 
+
+
+ros2 topic echo /goal_pose --once
+ros2 topic echo /plan --once
+ros2 topic echo /odometry/filtered --once
+
+ros2 topic echo /tf --once
+ros2 topic echo /scan --once
+
+ros2 topic list | grep scan
+ros2 topic info /scan
+ros2 topic echo /scan --once
+
+ros2 node list | grep -E "scan|laser|lidar|urg|sick|rplidar"
 ---
 
-## Action 7: GNSS + Static Map + Nav2 Integration
+
+
+
+
+
+
+## Action 6: GNSS + Static Map + Nav2 Integration
 
 This step combines localization, map server, Nav2, and RViz.
 
@@ -641,7 +645,12 @@ Expected:
 
 ---
 
-## Action 8: Optional Gazebo Validation
+
+
+
+
+
+## Action 7: Optional Gazebo Validation
 
 This step is optional. It validates motion and control on local PC before hardware.
 
@@ -724,7 +733,11 @@ Expected:
 
 ---
 
-## Action 9: Sensor Inputs
+
+
+
+
+## Action 8: Sensor Inputs
 
 ### Required Sensors
 - GNSS-RTK receiver
@@ -767,7 +780,11 @@ Type: sensor_msgs/msg/LaserScan
 
 ---
 
-## Action 10: GNSS Hardware Driver
+
+
+
+
+## Action 9: GNSS Hardware Driver
 
 Optional hardware driver node for GNSS receiver.
 
@@ -791,7 +808,12 @@ status:
 
 ---
 
-## Action 11: Map Alignment
+
+
+
+
+
+## Action 10: Map Alignment
 
 Map origin must match GNSS frame.
 
@@ -811,7 +833,12 @@ Expected:
 
 ---
 
-## Action 12: Final Hardware Navigation
+
+
+
+
+
+## Action 11: Final Hardware Navigation
 
 ### Full Runtime Stack
 ```text
