@@ -159,14 +159,12 @@ ros2 node list | grep -E "sim_gnss|sim_imu|sim_odometry|navsat|ukf|robot_state_p
 ```
 
 Expected:
-```bash
 /navsat_transform_node
 /robot_state_publisher
 /sim_gnss
 /sim_imu
 /sim_odometry
 /ukf_filter_node
-```
 
 ### Check Available Topics
 ```bash
@@ -174,7 +172,6 @@ ros2 topic list | grep -E "fix|imu|odom|gps|tf"
 ```
 
 Expected:
-```bash
 /fix
 /imu/data
 /odometry/raw
@@ -182,7 +179,6 @@ Expected:
 /odometry/filtered
 /tf
 /tf_static
-```
 
 ### Verify Mock GNSS
 ```bash
@@ -190,13 +186,11 @@ ros2 topic echo /gps/fix --once
 ```
 
 Expected:
-```bash
 latitude: ...
 longitude: ...
 altitude: ...
 status:
 position_covariance:
-```
 
 ### Verify Mock IMU
 ```bash
@@ -204,12 +198,10 @@ ros2 topic echo /imu/data --once
 ```
 
 Expected:
-```bash
 header.frame_id: imu_link
 orientation:
 angular_velocity:
 linear_acceleration:
-```
 
 ### Verify Mock Raw Odometry
 ```bash
@@ -217,10 +209,8 @@ ros2 topic echo /odometry/raw --once
 ```
 
 Expected:
-```bash
 header.frame_id: odom
 child_frame_id: base_footprint
-```
 
 ### Verify GPS Odometry
 ```bash
@@ -228,10 +218,8 @@ ros2 topic echo /odometry/gps --once
 ```
 
 Expected:
-```bash
 header.frame_id: map
 child_frame_id: base_link
-```
 
 ### Verify Filtered Odometry
 ```bash
@@ -239,10 +227,8 @@ ros2 topic echo /odometry/filtered --once
 ```
 
 Expected:
-```bash
 header.frame_id: odom
 child_frame_id: base_footprint
-```
 
 ### Verify TF: Map → Odom
 ```bash
@@ -250,10 +236,8 @@ ros2 run tf2_ros tf2_echo map odom
 ```
 
 Expected:
-```bash
 Translation: [x, y, 0]
 Rotation: [0, 0, yaw]
-```
 
 ### Verify TF: Odom → Base Footprint
 ```bash
@@ -261,10 +245,8 @@ ros2 run tf2_ros tf2_echo odom base_footprint
 ```
 
 Expected:
-```bash
 Translation: [x, y, 0]
 Rotation: [0, 0, yaw]
-```
 
 ### Verify TF: Base Footprint → Base Link
 ```bash
@@ -272,10 +254,8 @@ ros2 run tf2_ros tf2_echo base_footprint base_link
 ```
 
 Expected:
-```bash
 Translation: [0, 0, 0]
 Rotation: [0, 0, 0, 1]
-```
 
 ### Notes
 Action 3 (fallback)
@@ -336,11 +316,9 @@ ros2 node list | grep -E "robot_state_publisher|navsat|ukf"
 ```
 
 Expected:
-```bash
 /navsat_transform_node
 /robot_state_publisher
 /ukf_filter_node
-```
 
 ### Check Available Topics
 ```bash
@@ -348,7 +326,6 @@ ros2 topic list | grep -E "fix|imu|odom|gps|tf"
 ```
 
 Expected:
-```bash
 /fix
 /imu/data
 /odometry/raw
@@ -356,7 +333,6 @@ Expected:
 /odometry/filtered
 /tf
 /tf_static
-```
 
 ### Verify GNSS Data
 ```bash
@@ -364,13 +340,11 @@ ros2 topic echo /fix --once
 ```
 
 Expected:
-```bash
 latitude: ...
 longitude: ...
 altitude: ...
 status:
 position_covariance:
-```
 
 ### Verify Filtered Odometry
 ```bash
@@ -378,10 +352,8 @@ ros2 topic echo /odometry/filtered --once
 ```
 
 Expected:
-```bash
 header.frame_id: odom
 child_frame_id: base_footprint
-```
 
 ### Verify TF: Map → Odom
 ```bash
@@ -389,10 +361,8 @@ ros2 run tf2_ros tf2_echo map odom
 ```
 
 Expected:
-```bash
 Translation: [x, y, 0]
 Rotation: [0, 0, yaw]
-```
 
 ---
 
@@ -422,12 +392,10 @@ ros2 topic echo /map --once
 ```
 
 Expected:
-```bash
 header:
   frame_id: map
 info:
   resolution: 0.05
-```
 
 ### Verify Running Nodes
 ```bash
@@ -435,9 +403,7 @@ ros2 node list | grep map
 ```
 
 Expected:
-```bash
 /map_server
-```
 
 ---
 
@@ -471,13 +437,11 @@ ros2 node list | grep -E "(planner|controller|bt_navigator|smoother|behavior)"
 ```
 
 Expected:
-```bash
 /bt_navigator
 /controller_server
 /planner_server
 /smoother_server
 /behavior_server
-```
 
 ### Check Available Actions
 ```bash
@@ -485,11 +449,9 @@ ros2 action list
 ```
 
 Expected:
-```bash
 /follow_path
 /navigate_through_poses
 /navigate_to_pose
-```
 
 ### Check Lifecycle States
 ```bash
@@ -499,9 +461,7 @@ ros2 lifecycle get /bt_navigator
 ```
 
 Expected:
-```bash
 active [3]
-```
 
 ### Verify Output Command
 ```bash
@@ -560,7 +520,6 @@ ros2 node list
 ```
 
 Expected important nodes:
-```bash
 /bt_navigator
 /controller_server
 /map_server
@@ -569,7 +528,6 @@ Expected important nodes:
 /robot_state_publisher
 /rviz2
 /ukf_filter_node
-```
 
 ### Check Topics
 ```bash
@@ -577,7 +535,6 @@ ros2 topic list | grep -E "map|fix|imu|odom|cmd_vel|tf"
 ```
 
 Expected:
-```bash
 /cmd_vel
 /fix
 /imu/data
@@ -587,7 +544,6 @@ Expected:
 /odometry/raw
 /tf
 /tf_static
-```
 
 ### Check Navigation Action
 ```bash
@@ -595,10 +551,8 @@ ros2 action list | grep navigate
 ```
 
 Expected:
-```bash
 /navigate_through_poses
 /navigate_to_pose
-```
 
 ### Send Short Goal
 ```bash
@@ -644,13 +598,11 @@ ros2 node list | grep -E "gazebo|spawn|controller|robot_state_publisher|joint_st
 ```
 
 Expected:
-```bash
 /controller_manager
 /gazebo
 /joint_state_broadcaster
 /robot_state_publisher
 /spawn_entity
-```
 
 ### Check Topics
 ```bash
@@ -658,14 +610,12 @@ ros2 topic list | grep -E "cmd_vel|odom|joint_states|scan|tf"
 ```
 
 Expected:
-```bash
 /cmd_vel
 /joint_states
 /odom
 /scan
 /tf
 /tf_static
-```
 
 ### Test Motion Command
 ```bash
@@ -683,10 +633,8 @@ ros2 topic echo /odom --once
 ```
 
 Expected:
-```bash
 header.frame_id: odom
 child_frame_id: base_footprint
-```
 
 ### Verify Joint States
 ```bash
@@ -725,12 +673,10 @@ ros2 topic list | grep -E "fix|imu|odom|scan"
 ```
 
 Expected:
-```bash
 /fix
 /imu/data
 /odometry/raw
 /scan
-```
 
 ### Verify Topic Types
 ```bash
@@ -741,12 +687,10 @@ ros2 topic info /scan
 ```
 
 Expected:
-```bash
 Type: sensor_msgs/msg/NavSatFix
 Type: sensor_msgs/msg/Imu
 Type: nav_msgs/msg/Odometry
 Type: sensor_msgs/msg/LaserScan
-```
 
 ---
 
@@ -766,13 +710,11 @@ ros2 topic echo /fix --once
 ```
 
 Expected:
-```bash
 latitude: ...
 longitude: ...
 altitude: ...
 position_covariance:
 status:
-```
 
 ---
 
