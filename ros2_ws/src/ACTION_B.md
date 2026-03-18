@@ -189,7 +189,7 @@ Expected:
 
 ### Verify Mock GNSS
 ```bash
-ros2 topic echo /fix --once
+ros2 topic echo /gps/fix --once
 ```
 
 Expected:
