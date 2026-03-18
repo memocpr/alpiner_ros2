@@ -1,4 +1,4 @@
-"""Launch file for GNSS localization pipeline (UKF + navsat_transform)."""
+"""Launch file for GNSS localization pipeline (local UKF + navsat_transform + global UKF)."""
 import os
 
 from launch import LaunchDescription
@@ -14,6 +14,7 @@ def generate_launch_description():
 
     ros2_app_dir = get_package_share_directory('ros2_application')
     ukf_params_file = os.path.join(ros2_app_dir, 'config', 'ukf_params.yaml')
+    ukf_global_params_file = os.path.join(ros2_app_dir, 'config', 'ukf_global.yaml')
 
     use_sim_time = DeclareLaunchArgument(
         'use_sim_time',
@@ -39,27 +40,43 @@ def generate_launch_description():
         description='Use simulated GNSS input instead of real /gps/fix',
     )
 
-    ukf_node_sim = Node(
+    ukf_local_node_sim = Node(
         package='robot_localization',
         executable='ukf_node',
-        name='ukf_filter_node',
+        name='ukf_local_node',
         output='screen',
         parameters=[ukf_params_file, {
             'use_sim_time': LaunchConfiguration('use_sim_time'),
         }],
+        remappings=[
+            ('odometry/filtered', '/odometry/filtered_local'),
+        ],
         condition=IfCondition(LaunchConfiguration('use_sim_odometry')),
     )
 
-    ukf_node_gazebo = Node(
+    ukf_local_node_gazebo = Node(
         package='robot_localization',
         executable='ukf_node',
-        name='ukf_filter_node',
+        name='ukf_local_node',
         output='screen',
         parameters=[ukf_params_file, {
             'use_sim_time': LaunchConfiguration('use_sim_time'),
             'odom0': '/odom',
         }],
+        remappings=[
+            ('odometry/filtered', '/odometry/filtered_local'),
+        ],
         condition=UnlessCondition(LaunchConfiguration('use_sim_odometry')),
+    )
+
+    ukf_global_node = Node(
+        package='robot_localization',
+        executable='ukf_node',
+        name='ukf_global_node',
+        output='screen',
+        parameters=[ukf_global_params_file, {
+            'use_sim_time': LaunchConfiguration('use_sim_time'),
+        }],
     )
 
     sim_odometry_node = Node(
@@ -117,7 +134,7 @@ def generate_launch_description():
             ('imu/data', '/imu/data'),
             ('gps/fix', '/gps/fix'),
             ('gps/filtered', '/gps/filtered'),
-            ('odometry/filtered', '/odometry/filtered'),
+            ('odometry/filtered', '/odometry/filtered_local'),
         ],
     )
 
@@ -126,8 +143,9 @@ def generate_launch_description():
         use_sim_odometry,
         use_sim_imu,
         use_mock_gnss,
-        ukf_node_sim,
-        ukf_node_gazebo,
+        ukf_local_node_sim,
+        ukf_local_node_gazebo,
+        ukf_global_node,
         sim_odometry_node,
         sim_imu_node,
         sim_gnss_node,

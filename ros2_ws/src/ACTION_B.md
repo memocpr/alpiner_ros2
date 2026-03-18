@@ -265,6 +265,11 @@ Action 4 (default)
 odom + imu → UKF + GNSS → navsat → global localization
 
 
+
+
+
+
+
 ## Action 4: GNSS Localization Pipeline
 
 This is the real GNSS localization step after local validation.
@@ -336,7 +341,7 @@ Expected:
 
 ### Verify GNSS Data
 ```bash
-ros2 topic echo /fix --once
+ros2 topic echo /gps/fix --once
 ```
 
 Expected:
@@ -352,7 +357,7 @@ ros2 topic echo /odometry/filtered --once
 ```
 
 Expected:
-header.frame_id: odom
+header.frame_id: map
 child_frame_id: base_footprint
 
 ### Verify TF: Map → Odom

@@ -1,4 +1,4 @@
-ukf_filter_node:
+ukf_local_node:
   ros__parameters:
     frequency: 30.0
     sensor_timeout: 0.2
@@ -7,7 +7,7 @@ ukf_filter_node:
     map_frame: map
     odom_frame: odom
     base_link_frame: base_footprint
-    world_frame: map
+    world_frame: odom
 
     odom0: /odometry/raw
     odom0_config: [true, true, false,
@@ -27,4 +27,3 @@ ukf_filter_node:
     imu0_differential: false
     imu0_relative: true
     imu0_remove_gravitational_acceleration: true
-
