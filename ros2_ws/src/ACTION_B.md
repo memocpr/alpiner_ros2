@@ -67,6 +67,16 @@ Notes:
 - `odom -> base_footprint` comes from **UKF**. (Unscented Kalman Filter, a powerful nonlinear state estimation algorithm used primarily for sensor fusion. )
 - `imu_link`, `gnss_link`, and `laser_frame` are mounted on `rear_chassis`.
 
+Typical GNSS pipeline:
+GNSS + IMU + odom
+↓
+navsat_transform_node
+↓
+robot_localization (UKF)
+↓
+map → odom → base_link
+
+
 ### Visualize in RViz
 ```bash
 cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
