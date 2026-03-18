@@ -12,7 +12,7 @@ class SimImuPublisher(Node):
     def _on_timer(self):
         msg = Imu()
         msg.header.stamp = self.get_clock().now().to_msg()
-        msg.header.frame_id = 'base_link'
+        msg.header.frame_id = 'imu_link'
 
         # Static IMU - no rotation unless robot is commanded
         msg.orientation.w = 1.0
