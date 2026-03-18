@@ -64,7 +64,7 @@ map
 
 Notes:
 - `map -> odom` comes from localization.
-- `odom -> base_footprint` comes from UKF.
+- `odom -> base_footprint` comes from **UKF**. (Unscented Kalman Filter, a powerful nonlinear state estimation algorithm used primarily for sensor fusion. )
 - `imu_link`, `gnss_link`, and `laser_frame` are mounted on `rear_chassis`.
 
 ### Visualize in RViz
