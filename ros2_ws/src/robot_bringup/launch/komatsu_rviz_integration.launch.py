@@ -1,4 +1,4 @@
-"""Action 6 integration launch: robot model + localization + mapping + Nav2 + RViz."""
+"""Action 6 integration launch: robot model + localization + static map + Nav2 + RViz."""
 import os
 
 from ament_index_python.packages import get_package_share_directory
@@ -50,7 +50,7 @@ def generate_launch_description():
     use_sim_scan = DeclareLaunchArgument(
         'use_sim_scan',
         default_value='true',
-        description='Use simulated LaserScan source for RTAB-Map',
+        description='Use simulated LaserScan source for Nav2',
     )
 
     use_cmd_vel_joint_sim = DeclareLaunchArgument(
@@ -63,18 +63,6 @@ def generate_launch_description():
         'joint_cmd_topic',
         default_value='/cmd_vel',
         description='Twist topic used by cmd_vel_joint_state_publisher',
-    )
-
-    odom_topic = DeclareLaunchArgument(
-        'odom_topic',
-        default_value='/odometry/filtered',
-        description='Odometry topic for mapping stage',
-    )
-
-    scan_topic = DeclareLaunchArgument(
-        'scan_topic',
-        default_value='/scan',
-        description='LaserScan topic for mapping and Nav2 costmaps',
     )
 
     params_file = DeclareLaunchArgument(
@@ -136,7 +124,6 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('use_cmd_vel_joint_sim')),
     )
 
-
     localization_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(ros2_app_dir, 'launch', '../../ros2_application/launch/komatsu_localization.launch.py')
@@ -148,26 +135,15 @@ def generate_launch_description():
         }.items(),
     )
 
-    mapping_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(ros2_app_dir, 'launch', '../../ros2_application/launch/komatsu_mapping.launch.py')
-        ),
-        launch_arguments={
-            'use_sim_time': LaunchConfiguration('use_sim_time'),
-            'use_sim_scan': LaunchConfiguration('use_sim_scan'),
-            'odom_topic': LaunchConfiguration('odom_topic'),
-            'scan_topic': LaunchConfiguration('scan_topic'),
-        }.items(),
-    )
-
     nav2_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(nav2_bringup_dir, 'launch', 'navigation_launch.py')
+            os.path.join(bringup_dir, 'launch', 'komatsu_nav2.launch.py')
         ),
         launch_arguments={
             'use_sim_time': LaunchConfiguration('use_sim_time'),
             'autostart': LaunchConfiguration('autostart'),
             'params_file': LaunchConfiguration('params_file'),
+            'use_sim_scan': LaunchConfiguration('use_sim_scan'),
         }.items(),
     )
 
@@ -184,10 +160,7 @@ def generate_launch_description():
         LogInfo(msg=['[Action6] use_sim_odometry=', LaunchConfiguration('use_sim_odometry'),
                      ', use_sim_imu=', LaunchConfiguration('use_sim_imu'),
                      ', use_sim_scan=', LaunchConfiguration('use_sim_scan')]),
-        LogInfo(msg=['[Action6] odom_topic=', LaunchConfiguration('odom_topic'),
-                     ', scan_topic=', LaunchConfiguration('scan_topic')]),
-        LogInfo(msg=['[Action6] Nav2 bringup launches navigation nodes only; '
-                     'AMCL/map_server lifecycle is not started in this SLAM flow.']),
+        LogInfo(msg=['[Action6] GNSS + static map + Nav2 integration active.']),
     ]
 
     return LaunchDescription([
@@ -198,8 +171,6 @@ def generate_launch_description():
         use_sim_scan,
         use_cmd_vel_joint_sim,
         joint_cmd_topic,
-        odom_topic,
-        scan_topic,
         params_file,
         use_rviz,
         rviz_config,
@@ -208,8 +179,6 @@ def generate_launch_description():
         joint_state_publisher,
         cmd_vel_joint_state_publisher,
         localization_launch,
-        mapping_launch,
         nav2_launch,
         rviz_node,
     ])
-
