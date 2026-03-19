@@ -608,7 +608,7 @@ ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose "{pose: 
 This step combines localization, map server, Nav2, and RViz.
 
 ### Launch File
-- `komatsu_gnss_rviz_integration.launch.py`
+- `komatsu_rviz_integration.launch.py`
 
 ### Launch Components
 - `robot_state_publisher`
@@ -623,7 +623,7 @@ This step combines localization, map server, Nav2, and RViz.
 cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application robot_bringup robot_description
 source install/setup.bash
-ros2 launch robot_bringup komatsu_gnss_rviz_integration.launch.py
+ros2 launch robot_bringup komatsu_rviz_integration.launch.py
 ```
 
 ### Teleoperation (RViz)
@@ -688,6 +688,35 @@ Expected:
 
 ---
 
+ Localization Chain Check
+
+### Check Raw Odometry
+```bash
+ros2 topic echo /odometry/raw --once
+```
+Expected:
+- One odometry message appears.
+
+---
+
+### Check Local UKF Output
+```bash
+ros2 topic echo /odometry/filtered_local --once
+```
+Expected:
+- One odometry message appears.
+- If this hangs, local UKF is the current blocker.
+
+---
+
+### Check GNSS Odometry From navsat_transform
+```bash
+ros2 topic echo /odometry/gps --once
+```
+Expected:
+- One odometry message appears.
+- If this hangs, navsat_transform is the current blocker.
+```
 ---
 
 
