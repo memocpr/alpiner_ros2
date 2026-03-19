@@ -445,6 +445,14 @@ ros2 launch ros2_application komatsu_localization.launch.py
 ros2 launch robot_bringup komatsu_nav2.launch.py
 ```
 
+local PC (no simulator) → use_sim_time=false (default)
+Gazebo / sim → use_sim_time=true
+
+```bash
+ros2 launch robot_bringup komatsu_nav2.launch.py use_sim_time:=true
+```
+
+
 Expected:
 - Map server starts successfully.
 - `/map` is published.
@@ -547,23 +555,50 @@ angular:
 ```
 
 
-
+```bash
 ros2 topic echo /goal_pose --once
 ros2 topic echo /plan --once
 ros2 topic echo /odometry/filtered --once
+```
 
+```bash
 ros2 topic echo /tf --once
 ros2 topic echo /scan --once
+```
 
+```bash
 ros2 topic list | grep scan
 ros2 topic info /scan
 ros2 topic echo /scan --once
-
+```
+```bash
 ros2 node list | grep -E "scan|laser|lidar|urg|sick|rplidar"
+```
+
 ---
 
+### Verify LiDAR Data
+```bash
+ros2 topic info /scan
+ros2 topic hz /scan
+ros2 topic echo /scan --once
+```
+
+Expected:
+Type: sensor_msgs/msg/LaserScan
+Publisher count: 1
+rate around 10 Hz
+frame_id: laser_frame
 
 
+### Verify Nav2 Output Command
+```bash
+ros2 topic echo /cmd_vel
+```
+
+```bash
+ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose "{pose: {header: {frame_id: map}, pose: {position: {x: 1.0, y: 0.0, z: 0.0}, orientation: {w: 1.0}}}}"
+```
 
 
 
