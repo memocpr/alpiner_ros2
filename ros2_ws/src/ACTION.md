@@ -580,7 +580,16 @@ map -> odom -> base_footprint -> base_link -> laser_frame
 - RTAB-Map local test now uses `/tmp/rtabmap_action6.db` with `delete_db_on_start=true` to avoid stale DB conflicts during repeated launch/stop cycles.
 
 
+
+
+
+
 ## Action 5: Navigation stack (Nav2)
+
+### install slam_toolbox
+```bash
+sudo apt install ros-humble-slam-toolbox
+```
 
 ### Overview
 
@@ -726,9 +735,6 @@ This launch starts:
 ### Build and run
 
 ```bash
-pkill -f ros2 || true
-ros2 daemon stop
-ros2 daemon start
 
 cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application robot_bringup robot_description
