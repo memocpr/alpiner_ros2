@@ -743,6 +743,11 @@ source install/setup.bash
 ros2 launch robot_bringup komatsu_rviz_integration.launch.py use_sim_time:=false
 ```
 
+### run teleop in another terminal
+```bash
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
+```
+
 ### Step-by-step checks (Action 6)
 
 1. In RViz, confirm TF chain is present: `map -> odom -> base_footprint -> base_link`.
