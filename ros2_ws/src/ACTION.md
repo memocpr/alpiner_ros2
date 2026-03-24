@@ -825,7 +825,7 @@ Expected:
 ### Send Short Test Goal
 ```bash
 ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose \
-"{pose: {header: {frame_id: map}, pose: {position: {x: 0.2, y: -0.8, z: 0.0}, orientation: {w: 1.0}}}}"
+"{pose: {header: {frame_id: base_link}, pose: {position: {x: 10.0, y: -10.0, z: 0.0}, orientation: {w: 1.0}}}}"
 ```
 Expected:
 - Goal accepted
