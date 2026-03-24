@@ -22,6 +22,7 @@ def generate_launch_description():
     urdf_file = os.path.join(robot_desc_dir, 'urdf', 'komatsu.urdf.xacro')
     nav2_params_file = os.path.join(bringup_dir, 'config', 'komatsu_nav2_params.yaml')
     nav2_rviz_config = os.path.join(nav2_bringup_dir, 'rviz', 'nav2_default_view.rviz')
+    komatsu_nav2_launch_file = os.path.join(bringup_dir, 'launch', 'komatsu_nav2.launch.py')
 
     use_sim_time = DeclareLaunchArgument(
         'use_sim_time',
@@ -136,10 +137,9 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('use_cmd_vel_joint_sim')),
     )
 
-
     localization_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(ros2_app_dir, 'launch', '../../ros2_application/launch/komatsu_localization.launch.py')
+            os.path.join(ros2_app_dir, 'launch', 'komatsu_localization.launch.py')
         ),
         launch_arguments={
             'use_sim_time': LaunchConfiguration('use_sim_time'),
@@ -150,7 +150,7 @@ def generate_launch_description():
 
     mapping_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(ros2_app_dir, 'launch', '../../ros2_application/launch/komatsu_mapping.launch.py')
+            os.path.join(ros2_app_dir, 'launch', 'komatsu_mapping.launch.py')
         ),
         launch_arguments={
             'use_sim_time': LaunchConfiguration('use_sim_time'),
@@ -161,9 +161,7 @@ def generate_launch_description():
     )
 
     nav2_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(nav2_bringup_dir, 'launch', 'navigation_launch.py')
-        ),
+        PythonLaunchDescriptionSource(komatsu_nav2_launch_file),
         launch_arguments={
             'use_sim_time': LaunchConfiguration('use_sim_time'),
             'autostart': LaunchConfiguration('autostart'),
@@ -186,8 +184,6 @@ def generate_launch_description():
                      ', use_sim_scan=', LaunchConfiguration('use_sim_scan')]),
         LogInfo(msg=['[Action6] odom_topic=', LaunchConfiguration('odom_topic'),
                      ', scan_topic=', LaunchConfiguration('scan_topic')]),
-        LogInfo(msg=['[Action6] Nav2 bringup launches navigation nodes only; '
-                     'AMCL/map_server lifecycle is not started in this SLAM flow.']),
     ]
 
     return LaunchDescription([
@@ -212,4 +208,3 @@ def generate_launch_description():
         nav2_launch,
         rviz_node,
     ])
-
