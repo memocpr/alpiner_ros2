@@ -732,10 +732,17 @@ This launch starts:
 - Nav2 navigation stack (`navigation_launch.py`)
 - RViz (Nav2 default config)
 
-### Build and run
-
+### Restart ROS2 daemon and source workspace
 ```bash
+pkill -f ros2
+ros2 daemon stop
+ros2 daemon start
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+source install/setup.bash
+```
 
+### Build and run
+```bash
 cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application robot_bringup robot_description
 source /opt/ros/humble/setup.bash
@@ -743,10 +750,49 @@ source install/setup.bash
 ros2 launch robot_bringup komatsu_rviz_integration.launch.py use_sim_time:=false
 ```
 
+```bash
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+colcon build --packages-select ros2_application robot_bringup robot_description
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+ros2 launch robot_bringup komatsu_rviz_integration.launch.py \
+use_sim_time:=false \
+use_cmd_vel_joint_sim:=false
+```
+
 ### run teleop in another terminal
 ```bash
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
+
+### Send Short Test Goal
+```bash
+ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose \
+"{pose: {header: {frame_id: map}, pose: {position: {x: -6.0, y: -6.0, z: 0.0}, orientation: {w: 1.0}}}}"
+```
+Expected:
+- Goal accepted
+- Robot publishes `/cmd_vel`
+
+
+### check plan
+```bash
+ros2 topic echo /plan --once
+```
+```bash
+ros2 topic echo /map --once
+```
+```bash
+ros2 run tf2_ros tf2_echo map base_link
+ros2 run tf2_ros tf2_echo odom base_footprint
+ros2 run tf2_ros tf2_echo base_footprint base_link
+```
+```bash
+ros2 topic echo /goal_pose --once
+```
+
+
+---
 
 ### Step-by-step checks (Action 6)
 
@@ -819,17 +865,6 @@ ros2 action info /navigate_to_pose
 ```
 Expected:
 - `/bt_navigator` appears as action server
-
----
-
-### Send Short Test Goal
-```bash
-ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose \
-"{pose: {header: {frame_id: base_link}, pose: {position: {x: 10.0, y: -10.0, z: 0.0}, orientation: {w: 1.0}}}}"
-```
-Expected:
-- Goal accepted
-- Robot publishes `/cmd_vel`
 
 ---
 
