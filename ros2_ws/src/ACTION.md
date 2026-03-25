@@ -757,7 +757,7 @@ source /opt/ros/humble/setup.bash
 source install/setup.bash
 ros2 launch robot_bringup komatsu_rviz_integration.launch.py \
 use_sim_time:=false \
-use_cmd_vel_joint_sim:=false
+use_sim_imu:=false
 ```
 
 ### run teleop in another terminal
