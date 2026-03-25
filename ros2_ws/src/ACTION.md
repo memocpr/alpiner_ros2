@@ -792,6 +792,18 @@ ros2 topic echo /goal_pose --once
 ```
 
 
+### see planners
+```bash
+ros2 node list | grep -E "planner_server|controller_server|bt_navigator"
+ros2 param get /planner_server planner_plugins
+ros2 param get /planner_server GridBased.plugin
+ros2 param get /controller_server controller_plugins
+ros2 param get /controller_server FollowPath.plugin
+ros2 param get /bt_navigator navigators
+ros2 action list
+ros2 action info /navigate_to_pose
+```
+
 ---
 
 ### Step-by-step checks (Action 6)
