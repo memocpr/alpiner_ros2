@@ -580,7 +580,16 @@ map -> odom -> base_footprint -> base_link -> laser_frame
 - RTAB-Map local test now uses `/tmp/rtabmap_action6.db` with `delete_db_on_start=true` to avoid stale DB conflicts during repeated launch/stop cycles.
 
 
+
+
+
+
 ## Action 5: Navigation stack (Nav2)
+
+### install slam_toolbox
+```bash
+sudo apt install ros-humble-slam-toolbox
+```
 
 ### Overview
 
@@ -723,19 +732,79 @@ This launch starts:
 - Nav2 navigation stack (`navigation_launch.py`)
 - RViz (Nav2 default config)
 
-### Build and run
-
+### Restart ROS2 daemon and source workspace
 ```bash
-pkill -f ros2 || true
+pkill -f ros2
 ros2 daemon stop
 ros2 daemon start
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+source install/setup.bash
+```
 
+### Build and run
+```bash
 cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application robot_bringup robot_description
 source /opt/ros/humble/setup.bash
 source install/setup.bash
 ros2 launch robot_bringup komatsu_rviz_integration.launch.py use_sim_time:=false
 ```
+
+```bash
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+colcon build --packages-select ros2_application robot_bringup robot_description
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+ros2 launch robot_bringup komatsu_rviz_integration.launch.py \
+use_sim_time:=false \
+use_sim_imu:=false
+```
+
+### run teleop in another terminal
+```bash
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
+```
+
+### Send Short Test Goal
+```bash
+ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose \
+"{pose: {header: {frame_id: map}, pose: {position: {x: -6.0, y: -6.0, z: 0.0}, orientation: {w: 1.0}}}}"
+```
+Expected:
+- Goal accepted
+- Robot publishes `/cmd_vel`
+
+
+### check plan
+```bash
+ros2 topic echo /plan --once
+```
+```bash
+ros2 topic echo /map --once
+```
+```bash
+ros2 run tf2_ros tf2_echo map base_link
+ros2 run tf2_ros tf2_echo odom base_footprint
+ros2 run tf2_ros tf2_echo base_footprint base_link
+```
+```bash
+ros2 topic echo /goal_pose --once
+```
+
+
+### see planners
+```bash
+ros2 node list | grep -E "planner_server|controller_server|bt_navigator"
+ros2 param get /planner_server planner_plugins
+ros2 param get /planner_server GridBased.plugin
+ros2 param get /controller_server controller_plugins
+ros2 param get /controller_server FollowPath.plugin
+ros2 param get /bt_navigator navigators
+ros2 action list
+ros2 action info /navigate_to_pose
+```
+
+---
 
 ### Step-by-step checks (Action 6)
 
@@ -808,17 +877,6 @@ ros2 action info /navigate_to_pose
 ```
 Expected:
 - `/bt_navigator` appears as action server
-
----
-
-### Send Short Test Goal
-```bash
-ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose \
-"{pose: {header: {frame_id: map}, pose: {position: {x: 0.2, y: -0.8, z: 0.0}, orientation: {w: 1.0}}}}"
-```
-Expected:
-- Goal accepted
-- Robot publishes `/cmd_vel`
 
 ---
 
@@ -933,75 +991,4 @@ sudo apt install ros-humble-gazebo-ros-pkgs ros-humble-gazebo-ros
 
 
 
-### Quick start separate terminals (for debugging)
-
-Run in 5 terminals (same workspace and sourced environment):
-
-```bash
-# Terminal 1: Gazebo only
-pkill -f ros2 || true
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
-source /opt/ros/humble/setup.bash
-colcon build --packages-select robot_bringup robot_description --symlink-install
-source install/setup.bash
-ros2 launch robot_bringup komatsu_gazebo.launch.py
-```
-
-```bash
-# Terminal 2: Localization
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
-source /opt/ros/humble/setup.bash
-source install/setup.bash
-ros2 launch ros2_application komatsu_localization.launch.py \
-  use_sim_time:=true \
-  use_sim_odometry:=false \
-  use_sim_imu:=false
-```
-
-```bash
-# Terminal 3: Mapping
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
-source /opt/ros/humble/setup.bash
-source install/setup.bash
-ros2 launch ros2_application komatsu_mapping.launch.py \
-  use_sim_time:=true \
-  use_sim_scan:=false
-```
-
-```bash
-# Terminal 4: Nav2
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
-source /opt/ros/humble/setup.bash
-source install/setup.bash
-ros2 launch nav2_bringup navigation_launch.py \
-  use_sim_time:=true \
-  autostart:=true \
-  params_file:=/home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/robot_bringup/config/komatsu_nav2_params.yaml
-```
-
-```bash
-# Terminal 5: RViz
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
-source /opt/ros/humble/setup.bash
-source install/setup.bash
-ros2 run rviz2 rviz2 \
-  -d /opt/ros/humble/share/nav2_bringup/rviz/nav2_default_view.rviz
-```
-
-In RViz:
-- Click `2D Pose Estimate`, set initial pose.
-- Click `Nav2 Goal`, set a simple goal.
-- Check movement in both Gazebo and RViz.
-
-Notes:
-- Keep `use_sim_time:=true` for all launched nodes.
-- Terminal 1 is Gazebo-only for this split workflow.
-- With `use_sim_odometry:=false`, localization now uses Gazebo `/odom` directly for UKF odometry input.
-- Use `autostart:=true` in Terminal 4 so Nav2 lifecycle nodes activate automatically.
-- Do not run `komatsu_rviz_integration.launch.py` together with separate Action 3/4/5 terminals.
-- If Nav2 is still inactive, check:
-```bash
-ros2 lifecycle get /bt_navigator
-ros2 lifecycle get /controller_server
-ros2 lifecycle get /planner_server
-```
+### Quick start separate terminals
