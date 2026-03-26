@@ -908,28 +908,6 @@ Expected:
 - When using a **static map workflow** (`map_server` + `AMCL`), the `static_layer` should be enabled so Nav2 costmaps subscribe to the map provided by `map_server`.
 - If `static_layer` is enabled without a running `map_server`, Nav2 may report warnings such as "Can't update static costmap layer, no map received".
 
-1. SLAM + Nav2 (your current setup)
-   Robot builds the map while driving.
-`   RTAB-Map → creates map
-   UKF → odom
-   Nav2 → navigate`
-   RTAB-Map publishes: `map → odom`
-
-2. Static map + AMCL
-   Robot uses a pre-built map for localization and navigation.
-  `map_server → load map
-  AMCL → localize robot
-  Nav2 → navigate`
-   AMCL publishes: `map → odom`
-
-3. Typical GNSS pipeline:
-   GNSS + IMU + odom
-   ↓
-   navsat_transform_node
-   ↓
-   robot_localization (UKF)
-   ↓
-   map → odom → base_link
 
 ### Action 6 troubleshooting note
 

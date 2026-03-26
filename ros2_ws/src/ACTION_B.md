@@ -1,5 +1,53 @@
 # ros2_application
 
+## Localization Overview
+
+### ACTION.md (SLAM-based)
+- Localization via **RTAB-Map (map → odom)** + **UKF (odom → base_link)**
+- UKF fuses IMU + wheel odometry (local)
+- Provides **relative + SLAM-based global pose**
+
+**RTAB-Map** = Real-Time Appearance-Based Mapping (SLAM package : mapping + localization)
+
+---
+
+### ACTION_B.md (GNSS-based / Retrofit)
+- Localization via **GNSS (RTK) + IMU + odometry → navsat_transform → UKF**
+- UKF provides **map → odom + odom → base_link**
+- No SLAM at runtime, uses **static map + absolute GNSS pose**
+
+**RTK** = Real-Time Kinematic
+
+### Key Difference
+- ACTION.md → SLAM provides global pose
+- ACTION_B.md → UKF (with GNSS) provides global pose
+
+
+1. SLAM + Nav2 (Action.md)
+   Robot builds the map while driving.
+   RTAB-Map → creates map
+   UKF → odom
+   Nav2 → navigate
+   RTAB-Map publishes: map → odom
+
+2. Static map + AMCL (Nav2 default) (Adaptive Monte Carlo Localization)
+   Robot uses a pre-built map for localization and navigation.
+   map_server → load map
+   AMCL → localize robot
+   Nav2 → navigate
+   AMCL publishes: map → odom
+
+3. Typical GNSS pipeline (Action_B.md)
+   Robot uses GNSS + IMU + odometry for localization and a static map for navigation.
+   GNSS + IMU + odom
+   ↓
+   navsat_transform_node
+   ↓
+   robot_localization (UKF)
+   ↓
+   map → odom → base_link
+   UKF publishes: map → odom and odom → base_link
+
 ## Action 1: Interfaces
 
 ### Custom Messages (ros2_interfaces)
