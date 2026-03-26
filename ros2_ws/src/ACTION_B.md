@@ -674,6 +674,15 @@ ros2 daemon stop
 ros2 daemon start
 cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source install/setup.bash
+ros2 node list
+```
+
+### Kill PID
+```bash
+ps -ef | grep -E "robot_state_publisher|navsat_transform_node|static_transform_publisher|rviz2|tf2_echo|transform_listener_impl_57b7c259fba0" | grep -v grep
+```
+```bash
+kill -9 PID1 PID2 PID3
 ```
 
 ### Build and Launch
@@ -683,7 +692,8 @@ colcon build --packages-select ros2_application robot_bringup robot_description
 source install/setup.bash
 ros2 launch robot_bringup komatsu_rviz_integration.launch.py \
 use_sim_time:=false \
-use_sim_imu:=false
+use_sim_imu:=false \
+use_cmd_vel_joint_sim:=false
 ```
 
 ### Teleoperation (RViz)
