@@ -805,12 +805,47 @@ This step is optional. It validates motion and control on local PC before hardwa
 - verify odom / TF / joints
 - validate local control behavior
 
-### Build and Launch Gazebo
+
+### Restart ROS2 daemon and source workspace
+```bash
+pkill -f ros2
+ros2 daemon stop
+ros2 daemon start
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+source install/setup.bash
+ros2 node list
+```
+
+### Kill PID
+```bash
+ps -ef | grep -E "robot_state_publisher|navsat_transform_node|static_transform_publisher|rviz2|tf2_echo|transform_listener_impl_57b7c259fba0" | grep -v grep
+```
+```bash
+kill -9 PID1 PID2 PID3
+```
+
+### Build and Launch
 ```bash
 cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
-colcon build --packages-select robot_bringup robot_description ros2_application
+colcon build --packages-select ros2_application robot_bringup robot_description
 source install/setup.bash
-ros2 launch robot_bringup komatsu_gazebo_validation.launch.py
+ros2 launch robot_bringup komatsu_rviz_integration.launch.py \
+use_sim_time:=true
+```
+
+### Teleoperation (RViz)
+```bash
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
+```
+
+Expected:
+- All main nodes start.
+- RViz opens.
+- Map, TF, robot model, and Nav2 are visible.
+
+### Check Running Nodes
+```bash
+ros2 node list
 ```
 
 Expected:

@@ -43,19 +43,19 @@ def generate_launch_description():
 
     use_sim_imu = DeclareLaunchArgument(
         'use_sim_imu',
-        default_value='true',
+        default_value='false',
         description='Use simulated IMU source for UKF',
     )
 
     use_sim_scan = DeclareLaunchArgument(
         'use_sim_scan',
-        default_value='true',
+        default_value='false',
         description='Use simulated LaserScan source for Nav2',
     )
 
     use_cmd_vel_joint_sim = DeclareLaunchArgument(
         'use_cmd_vel_joint_sim',
-        default_value='true',
+        default_value='false',
         description='Publish wheel/articulation joint states from cmd_vel for RViz animation',
     )
 
@@ -166,6 +166,25 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('use_rviz')),
     )
 
+    gazebo_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(get_package_share_directory('gazebo_ros'), 'launch', 'gazebo.launch.py')
+        ),
+        launch_arguments={
+            'verbose': 'false',
+        }.items(),
+    )
+
+    spawn_robot = Node(
+        package='gazebo_ros',
+        executable='spawn_entity.py',
+        arguments=[
+            '-topic', 'robot_description',
+            '-entity', 'komatsu'
+        ],
+        output='screen',
+    )
+
     startup_logs = [
         LogInfo(msg=['[Action6] use_sim_odometry=', LaunchConfiguration('use_sim_odometry'),
                      ', use_sim_imu=', LaunchConfiguration('use_sim_imu'),
@@ -185,7 +204,9 @@ def generate_launch_description():
         use_rviz,
         rviz_config,
         *startup_logs,
+        gazebo_launch,
         robot_state_publisher,
+        spawn_robot,
         joint_state_publisher,
         cmd_vel_joint_state_publisher,
         localization_launch,
