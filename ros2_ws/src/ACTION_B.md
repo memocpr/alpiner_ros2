@@ -691,8 +691,7 @@ cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application robot_bringup robot_description
 source install/setup.bash
 ros2 launch robot_bringup komatsu_rviz_integration.launch.py \
-use_sim_time:=false \
-use_sim_imu:=false
+use_sim_time:=false
 ```
 
 ### Teleoperation (RViz)
