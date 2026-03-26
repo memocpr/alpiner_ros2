@@ -692,8 +692,7 @@ colcon build --packages-select ros2_application robot_bringup robot_description
 source install/setup.bash
 ros2 launch robot_bringup komatsu_rviz_integration.launch.py \
 use_sim_time:=false \
-use_sim_imu:=false \
-use_cmd_vel_joint_sim:=false
+use_sim_imu:=false
 ```
 
 ### Teleoperation (RViz)
