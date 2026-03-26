@@ -33,7 +33,7 @@ def generate_launch_description():
     nav2_launch = os.path.join(
         nav2_bringup_dir,
         'launch',
-        'bringup_launch.py'
+        'navigation_launch.py'
     )
 
     sim_scan_node = Node(
