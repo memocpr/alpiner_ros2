@@ -147,6 +147,16 @@ def generate_launch_description():
         }.items(),
     )
 
+    map_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(ros2_app_dir, 'launch', '../../ros2_application/launch/komatsu_mapping.launch.py')
+        ),
+        launch_arguments={
+            'use_sim_time': LaunchConfiguration('use_sim_time'),
+            'params_file': LaunchConfiguration('params_file'),
+        }.items(),
+    )
+
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',
@@ -180,5 +190,6 @@ def generate_launch_description():
         cmd_vel_joint_state_publisher,
         localization_launch,
         nav2_launch,
+        map_launch,
         rviz_node,
     ])
