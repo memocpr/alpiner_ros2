@@ -784,9 +784,12 @@ ros2 topic echo /odometry/gps --once
 Expected:
 - One odometry message appears.
 - If this hangs, navsat_transform is the current blocker.
-```
----
 
+## Quick Fixes:
+- If `base_footprint` drifts while idle, restart cleanly: `pkill -f ros2 && ros2 daemon stop && ros2 daemon start`.
+- In mock GNSS mode, keep `map -> odom` static (identity) to avoid circular drift.
+- Ensure mock GNSS stops on stale `/cmd_vel` (timeout enabled in `sim_gnss_publisher`).
+- Rebuild and relaunch: `colcon build --packages-select ros2_application robot_bringup robot_description`.
 
 
 

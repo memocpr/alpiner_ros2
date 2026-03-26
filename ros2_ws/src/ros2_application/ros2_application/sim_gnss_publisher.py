@@ -35,6 +35,8 @@ class SimGnssPublisher(Node):
         self.vx = 0.0
         self.wz = 0.0
         self.last_time = self.get_clock().now()
+        self.last_cmd_time = self.get_clock().now()
+        self.cmd_timeout_sec = 0.5
 
         self.cmd_sub = self.create_subscription(
             Twist,
@@ -53,6 +55,7 @@ class SimGnssPublisher(Node):
         """Store latest commanded velocity."""
         self.vx = msg.linear.x
         self.wz = msg.angular.z
+        self.last_cmd_time = self.get_clock().now()
 
     def timer_callback(self) -> None:
         """Integrate simple planar motion and publish mock GNSS."""
@@ -63,9 +66,14 @@ class SimGnssPublisher(Node):
         if dt < 0.0 or dt > 1.0:
             dt = 0.1
 
-        self.yaw += self.wz * dt
-        self.x_m += self.vx * math.cos(self.yaw) * dt
-        self.y_m += self.vx * math.sin(self.yaw) * dt
+        # Zero out velocity if cmd_vel is stale (same as sim_odometry)
+        cmd_age = (now - self.last_cmd_time).nanoseconds / 1e9
+        vx = self.vx if cmd_age <= self.cmd_timeout_sec else 0.0
+        wz = self.wz if cmd_age <= self.cmd_timeout_sec else 0.0
+
+        self.yaw += wz * dt
+        self.x_m += vx * math.cos(self.yaw) * dt
+        self.y_m += vx * math.sin(self.yaw) * dt
 
         lat, lon = self.local_xy_to_latlon(self.x_m, self.y_m)
 

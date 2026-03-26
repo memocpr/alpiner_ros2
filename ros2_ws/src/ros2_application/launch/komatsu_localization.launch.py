@@ -77,6 +77,16 @@ def generate_launch_description():
         parameters=[ukf_global_params_file, {
             'use_sim_time': LaunchConfiguration('use_sim_time'),
         }],
+        condition=UnlessCondition(LaunchConfiguration('use_mock_gnss')),
+    )
+
+    # In sim mode (mock GNSS), publish a static identity map->odom so map==odom
+    map_odom_static_tf = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='map_odom_static_tf',
+        arguments=['0', '0', '0', '0', '0', '0', 'map', 'odom'],
+        condition=IfCondition(LaunchConfiguration('use_mock_gnss')),
     )
 
     sim_odometry_node = Node(
@@ -146,6 +156,7 @@ def generate_launch_description():
         ukf_local_node_sim,
         ukf_local_node_gazebo,
         ukf_global_node,
+        map_odom_static_tf,
         sim_odometry_node,
         sim_imu_node,
         sim_gnss_node,
