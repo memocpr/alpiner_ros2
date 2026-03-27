@@ -792,6 +792,13 @@ ros2 pkg prefix nav2_regulated_pure_pursuit_controller
 ```
 
 
+
+### check cmd_vel_out relay
+```bash
+ros2 topic echo /cmd_vel_out
+```
+
+
 ### Send Short Test Goal
 ```bash
 ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose \

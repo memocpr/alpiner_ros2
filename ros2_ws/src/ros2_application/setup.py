@@ -37,6 +37,7 @@ setup(
             'sim_scan_publisher = ros2_application.sim_scan_publisher:main',
             'cmd_vel_joint_state_publisher = ros2_application.cmd_vel_joint_state_publisher:main',
             'send_nav_goal = ros2_application.send_nav_goal:main',
+            'cmd_vel_out_relay = ros2_application.cmd_vel_out_relay:main',
         ],
     },
 )
