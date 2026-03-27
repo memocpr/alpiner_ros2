@@ -812,34 +812,19 @@ P12 listens to: cmd_vel_out
 
 /cmd_vel -> /cmd_vel_out
 
-## run cmd_vel_out_relay.py only
+## run cmd_vel_out_relay.py (no needed after rviz integration launch adds it)
 ```bash
 ros2 run ros2_application cmd_vel_out_relay
 ```
 
-## run P12 controller only
-```bash
-ros2 run ros_ll_controller_python ll_controller
-```
-
-
 ### Build and Launch
 ```bash
 cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
-colcon build --packages-select ros2_application robot_bringup robot_description ros_ll_controller_python --symlink-install
+colcon build --packages-select ros2_application robot_bringup robot_description
 source install/setup.bash
-ATCOM_NS= ros2 launch robot_bringup komatsu_rviz_integration.launch.py \
-use_sim_time:=false \
-use_sim_odometry:=true \
-use_sim_imu:=false \
-use_sim_scan:=false
+ros2 launch robot_bringup komatsu_rviz_integration.launch.py \
+use_sim_time:=false
 ```
-
-install missing dependency:
-```bash
-pip install loguru
-```
-
 
 ## verify cmd_vel_out
 ```bash
@@ -851,8 +836,7 @@ ros2 topic info /cmd_vel
 ## verify ll_controller_launch,
 ```bash
 ros2 node list | grep ll_controller
-ros2 topic echo /cmd_vel_out --once
-ros2 run tf2_ros tf2_echo odom base_footprint
+ros2 topic info /cmd_vel_out
 ```
 
 

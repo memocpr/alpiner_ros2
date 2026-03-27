@@ -18,7 +18,6 @@ def generate_launch_description():
     robot_desc_dir = get_package_share_directory('robot_description')
     nav2_bringup_dir = get_package_share_directory('nav2_bringup')
     bringup_dir = get_package_share_directory('robot_bringup')
-    ros2_controller_dir = get_package_share_directory('ros_ll_controller_python')
 
     urdf_file = os.path.join(robot_desc_dir, 'urdf', 'komatsu.urdf.xacro')
     nav2_params_file = os.path.join(bringup_dir, 'config', 'komatsu_nav2_params.yaml')
@@ -193,12 +192,6 @@ def generate_launch_description():
         output='screen',
     )
 
-    ll_controller_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(ros2_controller_dir, 'launch', 'll_controller.launch.py')
-        )
-    )
-
     startup_logs = [
         LogInfo(msg=['[Action6] use_sim_odometry=', LaunchConfiguration('use_sim_odometry'),
                      ', use_sim_imu=', LaunchConfiguration('use_sim_imu'),
@@ -227,6 +220,5 @@ def generate_launch_description():
         nav2_launch,
         map_launch,
         cmd_vel_out_relay,
-        ll_controller_launch,
         rviz_node,
     ])
