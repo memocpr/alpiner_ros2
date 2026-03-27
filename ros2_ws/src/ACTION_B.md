@@ -808,11 +808,41 @@ Nav2 → /cmd_vel_out → P12 → MachineSetAll → Gazebo adapter
 
 ### Step 1 — fix input topic
 
-P12 listens to:
-```text
-/cmd_vel_out
+P12 listens to: cmd_vel_out
 
 /cmd_vel -> /cmd_vel_out
+
+## run cmd_vel_out_relay.py (no needed after rviz integration launch adds it)
+```bash
+ros2 run ros2_application cmd_vel_out_relay
+```
+
+### Build and Launch
+```bash
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+colcon build --packages-select ros2_application robot_bringup robot_description
+source install/setup.bash
+ros2 launch robot_bringup komatsu_rviz_integration.launch.py \
+use_sim_time:=false
+```
+
+## verify cmd_vel_out
+```bash
+ros2 topic list | grep cmd_vel
+ros2 topic info /cmd_vel_out
+ros2 topic info /cmd_vel
+``` 
+
+## verify ll_controller_launch,
+```bash
+ros2 node list | grep ll_controller
+ros2 topic info /cmd_vel_out
+```
+
+
+
+
+
 
 
 Step 2 — create Gazebo adapter
