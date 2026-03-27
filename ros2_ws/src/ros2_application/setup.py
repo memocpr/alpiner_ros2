@@ -40,6 +40,7 @@ setup(
             'send_nav_goal = ros2_application.send_nav_goal:main',
             'sim_gnss_publisher = ros2_application.sim_gnss_publisher:main',
             'cmd_vel_out_relay = ros2_application.cmd_vel_out_relay:main',
+            'evaluator_node = ros2_application.evaluator_node:main',
         ],
     },
 )

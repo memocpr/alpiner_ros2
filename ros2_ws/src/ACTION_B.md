@@ -1080,3 +1080,60 @@ map -> odom -> base_footprint -> base_link
 - Nav2 accepts goals
 - `/cmd_vel` commands are produced
 - `P12 / machine_controller` converts `Twist` into `MachineSetAll`
+
+
+
+## Action 12 — Path-Following Accuracy Evaluation
+
+### Goal
+Evaluate how accurately the robot follows the planned Nav2 path by comparing the reference path with the executed trajectory.
+
+### Scope
+This action adds an evaluation pipeline on top of the existing Action B stack without changing the current navigation architecture.
+
+### Inputs
+- Reference path from Nav2:
+    - `/plan`
+- Robot executed trajectory:
+    - `/odometry/filtered`
+    - or TF: `map -> base_footprint`
+- Goal information:
+    - `/goal_pose` or final goal from the sent navigation task
+
+### Outputs
+- Planned path vs executed path visualization
+- Path-following metrics per run
+- CSV log files for offline analysis
+- Thesis-ready plots and summary tables
+
+### Metrics
+- Cross-track error
+    - distance from robot pose to nearest point on reference path
+- Heading error
+    - yaw difference between robot heading and path tangent
+- Final position error
+    - distance between final robot pose and goal pose
+- Final yaw error
+- Mean error
+- RMS error
+- Maximum error
+- Completion time
+
+### Pipeline
+Goal
+  -> Nav2 Planner
+  -> /plan
+  -> Nav2 Controller
+  -> /cmd_vel
+  -> Low-level controller
+  -> Robot / simulator
+  -> /odometry/filtered
+  -> Evaluation node
+
+
+```bash
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+colcon build --packages-select ros2_application
+source install/setup.bash
+ros2 run ros2_application evaluator_node
+```
