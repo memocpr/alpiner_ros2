@@ -691,8 +691,10 @@ cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application robot_bringup robot_description
 source install/setup.bash
 ros2 launch robot_bringup komatsu_rviz_integration.launch.py \
-use_sim_time:=false
+use_sim_time:=false \
+use_cmd_vel_joint_sim:=true
 ```
+don't use `use_cmd_vel_joint_sim:=true` with gazebo integrted
 
 ### Teleoperation (RViz)
 ```bash
