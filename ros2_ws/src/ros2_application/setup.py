@@ -38,6 +38,7 @@ setup(
             'cmd_vel_joint_state_publisher = ros2_application.cmd_vel_joint_state_publisher:main',
             'send_nav_goal = ros2_application.send_nav_goal:main',
             'cmd_vel_out_relay = ros2_application.cmd_vel_out_relay:main',
+            'evaluator_node = ros2_application.evaluator_node:main',
         ],
     },
 )
