@@ -1137,3 +1137,8 @@ colcon build --packages-select ros2_application
 source install/setup.bash
 ros2 run ros2_application evaluator_node
 ```
+
+### Verify Reference Path
+```bash
+ros2 topic echo /executed_path --once
+```
