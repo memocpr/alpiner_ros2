@@ -42,10 +42,7 @@ class EvaluatorNode(Node):
 
     def plan_callback(self, msg):
         self.plan = msg.poses
-        self.trajectory = []
         self.goal_reached_logged = False
-        self.executed_path_msg = Path()
-        self.executed_path_msg.header.frame_id = 'map'
 
     def odom_callback(self, msg):
         if self.goal_reached_logged:
