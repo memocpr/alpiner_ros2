@@ -82,15 +82,35 @@ print(f'Completion time: {completion_time:.2f} s')
 
 # summary CSV
 summary_path = base / 'metrics_summary.csv'
+existing_runs = 0
+if summary_path.exists():
+    with open(summary_path, newline='') as f:
+        existing_runs = sum(1 for _ in f) - 1  # minus header
 
-with open(summary_path, 'w', newline='') as f:
+run_name = f'Path_{chr(ord("A") + existing_runs)}'
+
+file_exists = summary_path.exists()
+with open(summary_path, 'a', newline='') as f:
     writer = csv.writer(f)
-    writer.writerow(['metric', 'value'])
-    writer.writerow(['rmse_m', rmse])
-    writer.writerow(['mean_heading_error_rad', mean_heading_error])
-    writer.writerow(['max_cross_track_error_m', max_cross_track_error])
-    writer.writerow(['mean_cross_track_error_m', mean_cross_track_error])
-    writer.writerow(['completion_time_s', completion_time])
+
+    if not file_exists:
+        writer.writerow([
+            'run',
+            'rmse_m',
+            'mean_heading_error_rad',
+            'max_cross_track_error_m',
+            'mean_cross_track_error_m',
+            'completion_time_s'
+        ])
+
+    writer.writerow([
+        run_name,
+        rmse,
+        mean_heading_error,
+        max_cross_track_error,
+        mean_cross_track_error,
+        completion_time
+    ])
 
 # Plot
 plt.plot(ref_x, ref_y, 'r', label='planned path')
@@ -101,7 +121,31 @@ plt.xlabel('x [m]')
 plt.ylabel('y [m]')
 plt.title('Path Following Evaluation')
 plt.text(0.02, 0.98,
-         f'RMSE: {rmse:.3f} m\nHeading: {mean_heading_error:.3f} rad',
+         f'RMSE: {rmse:.3f} m\n'
+         f'Max CTE: {max_cross_track_error:.3f} m\n'
+         f'Mean CTE: {mean_cross_track_error:.3f} m\n'
+         f'Heading: {mean_heading_error:.3f} rad\n'
+         f'Time: {completion_time:.2f} s',
          transform=plt.gca().transAxes,
          verticalalignment='top')
+
+# Cross-track error vs time
+cte_time = exe_time[-N:]
+cte_values = cross_track_errors
+
+plt.figure()
+plt.plot(cte_time, cte_values)
+plt.xlabel('time [s]')
+plt.ylabel('cross-track error [m]')
+plt.title('Cross-Track Error vs Time')
+plt.grid()
+
+# Heading error vs time
+plt.figure()
+plt.plot(exe_time, heading_errors)
+plt.xlabel('time [s]')
+plt.ylabel('heading error [rad]')
+plt.title('Heading Error vs Time')
+plt.grid()
+
 plt.show()

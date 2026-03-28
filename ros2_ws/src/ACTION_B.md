@@ -1131,6 +1131,8 @@ Goal
   -> Evaluation node
 
 
+
+First, launch the robot in rviz with the command on action 6, send a goal:
 ```bash
 cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application
