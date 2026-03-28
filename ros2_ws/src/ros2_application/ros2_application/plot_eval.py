@@ -13,15 +13,16 @@ with open(base / 'reference_path.csv', newline='') as f:
         ref_y.append(float(row['y']))
 
 exe_x, exe_y = [], []
+exe_time = []
 with open(base / 'executed_path.csv', newline='') as f:
     reader = csv.DictReader(f)
     for row in reader:
         exe_x.append(float(row['x']))
         exe_y.append(float(row['y']))
+        exe_time.append(float(row['time']))
 
 # RMSE
 errors = []
-# use only last N points (e.g. last 100)
 N = 100
 exe_subset = list(zip(exe_x, exe_y))[-N:]
 
@@ -35,6 +36,13 @@ for x, y in exe_subset:
 
 rmse = math.sqrt(sum(e**2 for e in errors) / len(errors))
 print(f'RMSE: {rmse:.3f} m')
+
+cross_track_errors = errors
+max_cross_track_error = max(abs(e) for e in cross_track_errors)
+mean_cross_track_error = sum(abs(e) for e in cross_track_errors) / len(cross_track_errors)
+
+print(f'Max cross-track error: {max_cross_track_error:.3f} m')
+print(f'Mean cross-track error: {mean_cross_track_error:.3f} m')
 
 # Mean heading error
 exe_yaw = []
@@ -67,6 +75,22 @@ for x, y, yaw in zip(exe_x, exe_y, exe_yaw):
 
 mean_heading_error = sum(heading_errors) / len(heading_errors)
 print(f'Mean heading error: {mean_heading_error:.3f} rad')
+
+# completion time
+completion_time = exe_time[-1] - exe_time[0]
+print(f'Completion time: {completion_time:.2f} s')
+
+# summary CSV
+summary_path = base / 'metrics_summary.csv'
+
+with open(summary_path, 'w', newline='') as f:
+    writer = csv.writer(f)
+    writer.writerow(['metric', 'value'])
+    writer.writerow(['rmse_m', rmse])
+    writer.writerow(['mean_heading_error_rad', mean_heading_error])
+    writer.writerow(['max_cross_track_error_m', max_cross_track_error])
+    writer.writerow(['mean_cross_track_error_m', mean_cross_track_error])
+    writer.writerow(['completion_time_s', completion_time])
 
 # Plot
 plt.plot(ref_x, ref_y, 'r', label='planned path')
