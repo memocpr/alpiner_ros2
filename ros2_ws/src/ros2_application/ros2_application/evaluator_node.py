@@ -1,8 +1,11 @@
 import math
+import csv
+import os
 import rclpy
 from rclpy.node import Node
 
 from nav_msgs.msg import Path, Odometry
+from geometry_msgs.msg import PoseStamped
 
 
 class EvaluatorNode(Node):
@@ -13,6 +16,13 @@ class EvaluatorNode(Node):
         self.plan = None
         self.trajectory = []
         self.goal_reached_logged = False
+        self.output_dir = os.path.expanduser('~/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/ros2_application/evaluations')
+
+        os.makedirs(self.output_dir, exist_ok=True)
+
+        self.executed_path_pub = self.create_publisher(Path, '/executed_path', 10)
+        self.executed_path_msg = Path()
+        self.executed_path_msg.header.frame_id = 'map'
 
         self.create_subscription(
             Path,
@@ -34,6 +44,8 @@ class EvaluatorNode(Node):
         self.plan = msg.poses
         self.trajectory = []
         self.goal_reached_logged = False
+        self.executed_path_msg = Path()
+        self.executed_path_msg.header.frame_id = 'map'
 
     def odom_callback(self, msg):
         if self.goal_reached_logged:
@@ -54,7 +66,14 @@ class EvaluatorNode(Node):
 
         self.trajectory.append((t, x, y, yaw))
 
-        if len(self.trajectory) % 40 == 0:
+        pose_stamped = PoseStamped()
+        pose_stamped.header = msg.header
+        pose_stamped.pose = pose
+        self.executed_path_msg.header.stamp = msg.header.stamp
+        self.executed_path_msg.poses.append(pose_stamped)
+        self.executed_path_pub.publish(self.executed_path_msg)
+
+        if len(self.trajectory) % 10 == 0:
             self.compute_cross_track_error()
             self.compute_final_error()
 
@@ -71,6 +90,7 @@ class EvaluatorNode(Node):
 
         if dist < 1.5:
             self.get_logger().info(f'Final position error: {dist:.3f} m')
+            self.save_csv()
             self.goal_reached_logged = True
 
     def compute_cross_track_error(self):
@@ -91,6 +111,27 @@ class EvaluatorNode(Node):
                 min_dist = dist
 
         self.get_logger().info(f'Cross-track error: {min_dist:.3f} m')
+
+    def save_csv(self):
+        ref_file = os.path.join(self.output_dir, 'reference_path.csv')
+        traj_file = os.path.join(self.output_dir, 'executed_path.csv')
+
+        with open(ref_file, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['x', 'y'])
+            for pose_stamped in self.plan:
+                writer.writerow([
+                    pose_stamped.pose.position.x,
+                    pose_stamped.pose.position.y
+                ])
+
+        with open(traj_file, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['time', 'x', 'y', 'yaw'])
+            for row in self.trajectory:
+                writer.writerow(row)
+
+        self.get_logger().info(f'CSV saved in {self.output_dir}')
 
 
 def main(args=None):
