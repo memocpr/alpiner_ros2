@@ -81,36 +81,45 @@ completion_time = exe_time[-1] - exe_time[0]
 print(f'Completion time: {completion_time:.2f} s')
 
 # summary CSV
+# summary CSV
 summary_path = base / 'metrics_summary.csv'
-existing_runs = 0
+
+new_row = [
+    rmse,
+    mean_heading_error,
+    max_cross_track_error,
+    mean_cross_track_error,
+    completion_time
+]
+
+old_rows = []
 if summary_path.exists():
     with open(summary_path, newline='') as f:
-        existing_runs = sum(1 for _ in f) - 1  # minus header
+        reader = csv.reader(f)
+        next(reader, None)  # skip header
+        old_rows = list(reader)
 
-run_name = f'Path_{chr(ord("A") + existing_runs)}'
+old_rows.append([
+    f'Path_{chr(ord("A") + len(old_rows))}',
+    *new_row
+])
 
-file_exists = summary_path.exists()
-with open(summary_path, 'a', newline='') as f:
+old_rows = old_rows[-3:]  # keep only last 3
+
+for i, row in enumerate(old_rows):
+    row[0] = f'Path_{chr(ord("A") + i)}'
+
+with open(summary_path, 'w', newline='') as f:
     writer = csv.writer(f)
-
-    if not file_exists:
-        writer.writerow([
-            'run',
-            'rmse_m',
-            'mean_heading_error_rad',
-            'max_cross_track_error_m',
-            'mean_cross_track_error_m',
-            'completion_time_s'
-        ])
-
     writer.writerow([
-        run_name,
-        rmse,
-        mean_heading_error,
-        max_cross_track_error,
-        mean_cross_track_error,
-        completion_time
+        'run',
+        'rmse_m',
+        'mean_heading_error_rad',
+        'max_cross_track_error_m',
+        'mean_cross_track_error_m',
+        'completion_time_s'
     ])
+    writer.writerows(old_rows)
 
 # Plot
 plt.plot(ref_x, ref_y, 'r', label='planned path')
@@ -147,5 +156,25 @@ plt.xlabel('time [s]')
 plt.ylabel('heading error [rad]')
 plt.title('Heading Error vs Time')
 plt.grid()
+
+# Summary table plot
+rows = []
+with open(summary_path, newline='') as f:
+    reader = csv.reader(f)
+    headers = next(reader)
+    for r in reader:
+        rows.append(r)
+
+plt.figure()
+plt.axis('off')
+table = plt.table(
+    cellText=rows,
+    colLabels=headers,
+    loc='center'
+)
+table.auto_set_font_size(False)
+table.set_fontsize(10)
+table.scale(1, 1.5)
+plt.title('Evaluation Summary (Runs)')
 
 plt.show()
