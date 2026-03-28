@@ -14,6 +14,7 @@ class EvaluatorNode(Node):
         super().__init__('evaluator_node')
 
         self.plan = None
+        self.reference_plan = None
         self.trajectory = []
         self.goal_reached_logged = False
         self.output_dir = os.path.expanduser('~/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/ros2_application/evaluations')
@@ -41,6 +42,12 @@ class EvaluatorNode(Node):
         self.get_logger().info('Evaluator node started')
 
     def plan_callback(self, msg):
+        if self.reference_plan is None and len(msg.poses) > 0:
+            self.reference_plan = list(msg.poses)
+            self.trajectory = []
+            self.executed_path_msg = Path()
+            self.executed_path_msg.header.frame_id = 'map'
+
         self.plan = msg.poses
         self.goal_reached_logged = False
 
@@ -117,11 +124,12 @@ class EvaluatorNode(Node):
         with open(ref_file, 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(['x', 'y'])
-            for pose_stamped in self.plan:
+            for pose_stamped in self.reference_plan:
                 writer.writerow([
                     pose_stamped.pose.position.x,
                     pose_stamped.pose.position.y
                 ])
+        self.reference_plan = None
 
         with open(traj_file, 'w', newline='') as f:
             writer = csv.writer(f)
