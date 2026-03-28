@@ -86,7 +86,7 @@ class EvaluatorNode(Node):
         dy = last[2] - goal.y
         dist = (dx**2 + dy**2)**0.5
 
-        if dist < 1.5:
+        if dist < 0.35:
             self.get_logger().info(f'Final position error: {dist:.3f} m')
             self.save_csv()
             self.goal_reached_logged = True
