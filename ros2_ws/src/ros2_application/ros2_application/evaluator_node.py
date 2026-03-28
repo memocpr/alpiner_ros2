@@ -67,7 +67,8 @@ class EvaluatorNode(Node):
         self.trajectory.append((t, x, y, yaw))
 
         pose_stamped = PoseStamped()
-        pose_stamped.header = msg.header
+        pose_stamped.header.stamp = msg.header.stamp
+        pose_stamped.header.frame_id = 'map'
         pose_stamped.pose = pose
         self.executed_path_msg.header.stamp = msg.header.stamp
         self.executed_path_msg.poses.append(pose_stamped)
