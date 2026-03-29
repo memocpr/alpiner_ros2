@@ -32,32 +32,6 @@ def generate_launch_description():
         description='Absolute path to Gazebo world file',
     )
 
-    robot_description_content = ParameterValue(
-        Command(['xacro ', urdf_file]),
-        value_type=str,
-    )
-
-    robot_state_publisher = Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        name='robot_state_publisher',
-        output='screen',
-        parameters=[{
-            'robot_description': robot_description_content,
-            'use_sim_time': LaunchConfiguration('use_sim_time'),
-        }],
-    )
-
-    joint_state_publisher = Node(
-        package='joint_state_publisher',
-        executable='joint_state_publisher',
-        name='joint_state_publisher',
-        output='screen',
-        parameters=[{
-            'use_sim_time': LaunchConfiguration('use_sim_time'),
-        }],
-    )
-
     gazebo_server = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(gazebo_ros_dir, 'launch', 'gzserver.launch.py')
@@ -83,8 +57,6 @@ def generate_launch_description():
     return LaunchDescription([
         use_sim_time,
         world,
-        robot_state_publisher,
-        joint_state_publisher,
         gazebo_server,
         gazebo_client,
         spawn_robot,

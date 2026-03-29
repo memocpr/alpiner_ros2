@@ -979,3 +979,25 @@ Goal:
     -> simple_custom_controller
     -> sim command / joint command
     -> Gazebo robot moves
+```
+
+### Gazebo launch
+
+```bash
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+colcon build --packages-select ros2_application robot_bringup robot_description
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+ros2 launch robot_bringup komatsu_rviz_integration.launch.py \
+use_sim_time:=true \
+use_sim_odometry:=false \
+use_sim_imu:=false \
+use_cmd_vel_joint_sim:=false
+```
+
+UKF uses Gazebo odom:
+'odom0': '/odom'
+
+RTAB-Map publishes:
+map → odom
+→ matches Gazebo + UKF setup

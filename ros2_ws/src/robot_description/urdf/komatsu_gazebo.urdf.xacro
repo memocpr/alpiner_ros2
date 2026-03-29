@@ -127,7 +127,7 @@
             <publish_wheel_tf>false</publish_wheel_tf>
 
             <odometry_frame>odom</odometry_frame>
-            <robot_base_frame>base_link</robot_base_frame>
+            <robot_base_frame>base_footprint</robot_base_frame>
 
             <!-- Topics -->
             <command_topic>cmd_vel</command_topic>
@@ -145,7 +145,7 @@
                 <namespace>/</namespace>
                 <remapping>odom:=ground_truth/odom</remapping>
             </ros>
-            <body_name>base_link</body_name>
+            <body_name>base_footprint</body_name>
             <frame_name>odom</frame_name>
             <update_rate>50.0</update_rate>
         </plugin>
