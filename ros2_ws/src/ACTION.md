@@ -957,38 +957,25 @@ ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 odom base_footprint
 
 
 
-## Action 7: Gazebo + RViz quick run
+## Action 7: Gazebo + simple custom controller
 
-**Prerequisites**: Install Gazebo and gazebo_ros packages:
+Goal:
+- move robot in Gazebo
+- keep controller simple
+- no `ros2_control` yet
 
-```bash
-sudo apt update
-sudo apt install ros-humble-gazebo-ros-pkgs ros-humble-gazebo-ros
-```
+### What is added
 
-**Gazebo features**:
-- Differential drive plugin for cmd_vel consumption
-- Simulated LiDAR sensor (360° scan, 50m range)
-- IMU sensor
-- Ground truth odometry
-- Realistic physics with wheel friction and inertia
+- Gazebo launch
+- robot spawned in Gazebo
+- simple custom controller node
+- teleop to test movement
 
-**Topics provided by Gazebo**:
-- `/odom` (nav_msgs/Odometry) - Wheel odometry
-- `/scan` (sensor_msgs/LaserScan) - LiDAR data
-- `/imu/data` (sensor_msgs/Imu) - IMU data
-- `/ground_truth/odom` (nav_msgs/Odometry) - Perfect ground truth
+### Architecture
 
-**Control interface**:
-- `/cmd_vel` (geometry_msgs/Twist) - Velocity commands
-
-## Notes
-
-- Gazebo URDF includes collision and inertial properties required for physics simulation
-- Base URDF (komatsu.urdf.xacro) is suitable for RViz visualization and real hardware
-- Articulated steering is simplified to differential drive in Gazebo for initial testing
-- For full articulated steering simulation, future work will add ros2_control integration
-
-
-
-### Quick start separate terminals
+```text
+/teleop or Nav2
+    -> /cmd_vel
+    -> simple_custom_controller
+    -> sim command / joint command
+    -> Gazebo robot moves
