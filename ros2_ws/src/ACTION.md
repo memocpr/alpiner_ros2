@@ -988,11 +988,31 @@ cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application robot_bringup robot_description
 source /opt/ros/humble/setup.bash
 source install/setup.bash
-ros2 launch robot_bringup komatsu_rviz_integration.launch.py \
+ros2 launch robot_bringup komatsu_gazebo.launch.py \
 use_sim_time:=true \
 use_sim_odometry:=false \
 use_sim_imu:=false \
+use_sim_scan:=false \
 use_cmd_vel_joint_sim:=false
+```
+
+
+## kill unnecessary nodes
+```bash
+pkill -9 -f "ros2|gzserver|gzclient|rviz2|robot_state_publisher|rtabmap|ukf|nav2|controller_manager|spawn_entity"
+```
+
+```bash
+ros2 daemon stop
+sleep 2
+ros2 daemon start
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+```
+
+```bash
+ros2 node list
 ```
 
 UKF uses Gazebo odom:
@@ -1001,3 +1021,10 @@ UKF uses Gazebo odom:
 RTAB-Map publishes:
 map → odom
 → matches Gazebo + UKF setup
+
+
+### run teleop in another terminal
+```bash
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
+```
+

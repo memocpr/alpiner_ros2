@@ -23,7 +23,6 @@ def generate_launch_description():
     nav2_params_file = os.path.join(bringup_dir, 'config', 'komatsu_nav2_params.yaml')
     nav2_rviz_config = os.path.join(nav2_bringup_dir, 'rviz', 'nav2_default_view.rviz')
     komatsu_nav2_launch_file = os.path.join(bringup_dir, 'launch', 'komatsu_nav2.launch.py')
-    gazebo_launch_file = os.path.join(bringup_dir, 'launch', 'komatsu_gazebo.launch.py')
 
     use_sim_time = DeclareLaunchArgument(
         'use_sim_time',
@@ -179,13 +178,6 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('use_rviz')),
     )
 
-    gazebo_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(gazebo_launch_file),
-        launch_arguments={
-            'use_sim_time': LaunchConfiguration('use_sim_time'),
-        }.items(),
-    )
-
     startup_logs = [
         LogInfo(msg=['[Action6] use_sim_odometry=', LaunchConfiguration('use_sim_odometry'),
                      ', use_sim_imu=', LaunchConfiguration('use_sim_imu'),
@@ -214,6 +206,5 @@ def generate_launch_description():
         localization_launch,
         mapping_launch,
         nav2_launch,
-        gazebo_launch,
         rviz_node,
     ])
