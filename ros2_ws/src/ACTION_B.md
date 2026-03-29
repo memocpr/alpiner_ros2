@@ -1147,5 +1147,5 @@ ros2 topic echo /executed_path --once
 
 ### plot_eval
 ```bash
-python3 /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/ros2_application/ros2_application/plot_eval.py
+python3 ~/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/ros2_application/ros2_application/plot_eval.py
 ```
