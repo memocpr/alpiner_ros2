@@ -13,7 +13,7 @@ Package contains 5 custom messages for machine control:
 
 Build and check:
 ```bash
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_interfaces
 source install/setup.bash
 ros2 interface list | grep ros2_interfaces
@@ -65,7 +65,7 @@ map
 ### Visualize in RViz
 
 ```bash
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source /opt/ros/humble/setup.bash
 colcon build --packages-select robot_description --symlink-install
 source install/setup.bash
@@ -74,7 +74,7 @@ ros2 launch robot_description komatsu_view_robot.launch.py
 
 create/update TF tree diagram:
 ```bash
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/robot_description/TFs
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/robot_description/TFs
 ros2 run tf2_tools view_frames
 ```
 
@@ -116,7 +116,7 @@ This package now includes a minimal local-test localization setup:
 
 ### Publish Robot Model and TF
 ```bash
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source /opt/ros/humble/setup.bash
 source install/setup.bash
 ros2 launch robot_description komatsu_view_robot.launch.py
@@ -124,7 +124,7 @@ ros2 launch robot_description komatsu_view_robot.launch.py
 
 ### Build and Launch Localization
 ```bash
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application robot_description
 source install/setup.bash
 ros2 launch ros2_application komatsu_localization.launch.py
@@ -336,7 +336,7 @@ This package now includes a minimal local-test mapping setup:
 ### Run
 
 ```bash
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source /opt/ros/humble/setup.bash
 source install/setup.bash
 ros2 launch ros2_application komatsu_mapping.launch.py
@@ -603,7 +603,7 @@ Nav2 navigation stack configured with:
 ### Launch
 Run action 3 and action 4 first to provide `/odometry/filtered` and `/map` inputs for Nav2.
 ```bash
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select robot_bringup robot_description
 source install/setup.bash
 ros2 launch robot_bringup komatsu_nav2.launch.py
@@ -737,13 +737,13 @@ This launch starts:
 pkill -f ros2
 ros2 daemon stop
 ros2 daemon start
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source install/setup.bash
 ```
 
 ### Build and run
 ```bash
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application robot_bringup robot_description
 source /opt/ros/humble/setup.bash
 source install/setup.bash
@@ -751,7 +751,7 @@ ros2 launch robot_bringup komatsu_rviz_integration.launch.py use_sim_time:=false
 ```
 
 ```bash
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application robot_bringup robot_description
 source /opt/ros/humble/setup.bash
 source install/setup.bash
@@ -763,6 +763,16 @@ use_sim_imu:=false
 ### run teleop in another terminal
 ```bash
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
+```
+
+### check the custom nav2 controller
+```bash
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
+
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+
+ros2 pkg prefix nav2_regulated_pure_pursuit_controller
 ```
 
 ### Send Short Test Goal
@@ -984,7 +994,7 @@ Goal:
 ### Gazebo launch
 
 ```bash
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application robot_bringup robot_description
 source /opt/ros/humble/setup.bash
 source install/setup.bash
@@ -1006,7 +1016,7 @@ pkill -9 -f "ros2|gzserver|gzclient|rviz2|robot_state_publisher|rtabmap|ukf|nav2
 ros2 daemon stop
 sleep 2
 ros2 daemon start
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source /opt/ros/humble/setup.bash
 source install/setup.bash
 ```
