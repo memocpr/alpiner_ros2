@@ -1,0 +1,1 @@
+Default log folder, change it in the main if needed.
