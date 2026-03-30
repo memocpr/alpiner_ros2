@@ -7,7 +7,7 @@
   <maintainer email="gilles.mottiez@syrto.ch">sellig</maintainer>
   <license>TODO: License declaration</license>
 
-  <depend>atcom_msg</depend>
+  <depend>ros2_interfaces</depend>
   <depend>rclpy</depend>
   <depend>geometry_msgs</depend>
   <depend>nav_msgs</depend>

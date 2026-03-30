@@ -10,7 +10,7 @@ import rclpy
 from rclpy.node import Node
 
 from geometry_msgs.msg import Twist
-from atcom_msg.msg import MachineIndAll, MachineSetAll
+from ros2_interfaces.msg import MachineIndAll, MachineSetAll
 from rcl_interfaces.msg import ParameterDescriptor
 from std_msgs.msg import UInt16, String
 from nav_msgs.msg import Odometry
