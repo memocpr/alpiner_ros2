@@ -30,14 +30,8 @@
    Nav2 → navigate
    RTAB-Map publishes: map → odom
 
-2. Static map + AMCL (Nav2 default) (Adaptive Monte Carlo Localization)
-   Robot uses a pre-built map for localization and navigation.
-   map_server → load map
-   AMCL → localize robot
-   Nav2 → navigate
-   AMCL publishes: map → odom
 
-3. Typical GNSS pipeline (Action_B.md)
+2. Typical GNSS pipeline (Action_B.md)
    Robot uses GNSS + IMU + odometry for localization and a static map for navigation.
    GNSS + IMU + odom
    ↓
@@ -47,6 +41,13 @@
    ↓
    map → odom → base_link
    UKF publishes: map → odom and odom → base_link
+
+3. Static map + AMCL (Nav2 default) (Adaptive Monte Carlo Localization)
+   Robot uses a pre-built map for localization and navigation.
+   map_server → load map
+   AMCL → localize robot
+   Nav2 → navigate
+   AMCL publishes: map → odom
 
 ## Action 1: Interfaces
 
@@ -61,7 +62,7 @@ Package contains 5 custom messages for machine control:
 
 ### Build and Check
 ```bash
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_interfaces
 source install/setup.bash
 ros2 interface list | grep ros2_interfaces
@@ -127,7 +128,7 @@ map → odom → base_link
 
 ### Visualize in RViz
 ```bash
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source /opt/ros/humble/setup.bash
 colcon build --packages-select robot_description --symlink-install
 source install/setup.bash
@@ -141,7 +142,7 @@ Expected:
 
 ### Generate TF Tree PDF
 ```bash
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/robot_description/TFs
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/robot_description/TFs
 ros2 run tf2_tools view_frames
 ```
 
@@ -184,7 +185,7 @@ map -> odom -> base_footprint -> base_link
 ### Build and Launch
 first launch the robot model to load the TF tree, then launch the mock publishers and localization nodes:
 ```bash
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source /opt/ros/humble/setup.bash
 colcon build --packages-select robot_description ros2_application --symlink-install
 source install/setup.bash
@@ -357,7 +358,7 @@ map -> odom -> base_footprint -> base_link
 run the robot model first to load the TF tree, then launch the localization nodes:
 
 ```bash
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source /opt/ros/humble/setup.bash
 colcon build --packages-select robot_description ros2_application --symlink-install
 source install/setup.bash
@@ -478,7 +479,7 @@ This step replaces RTAB-Map online mapping with a predefined static map.
 run the robot model first to load the TF tree, then launch the localization nodes:
 
 ```bash
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source /opt/ros/humble/setup.bash
 colcon build --packages-select robot_description ros2_application robot_bringup --symlink-install
 source install/setup.bash
@@ -672,7 +673,7 @@ This step combines localization, map server, Nav2, and RViz.
 pkill -f ros2
 ros2 daemon stop
 ros2 daemon start
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source install/setup.bash
 ros2 node list
 ```
@@ -687,7 +688,7 @@ kill -9 PID1 PID2 PID3
 
 ### Build and Launch
 ```bash
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application robot_bringup robot_description
 source install/setup.bash
 ros2 launch robot_bringup komatsu_rviz_integration.launch.py \
@@ -821,7 +822,7 @@ ros2 run ros2_application cmd_vel_out_relay
 
 ### Build and Launch
 ```bash
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application robot_bringup robot_description
 source install/setup.bash
 ros2 launch robot_bringup komatsu_rviz_integration.launch.py \
@@ -1134,7 +1135,7 @@ Goal
 
 First, launch the robot in rviz with the command on action 6, send a goal:
 ```bash
-cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application
 source install/setup.bash
 ros2 run ros2_application evaluator_node
