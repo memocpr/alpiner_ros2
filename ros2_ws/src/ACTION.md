@@ -775,6 +775,23 @@ source install/setup.bash
 ros2 pkg prefix nav2_regulated_pure_pursuit_controller
 ```
 
+```bash
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
+
+rm -rf build/nav2_regulated_pure_pursuit_controller \
+       install/nav2_regulated_pure_pursuit_controller \
+       log
+
+colcon build --packages-select nav2_regulated_pure_pursuit_controller \
+  --allow-overriding nav2_regulated_pure_pursuit_controller
+
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+
+ros2 pkg prefix nav2_regulated_pure_pursuit_controller
+```
+
+
 ### Send Short Test Goal
 ```bash
 ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose \
@@ -846,6 +863,48 @@ ros2 topic echo /cmd_vel
 ```
 Expected:
 - Non-zero `linear.x` and/or `angular.z` after sending a short goal
+
+
+```bash
+ros2 topic list | grep cmd_vel
+```
+
+```bash
+ros2 topic echo /cmd_vel_nav
+```
+
+expected:
+`linear:
+x: 1.0
+y: 7.898482295126057
+z: 2.5
+angular:
+x: -1.0
+y: 0.03054870430392691
+z: 0.03054870430392691`
+
+raw output is coming from /cmd_vel_nav
+publisher is controller_server
+and the extra fields match your custom cpp exactly.
+
+Your cpp sets:
+
+linear.x = linear_vel
+angular.z = angular_vel
+linear.y = distance_end_of_transformed_plan
+linear.z = lookahead_dist
+angular.x = dist_to_cusp
+angular.y = curvature
+
+```bash
+ros2 topic info /cmd_vel_nav -v
+```
+
+
+
+
+
+
 
 ```bash
 ros2 topic echo /map --once
