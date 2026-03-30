@@ -979,7 +979,7 @@ namespace nav2_regulated_pure_pursuit_controller
     // Find points up to max_transform_dist so we only transform them.
     auto transformation_end = std::find_if(
         closest_pose_upper_bound, global_plan_.poses.end(),
-        [&](const auto &pose)
+        [&](const auto & /*p*/)
         {
           return euclidean_distance(pose, robot_pose) > max_costmap_extent;
         });
@@ -1112,7 +1112,7 @@ namespace nav2_regulated_pure_pursuit_controller
     // Find points up to max_transform_dist so we only transform them.
     auto transformation_end = std::find_if(
         closest_pose_upper_bound, global_plan_.poses.end(),
-        [&](const auto &pose)
+        [&](const auto & /*p*/)
         {
           return euclidean_distance(pose, robot_pose) > max_costmap_extent;
         });
