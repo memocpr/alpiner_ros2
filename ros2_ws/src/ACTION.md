@@ -807,6 +807,13 @@ ros2 pkg list | grep atcom
 ros2 pkg list | grep atcom
 ```
 
+```bash
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+ros2 run ros_ll_controller_python ll_controller.launch.py
+```
+
 
 ### Send Short Test Goal
 ```bash
