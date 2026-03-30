@@ -792,6 +792,11 @@ ros2 pkg prefix nav2_regulated_pure_pursuit_controller
 ```
 
 
+add .bashrc source line:
+```bash
+export ATCOM_NS=atcom_wa380
+export PYTHONPATH=$PYTHONPATH:~/Desktop/AlpineR/alpiner_ros2/P12-python-machine>
+```
 
 ### check cmd_vel_out relay
 ```bash
@@ -803,9 +808,14 @@ ros2 topic echo /cmd_vel_out
 ros2 pkg list | grep atcom
 ```
 
+
+set pmi
 ```bash
-ros2 pkg list | grep atcom
+cd ~/Desktop/AlpineR/alpiner_ros2/P12-python-machine-interface-master
+pip3 install -e .
 ```
+
+
 
 ```bash
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
@@ -814,6 +824,7 @@ source /opt/ros/humble/setup.bash
 source install/setup.bash
 ros2 run ros_ll_controller_python ll_controller
 ```
+
 
 
 ### Send Short Test Goal
