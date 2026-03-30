@@ -798,6 +798,15 @@ ros2 pkg prefix nav2_regulated_pure_pursuit_controller
 ros2 topic echo /cmd_vel_out
 ```
 
+### check atcom
+```bash
+ros2 pkg list | grep atcom
+```
+
+```bash
+ros2 pkg list | grep atcom
+```
+
 
 ### Send Short Test Goal
 ```bash
