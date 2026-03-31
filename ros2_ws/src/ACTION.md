@@ -927,7 +927,6 @@ ros2 topic info /atcom_wa380/wheeler/write/nav_ctrl -v
 ```bash
 ros2 topic echo /cmd_vel_nav
 ```
-
 expected:
 `linear:
 x: 1.0
@@ -943,7 +942,6 @@ publisher is controller_server
 and the extra fields match your custom cpp exactly.
 
 Your cpp sets:
-
 linear.x = linear_vel
 angular.z = angular_vel
 linear.y = distance_end_of_transformed_plan
@@ -954,12 +952,6 @@ angular.y = curvature
 ```bash
 ros2 topic info /cmd_vel_nav -v
 ```
-
-
-
-
-
-
 
 ```bash
 ros2 topic echo /map --once
@@ -1022,6 +1014,15 @@ Expected:
 - Costmap messages are published successfully
 
 ---
+
+
+
+
+
+
+
+
+
 
 ### Notes
 
@@ -1152,3 +1153,116 @@ map → odom
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
 
+
+
+
+
+
+
+
+
+## Action 8 HW integation
+
+
+### HW connection via ssh and password
+```bash
+ssh atcom-lego@ip
+```
+### source the HW environment
+```bash
+source_atcom
+```
+
+### check ros2 topics
+```bash
+ros2 topic list
+``` 
+
+### check atcom topics
+```bash
+ros2 pkg list | grep -E "atcom|pmi|bridge|machine|modbus"
+```
+
+
+
+### run robot
+```bash
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
+colcon build --packages-select ros2_application robot_bringup robot_description
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+ros2 launch robot_bringup komatsu_rviz_integration.launch.py \
+use_sim_time:=false \
+use_sim_imu:=false
+```
+
+### run P12 controller
+```bash
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
+colcon build --packages-select ros_ll_controller_python
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+ros2 run ros_ll_controller_python ll_controller
+```
+
+### start the bridge
+```bash
+source_atcom
+ros2 launch ros2machine bridge_write.launch.py
+```
+
+### check the bridge is running and topics are active
+```bash
+source_atcom
+ros2 node list
+ros2 topic list | grep atcom_wa380
+ros2 topic info /atcom_wa380/wheeler/write/nav_ctrl -v
+ros2 topic echo /atcom_wa380/wheeler/write/nav_ctrl
+```
+
+### check process without ros2
+```bash
+ps -ef | grep bridge_write
+```
+
+```bash
+grep -R "nav_ctrl" ~/ros2_ws/src/P12-ros-bridge-2-machine -n
+```
+exact subscribed topic is:
+`/atcom_wa380/wheeler/write/nav_ctrl`
+
+### check domain - host id
+```bash
+echo $ROS_DOMAIN_ID
+echo $ROS_LOCALHOST_ONLY
+hostname -I
+```
+
+### check DDS
+```bash
+echo $RMW_IMPLEMENTATION
+printenv | grep -E "RMW|CYCLONEDDS|FASTRTPS|FASTDDS|ROS_DISCOVERY_SERVER"
+```
+
+### check communication manually
+
+on HW terminal:
+```bash
+unset RMW_IMPLEMENTATION
+export ROS_DOMAIN_ID=0
+export ROS_LOCALHOST_ONLY=0
+source /opt/ros/humble/setup.bash
+
+ros2 topic pub /test_ping std_msgs/msg/String "{data: hello}" -r 1
+```
+
+on local terminal:
+```bash
+unset RMW_IMPLEMENTATION
+export ROS_DOMAIN_ID=0
+export ROS_LOCALHOST_ONLY=0
+source /opt/ros/humble/setup.bash
+
+ros2 topic list | grep test_ping
+ros2 topic echo /test_ping
+```
