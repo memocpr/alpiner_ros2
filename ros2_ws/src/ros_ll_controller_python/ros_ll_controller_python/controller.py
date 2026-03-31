@@ -474,7 +474,7 @@ def main():
     controller = LL_Controller()
     controller.start()
 
-    pmi_logger = PMI_logger('INFO', 'DEBUG', '/home/at-com/ros2_ws/log_atcom/ll_controller_{time}.log')
+    pmi_logger = PMI_logger('INFO', 'DEBUG', '~/Desktop/AlpineR/alpiner_ros2/ros2_ws/log_atcom/ll_controller_{time}.log')
     #pmi_logger = PMI_logger('INFO', 'DEBUG', '/home/sellig/work/ros2_ws/log/ll_controller_{time}.log')
 
     try:

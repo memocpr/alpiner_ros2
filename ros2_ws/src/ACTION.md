@@ -909,6 +909,22 @@ ros2 topic list | grep cmd_vel
 ```
 
 ```bash
+ros2 topic list | grep cmd_vel_out
+```
+
+```bash
+ros2 topic echo /cmd_vel_out
+```
+
+```bash
+ros2 topic info /cmd_vel_out -v
+```
+
+```bash
+ros2 topic info /atcom_wa380/wheeler/write/nav_ctrl -v
+```
+
+```bash
 ros2 topic echo /cmd_vel_nav
 ```
 
