@@ -815,6 +815,10 @@ cd ~/Desktop/AlpineR/alpiner_ros2/P12-python-machine-interface-master
 pip3 install -e .
 ```
 
+set pymodbus
+```
+pip install pymodbus==2.5.3
+```
 
 
 ```bash

@@ -3,7 +3,6 @@ import numpy as np
 import math
 
 from pmi.hal.hal_read import HAL_Read
-import atcom_wllg.wl_func as funcs
 
 
 class MachineRead:
@@ -372,7 +371,7 @@ class MachineRead:
         self.bellcrank_angle = MachineRead.convert_bellcrank_angle(bellcrank_angle)
 
         # angle of the bucket
-        self.bucket_angle = math.degrees(funcs.beta_theta4(math.radians(self.bellcrank_angle)))
+        self.bucket_angle = 0
 
         # conversion from [-128°..127°] to [-35.0°..35.0°]
         self.steering_angle = MachineRead.convert_steering_angle(MachineRead.convert_unsigned_to_signed(steering_angle))
