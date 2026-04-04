@@ -3,7 +3,7 @@ import math
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-base = Path('~/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/ros2_application/evaluations')
+base = Path('~/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/ros2_application/evaluations').expanduser()
 
 ref_x, ref_y = [], []
 with open(base / 'reference_path.csv', newline='') as f:
