@@ -34,7 +34,7 @@ class EvaluatorNode(Node):
 
         self.create_subscription(
             Odometry,
-            '/odometry/filtered_local',
+            '/odometry/filtered',
             self.odom_callback,
             10
         )
