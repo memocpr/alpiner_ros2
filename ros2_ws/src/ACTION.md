@@ -1266,3 +1266,71 @@ source /opt/ros/humble/setup.bash
 ros2 topic list | grep test_ping
 ros2 topic echo /test_ping
 ```
+
+
+## Action 12 — Path-Following Accuracy Evaluation
+
+### Goal
+Evaluate how accurately the robot follows the planned Nav2 path by comparing the reference path with the executed trajectory.
+
+### Scope
+This action adds an evaluation pipeline on top of the existing Action B stack without changing the current navigation architecture.
+
+### Inputs
+- Reference path from Nav2:
+    - `/plan`
+- Robot executed trajectory:
+    - `/odometry/filtered`
+    - or TF: `map -> base_footprint`
+- Goal information:
+    - `/goal_pose` or final goal from the sent navigation task
+
+### Outputs
+- Planned path vs executed path visualization
+- Path-following metrics per run
+- CSV log files for offline analysis
+- Thesis-ready plots and summary tables
+
+### Metrics
+- Cross-track error
+    - distance from robot pose to nearest point on reference path
+- Heading error
+    - yaw difference between robot heading and path tangent
+- Final position error
+    - distance between final robot pose and goal pose
+- Final yaw error
+- Mean error
+- RMS error
+- Maximum error
+- Completion time
+
+### Pipeline
+Goal
+-> Nav2 Planner
+-> /plan
+-> Nav2 Controller
+-> /cmd_vel
+-> Low-level controller
+-> Robot / simulator
+-> /odometry/filtered
+-> Evaluation node
+
+
+
+First, launch the robot in rviz with the command on action 6, send a goal:
+```bash
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
+colcon build --packages-select ros2_application
+source install/setup.bash
+ros2 run ros2_application evaluator_node
+```
+
+### Verify Reference Path
+```bash
+ros2 topic echo /executed_path --once
+```
+
+### plot_eval
+```bash
+python3 ~/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/ros2_application/ros2_application/plot_eval.py
+```
