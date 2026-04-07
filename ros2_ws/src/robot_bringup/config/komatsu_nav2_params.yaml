@@ -195,7 +195,7 @@ local_costmap:
       #   rear extent   ~ -4.175 m
       #   total width   ~ 2.990 m incl. wheels
       # Safety margin added here.
-      footprint: "[[4.50, 2.50], [4.50, -2.50], [-4.50, -2.50], [-4.50, 2.50]]"
+      footprint: "[[4.50, 1.70], [4.50, -1.70], [-4.50, -1.70], [-4.50, 1.70]]"
 
       plugins: ["voxel_layer", "inflation_layer"]
 
@@ -257,7 +257,7 @@ global_costmap:
       robot_base_frame: base_footprint
 
       # Same global planning footprint as local costmap.
-      footprint: "[[4.50, 2.50], [4.50, -2.50], [-4.50, -2.50], [-4.50, 2.50]]"
+      footprint: "[[4.50, 1.70], [4.50, -1.70], [-4.50, -1.70], [-4.50, 1.70]]"
 
       resolution: 0.05
       track_unknown_space: true
