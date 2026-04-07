@@ -78,25 +78,28 @@ class EvaluatorNode(Node):
         self.executed_path_msg.poses.append(pose_stamped)
         self.executed_path_pub.publish(self.executed_path_msg)
 
+        self.compute_final_error()
+
         if len(self.trajectory) % 10 == 0:
             self.compute_cross_track_error()
-            self.compute_final_error()
 
     def compute_final_error(self):
-        if not self.plan or not self.trajectory:
+        if not self.reference_plan or not self.trajectory:
             return
 
-        goal = self.plan[-1].pose.position
+        goal = self.reference_plan[-1].pose.position
         last = self.trajectory[-1]
 
         dx = last[1] - goal.x
         dy = last[2] - goal.y
         dist = (dx**2 + dy**2)**0.5
 
-        if dist < 0.35:
+        if dist < 0.50:
             self.get_logger().info(f'Final position error: {dist:.3f} m')
             self.save_csv()
             self.goal_reached_logged = True
+            self.destroy_node()
+            rclpy.shutdown()
 
     def compute_cross_track_error(self):
         if not self.plan or not self.trajectory:
@@ -144,5 +147,6 @@ def main(args=None):
     rclpy.init(args=args)
     node = EvaluatorNode()
     rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+    if rclpy.ok():
+        node.destroy_node()
+        rclpy.shutdown()
