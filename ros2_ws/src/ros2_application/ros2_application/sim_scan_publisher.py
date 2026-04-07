@@ -32,7 +32,7 @@ class SimScanPublisher(Node):
 
         ranges = []
         for i in range(self.num_beams):
-            distance = msg.range_max
+            distance = 12
             ranges.append(float(distance))
 
         msg.ranges = ranges
