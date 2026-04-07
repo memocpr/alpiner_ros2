@@ -153,7 +153,7 @@
   <joint name="laser_joint" type="fixed">
     <parent link="rear_chassis"/>
     <child link="laser_frame"/>
-    <origin xyz="0.0 0.0 ${box_h + 0.03}" rpy="0 0 0"/>
+    <origin xyz="0.0 0.0 ${box_h + 0.3}" rpy="0 0 0"/> <!-- lidar 30 cm above the cabin -->
   </joint>
 
   <link name="imu_link"/>
