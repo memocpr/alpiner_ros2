@@ -21,14 +21,9 @@ ros2 interface show ros2_interfaces/msg/MachineIndAll
 ```
 
 
-
-
-
 ## Action 2: Robot model
 
-# Robot Description Package
-
-## Robot Specifications
+Robot Specifications
 
 Based on Komatsu WA380 articulated wheel loader:
 - **Overall length**: 8.35 m
@@ -40,7 +35,7 @@ Based on Komatsu WA380 articulated wheel loader:
 - **Articulation angle**: ±0.35 rad (±20°)
 - **Wheel radius**: ~0.80 m
 
-## TF Tree
+### TF Tree
 
 ```
 map
@@ -90,9 +85,6 @@ Robot URDF now uses physically accurate inertia calculations following ROS2 best
 - **Updated** `komatsu.urdf.xacro` and `wheels.xacro` to use inertia macros instead of hardcoded values
 
 - **Result**: Chassis and wheels now have correct inertia tensors calculated from actual geometry, improving Gazebo physics simulation accuracy
-
-
-
 
 
 ## Action 3: Localization pipeline (UKF)
@@ -310,8 +302,6 @@ ros2_application/ros2_application/sim_odometry_publisher.py
   - `use_sim_odometry:=false`
   - `use_sim_imu:=false`
 - **Simulation behavior**: `sim_odometry_publisher` integrates `/cmd_vel` into `/odometry/raw` (with timeout), and `sim_imu_publisher` stays simple/static for local testing.
-
-
 
 
 ## Action 4: Mapping pipeline (RTAB-Map)
@@ -580,10 +570,6 @@ map -> odom -> base_footprint -> base_link -> laser_frame
 - RTAB-Map local test now uses `/tmp/rtabmap_action6.db` with `delete_db_on_start=true` to avoid stale DB conflicts during repeated launch/stop cycles.
 
 
-
-
-
-
 ## Action 5: Navigation stack (Nav2)
 
 ### install slam_toolbox
@@ -714,8 +700,6 @@ This results in a navigation envelope of approximately:
 * Width: ~3.2 m
 
 The footprint is defined in the `base_footprint` frame and used by the **global and local costmaps** for obstacle avoidance and path feasibility checking.
-
-
 
 
 ## Action 6: RViz integration test (full stack)
@@ -881,7 +865,7 @@ ros2 action info /navigate_to_pose
 5. Verify path-following behavior and monitor `/cmd_vel`:
 
 
-## Action 6 Additional Verification Commands
+### Action 6 Additional Verification Commands
 
 ### Check Key Topics Rate
 ```bash
@@ -1081,7 +1065,6 @@ ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 odom base_footprint
 ```
 
 
-
 ## Action 7: Gazebo + simple custom controller
 
 Goal:
@@ -1121,8 +1104,7 @@ use_sim_scan:=false \
 use_cmd_vel_joint_sim:=false
 ```
 
-
-## kill unnecessary nodes
+### kill unnecessary nodes
 ```bash
 pkill -9 -f "ros2|gzserver|gzclient|rviz2|robot_state_publisher|rtabmap|ukf|nav2|controller_manager|spawn_entity"
 ```
@@ -1152,13 +1134,6 @@ map → odom
 ```bash
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
-
-
-
-
-
-
-
 
 
 ## Action 8 HW integation
