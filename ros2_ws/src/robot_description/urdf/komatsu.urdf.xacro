@@ -16,8 +16,11 @@
   <xacro:property name="E_track" value="2.160"/>
   <xacro:property name="F_clearance" value="0.455"/>
   <xacro:property name="H_height" value="3.395"/>
-  <xacro:property name="X_len" value="3.200"/>
-  <xacro:property name="Y_len" value="2.120"/>
+  <xacro:property name="X_len" value="2.660"/>
+  <xacro:property name="Y_len" value="2.660"/>
+
+    <xacro:property name="HR_height" value="2.350"/> <!-- rear body -->
+    <xacro:property name="HF_height" value="1.560"/> <!-- front body -->
 
   <xacro:property name="half_wb" value="${B_wheelbase/2.0}"/>
   <xacro:property name="wheel_radius" value="0.80"/>
@@ -28,6 +31,9 @@
   <xacro:property name="front_box_len" value="${X_len + half_wb}"/>
   <xacro:property name="box_w" value="${D_width-(2*wheel_width)}"/>
   <xacro:property name="box_h" value="${H_height-F_clearance}"/>
+
+    <xacro:property name="rbox_h" value="${HR_height-F_clearance}"/>
+    <xacro:property name="fbox_h" value="${HF_height-F_clearance}"/>
 
     <!-- base footprint -->
     <link name="base_footprint"/>
@@ -64,44 +70,44 @@
     <!-- rear body -->
     <link name="rear_chassis">
         <visual>
-            <origin xyz="${-rear_box_len/2.0} 0 ${box_h/2.0}"/>
-            <geometry><box size="${rear_box_len} ${box_w} ${box_h}"/></geometry>
+            <origin xyz="${-rear_box_len/2.0} 0 ${rbox_h/2.0}"/>
+            <geometry><box size="${rear_box_len} ${box_w} ${rbox_h}"/></geometry>
             <material name="red"/>
         </visual>
 
         <collision>
-            <origin xyz="${-rear_box_len/2.0} 0 ${box_h/2.0}"/>
-            <geometry><box size="${rear_box_len} ${box_w} ${box_h}"/></geometry>
+            <origin xyz="${-rear_box_len/2.0} 0 ${rbox_h/2.0}"/>
+            <geometry><box size="${rear_box_len} ${box_w} ${rbox_h}"/></geometry>
         </collision>
 
         <xacro:box_inertia
             m="5000.0"
             x="${rear_box_len}"
             y="${box_w}"
-            z="${box_h}"
-            o_xyz="${-rear_box_len/2.0} 0 ${box_h/2.0}"
+            z="${rbox_h}"
+            o_xyz="${-rear_box_len/2.0} 0 ${rbox_h/2.0}"
             o_rpy="0 0 0"/>
     </link>
 
     <!-- front body -->
     <link name="front_chassis">
         <visual>
-            <origin xyz="${front_box_len/2.0} 0 ${box_h/2.0}"/>
-            <geometry><box size="${front_box_len} ${box_w} ${box_h}"/></geometry>
+            <origin xyz="${front_box_len/2.0} 0 ${fbox_h/2.0}"/>
+            <geometry><box size="${front_box_len} ${box_w} ${fbox_h}"/></geometry>
             <material name="green"/>
         </visual>
 
         <collision>
-            <origin xyz="${front_box_len/2.0} 0 ${box_h/2.0}"/>
-            <geometry><box size="${front_box_len} ${box_w} ${box_h}"/></geometry>
+            <origin xyz="${front_box_len/2.0} 0 ${fbox_h/2.0}"/>
+            <geometry><box size="${front_box_len} ${box_w} ${fbox_h}"/></geometry>
         </collision>
 
         <xacro:box_inertia
             m="5000.0"
             x="${front_box_len}"
             y="${box_w}"
-            z="${box_h}"
-            o_xyz="${front_box_len/2.0} 0 ${box_h/2.0}"
+            z="${fbox_h}"
+            o_xyz="${front_box_len/2.0} 0 ${fbox_h/2.0}"
             o_rpy="0 0 0"/>
     </link>
 
