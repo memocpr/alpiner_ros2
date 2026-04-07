@@ -16,24 +16,20 @@
   <xacro:property name="E_track" value="2.160"/>
   <xacro:property name="F_clearance" value="0.455"/>
   <xacro:property name="H_height" value="3.395"/>
-  <xacro:property name="X_len" value="2.660"/>
-  <xacro:property name="Y_len" value="2.660"/>
-
-    <xacro:property name="HR_height" value="2.350"/> <!-- rear body -->
-    <xacro:property name="HF_height" value="1.560"/> <!-- front body -->
+  <xacro:property name="X_len" value="2.660"/> <!-- axes to front and axes to rear -->
 
   <xacro:property name="half_wb" value="${B_wheelbase/2.0}"/>
   <xacro:property name="wheel_radius" value="0.80"/>
   <xacro:property name="wheel_width" value="0.65"/>
   <xacro:property name="wheel_y" value="${E_track/2.0}"/>
 
-  <xacro:property name="rear_box_len" value="${Y_len + half_wb}"/>
+  <xacro:property name="rear_box_len" value="${X_len + half_wb}"/>
   <xacro:property name="front_box_len" value="${X_len + half_wb}"/>
   <xacro:property name="box_w" value="${D_width-(2*wheel_width)}"/>
   <xacro:property name="box_h" value="${H_height-F_clearance}"/>
 
-    <xacro:property name="rbox_h" value="${HR_height-F_clearance}"/>
-    <xacro:property name="fbox_h" value="${HF_height-F_clearance}"/>
+    <xacro:property name="rbox_h" value="${H_height-F_clearance}"/>
+    <xacro:property name="fbox_h" value="${H_height-F_clearance}"/>
 
     <!-- base footprint -->
     <link name="base_footprint"/>
