@@ -14,7 +14,6 @@ class SimScanPublisher(Node):
 
         self.num_beams = 360
         self.angle_min = -math.pi
-        # Keep metadata consistent with ranges length: N = ((max-min)/inc) + 1
         self.angle_increment = (2.0 * math.pi) / (self.num_beams - 1)
         self.angle_max = self.angle_min + self.angle_increment * (self.num_beams - 1)
 
@@ -31,24 +30,12 @@ class SimScanPublisher(Node):
         msg.range_min = 0.1
         msg.range_max = 25.0
 
-        # Static environment for stable mapping
         ranges = []
         for i in range(self.num_beams):
-            angle = self.angle_min + i * self.angle_increment
             distance = 12.0
-
-            # Frontal wall at fixed distance
-            if abs(angle) < 0.35:
-                distance = min(distance, 5.0)
-
-            # Side corridor walls
-            if abs(abs(angle) - math.pi / 2.0) < 0.15:
-                distance = min(distance, 4.0)
-
             ranges.append(float(distance))
 
         msg.ranges = ranges
-
         self.publisher.publish(msg)
 
 
