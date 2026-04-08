@@ -6,6 +6,7 @@ from rclpy.node import Node
 
 from nav_msgs.msg import Path, Odometry
 from geometry_msgs.msg import PoseStamped
+from action_msgs.msg import GoalStatusArray, GoalStatus
 
 
 class EvaluatorNode(Node):
@@ -39,6 +40,13 @@ class EvaluatorNode(Node):
             10
         )
 
+        self.create_subscription(
+            GoalStatusArray,
+            '/navigate_to_pose/_action/status',
+            self.status_callback,
+            10
+        )
+
         self.get_logger().info('Evaluator node started')
 
     def plan_callback(self, msg):
@@ -49,7 +57,22 @@ class EvaluatorNode(Node):
             self.executed_path_msg.header.frame_id = 'map'
 
         self.plan = msg.poses
-        self.goal_reached_logged = False
+
+    def status_callback(self, msg):
+        if self.goal_reached_logged:
+            return
+
+        if not msg.status_list:
+            return
+
+        latest_status = msg.status_list[-1].status
+
+        if latest_status == GoalStatus.STATUS_SUCCEEDED:
+            self.get_logger().info('Navigation goal succeeded')
+            self.save_csv()
+            self.goal_reached_logged = True
+            self.destroy_node()
+            rclpy.shutdown()
 
     def odom_callback(self, msg):
         if self.goal_reached_logged:

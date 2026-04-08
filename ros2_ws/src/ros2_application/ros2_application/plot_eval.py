@@ -80,34 +80,8 @@ print(f'Mean heading error: {mean_heading_error:.3f} rad')
 completion_time = exe_time[-1] - exe_time[0]
 print(f'Completion time: {completion_time:.2f} s')
 
-# summary CSV
-# summary CSV
+# summary CSV - overwrite with latest result only
 summary_path = base / 'metrics_summary.csv'
-
-new_row = [
-    rmse,
-    mean_heading_error,
-    max_cross_track_error,
-    mean_cross_track_error,
-    completion_time
-]
-
-old_rows = []
-if summary_path.exists():
-    with open(summary_path, newline='') as f:
-        reader = csv.reader(f)
-        next(reader, None)  # skip header
-        old_rows = list(reader)
-
-old_rows.append([
-    f'Path_{chr(ord("A") + len(old_rows))}',
-    *new_row
-])
-
-old_rows = old_rows[-3:]  # keep only last 3
-
-for i, row in enumerate(old_rows):
-    row[0] = f'Path_{chr(ord("A") + i)}'
 
 with open(summary_path, 'w', newline='') as f:
     writer = csv.writer(f)
@@ -119,7 +93,14 @@ with open(summary_path, 'w', newline='') as f:
         'mean_cross_track_error_m',
         'completion_time_s'
     ])
-    writer.writerows(old_rows)
+    writer.writerow([
+        'latest',
+        rmse,
+        mean_heading_error,
+        max_cross_track_error,
+        mean_cross_track_error,
+        completion_time
+    ])
 
 # Plot
 plt.plot(ref_x, ref_y, 'r', label='planned path')
@@ -175,6 +156,6 @@ table = plt.table(
 table.auto_set_font_size(False)
 table.set_fontsize(10)
 table.scale(1, 1.5)
-plt.title('Evaluation Summary (Runs)')
+plt.title('Evaluation Summary')
 
 plt.show()
