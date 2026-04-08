@@ -1104,6 +1104,12 @@ use_sim_scan:=false \
 use_cmd_vel_joint_sim:=false
 ```
 
+If `use_ll_controller:=true`, ensure PMI is installed once:
+```bash
+cd ~/Desktop/AlpineR/alpiner_ros2/P12-python-machine-interface-master
+pip3 install -e .
+pip3 install pymodbus==2.5.3
+
 ### kill unnecessary nodes
 ```bash
 pkill -9 -f "ros2|gzserver|gzclient|rviz2|robot_state_publisher|rtabmap|ukf|nav2|controller_manager|spawn_entity"
