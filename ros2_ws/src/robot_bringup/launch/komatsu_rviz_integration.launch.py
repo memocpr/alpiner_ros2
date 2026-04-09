@@ -178,12 +178,12 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('use_rviz')),
     )
 
-    cmd_vel_out_relay = Node(
-        package='ros2_application',
-        executable='cmd_vel_out_relay',
-        name='cmd_vel_out_relay',
-        output='screen',
-    )
+#    cmd_vel_out_relay = Node(
+#        package='ros2_application',
+#        executable='cmd_vel_out_relay',
+#        name='cmd_vel_out_relay',
+#        output='screen',
+#    )
 
     startup_logs = [
         LogInfo(msg=['[Action6] use_sim_odometry=', LaunchConfiguration('use_sim_odometry'),
@@ -214,5 +214,5 @@ def generate_launch_description():
         mapping_launch,
         nav2_launch,
         rviz_node,
-        cmd_vel_out_relay,
+#        cmd_vel_out_relay,
     ])
