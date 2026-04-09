@@ -79,6 +79,7 @@ def generate_launch_description():
         description='LaserScan topic for mapping and Nav2 costmaps',
     )
 
+
     params_file = DeclareLaunchArgument(
         'params_file',
         default_value=nav2_params_file,
@@ -136,6 +137,17 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('use_cmd_vel_joint_sim')),
     )
 
+    joint_state_publisher = Node(
+        package='joint_state_publisher',
+        executable='joint_state_publisher',
+        name='joint_state_publisher',
+        output='screen',
+        parameters=[{
+            'use_sim_time': LaunchConfiguration('use_sim_time'),
+        }],
+        condition=UnlessCondition(LaunchConfiguration('use_cmd_vel_joint_sim')),
+    )
+
     localization_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(ros2_app_dir, 'launch', 'komatsu_localization.launch.py')
@@ -186,7 +198,7 @@ def generate_launch_description():
     spawn_robot = Node(
         package='gazebo_ros',
         executable='spawn_entity.py',
-        arguments=['-entity', 'komatsu', '-topic', 'robot_description'],
+        arguments=['-entity', 'komatsu', '-topic', 'robot_description', '-z', '0.46'],
         output='screen',
     )
 
@@ -224,6 +236,7 @@ def generate_launch_description():
         *startup_logs,
         robot_state_publisher,
         cmd_vel_joint_state_publisher,
+        joint_state_publisher,
         gazebo_server,
         gazebo_client,
         spawn_robot,
