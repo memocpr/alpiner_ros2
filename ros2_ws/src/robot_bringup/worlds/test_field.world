@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <sdf version='1.7'>
   <world name='default'>
     <light name='sun' type='directional'>
@@ -96,10 +97,10 @@
         <collision name='Wall_4_Collision'>
           <geometry>
             <box>
-              <size>73 0.15 2.5</size>
+              <size>73 0.15 5.0</size>
             </box>
           </geometry>
-          <pose>0 0 1.25 0 -0 0</pose>
+          <pose>0 0 2.5 0 -0 0</pose>
           <max_contacts>10</max_contacts>
           <surface>
             <contact>
@@ -115,10 +116,10 @@
           </surface>
         </collision>
         <visual name='Wall_4_Visual'>
-          <pose>0 0 1.25 0 -0 0</pose>
+          <pose>0 0 2.5 0 -0 0</pose>
           <geometry>
             <box>
-              <size>73 0.15 2.5</size>
+              <size>73 0.15 5.0</size>
             </box>
           </geometry>
           <material>
@@ -141,10 +142,10 @@
         <collision name='Wall_5_Collision'>
           <geometry>
             <box>
-              <size>144 0.15 2.5</size>
+              <size>144 0.15 5.0</size>
             </box>
           </geometry>
-          <pose>0 0 1.25 0 -0 0</pose>
+          <pose>0 0 2.5 0 -0 0</pose>
           <max_contacts>10</max_contacts>
           <surface>
             <contact>
@@ -160,10 +161,10 @@
           </surface>
         </collision>
         <visual name='Wall_5_Visual'>
-          <pose>0 0 1.25 0 -0 0</pose>
+          <pose>0 0 2.5 0 -0 0</pose>
           <geometry>
             <box>
-              <size>144 0.15 2.5</size>
+              <size>144 0.15 5.0</size>
             </box>
           </geometry>
           <material>
@@ -186,10 +187,10 @@
         <collision name='Wall_6_Collision'>
           <geometry>
             <box>
-              <size>72.5 0.15 2.5</size>
+              <size>72.5 0.15 5.0</size>
             </box>
           </geometry>
-          <pose>0 0 1.25 0 -0 0</pose>
+          <pose>0 0 2.5 0 -0 0</pose>
           <max_contacts>10</max_contacts>
           <surface>
             <contact>
@@ -205,10 +206,10 @@
           </surface>
         </collision>
         <visual name='Wall_6_Visual'>
-          <pose>0 0 1.25 0 -0 0</pose>
+          <pose>0 0 2.5 0 -0 0</pose>
           <geometry>
             <box>
-              <size>72.5 0.15 2.5</size>
+              <size>72.5 0.15 5.0</size>
             </box>
           </geometry>
           <material>
@@ -231,10 +232,10 @@
         <collision name='Wall_8_Collision'>
           <geometry>
             <box>
-              <size>144 0.15 2.5</size>
+              <size>144 0.15 5.0</size>
             </box>
           </geometry>
-          <pose>0 0 1.25 0 -0 0</pose>
+          <pose>0 0 2.5 0 -0 0</pose>
           <max_contacts>10</max_contacts>
           <surface>
             <contact>
@@ -250,10 +251,10 @@
           </surface>
         </collision>
         <visual name='Wall_8_Visual'>
-          <pose>0 0 1.25 0 -0 0</pose>
+          <pose>0 0 2.5 0 -0 0</pose>
           <geometry>
             <box>
-              <size>144 0.15 2.5</size>
+              <size>144 0.15 5.0</size>
             </box>
           </geometry>
           <material>
@@ -276,10 +277,10 @@
         <collision name='Wall_9_Collision'>
           <geometry>
             <box>
-              <size>0.65 0.15 2.5</size>
+              <size>0.65 0.15 5.0</size>
             </box>
           </geometry>
-          <pose>0 0 1.25 0 -0 0</pose>
+          <pose>0 0 2.5 0 -0 0</pose>
           <max_contacts>10</max_contacts>
           <surface>
             <contact>
@@ -295,10 +296,10 @@
           </surface>
         </collision>
         <visual name='Wall_9_Visual'>
-          <pose>0 0 1.25 0 -0 0</pose>
+          <pose>0 0 2.5 0 -0 0</pose>
           <geometry>
             <box>
-              <size>0.65 0.15 2.5</size>
+              <size>0.65 0.15 5.0</size>
             </box>
           </geometry>
           <material>
@@ -318,6 +319,34 @@
         <kinematic>0</kinematic>
       </link>
       <static>1</static>
+    </model>
+    <model name='slam_landmark'>
+      <static>1</static>
+      <pose>0.5 -0.5 0 0 -0 0</pose>
+      <link name='link'>
+        <collision name='collision'>
+          <geometry>
+            <box>
+              <size>0.5 0.5 5.0</size>
+            </box>
+          </geometry>
+          <pose>0 0 2.5 0 -0 0</pose>
+        </collision>
+        <visual name='visual'>
+          <pose>0 0 2.5 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>0.5 0.5 5.0</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Orange</name>
+            </script>
+          </material>
+        </visual>
+      </link>
     </model>
     <state world_name='default'>
       <sim_time>95 697000000</sim_time>

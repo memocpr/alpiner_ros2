@@ -13,7 +13,7 @@ from launch_ros.parameter_descriptions import ParameterValue
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time')
     default_xacro_file = os.path.join(
-        get_package_share_directory('my_robot_description'),
+        get_package_share_directory('robot_description'),
         'urdf',
         'komatsu_gazebo.urdf.xacro'
     )
@@ -46,4 +46,3 @@ def generate_launch_description():
             }],
         ),
     ])
-

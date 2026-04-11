@@ -12,13 +12,8 @@ find_package(ament_cmake REQUIRED)
 # find_package(<dependency> REQUIRED)
 
 install(
-        DIRECTORY urdf meshes rviz
+        DIRECTORY urdf meshes rviz launch
         DESTINATION share/${PROJECT_NAME}
-)
-
-install(
-        PROGRAMS launch/komatsu_view_robot.launch.py
-        DESTINATION share/${PROJECT_NAME}/launch
 )
 
 ament_package()

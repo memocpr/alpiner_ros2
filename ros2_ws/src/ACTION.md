@@ -1067,50 +1067,12 @@ ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 odom base_footprint
 
 ## Action 7: Gazebo + simple custom controller
 
-Goal:
-- move robot in Gazebo
-- keep controller simple
-- no `ros2_control` yet
-
-### What is added
-
-- Gazebo launch
-- robot spawned in Gazebo
-- simple custom controller node
-- teleop to test movement
-
-### Architecture
-
-```text
-/teleop or Nav2
-    -> /cmd_vel
-    -> simple_custom_controller
-    -> sim command / joint command
-    -> Gazebo robot moves
-```
-
-### Gazebo launch
-
-```bash
-cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
-colcon build --packages-select ros2_application robot_bringup robot_description
-source /opt/ros/humble/setup.bash
-source install/setup.bash
-ros2 launch robot_bringup komatsu_gazebo.launch.py \
-use_sim_time:=true \
-use_sim_odometry:=false \
-use_sim_imu:=false \
-use_sim_scan:=false \
-use_cmd_vel_joint_sim:=false
-```
-
 If `use_ll_controller:=true`, ensure PMI is installed once:
 ```bash
 cd ~/Desktop/AlpineR/alpiner_ros2/P12-python-machine-interface-master
 pip3 install -e .
 pip3 install pymodbus==2.5.3
 ```
-
 
 ### kill unnecessary nodes
 ```bash
@@ -1126,194 +1088,48 @@ source /opt/ros/humble/setup.bash
 source install/setup.bash
 ```
 
+
+## kill all nodes
 ```bash
-ros2 node list
+pkill -f gzserver
+pkill -f gzclient
+pkill -f gazebo
+pkill -f ros2
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
+rm -rf build/ install/ log/
 ```
 
-UKF uses Gazebo odom:
-'odom0': '/odom'
-
-RTAB-Map publishes:
-map → odom
-→ matches Gazebo + UKF setup
-
-
-### run teleop in another terminal
-```bash
-ros2 run teleop_twist_keyboard teleop_twist_keyboard
-```
-
-
-## Action 8 HW integation
-
-
-### HW connection via ssh and password
-```bash
-ssh atcom-lego@ip
-```
-### source the HW environment
-```bash
-source_atcom
-```
-
-### check ros2 topics
-```bash
-ros2 topic list
-``` 
-
-### check atcom topics
-```bash
-ros2 pkg list | grep -E "atcom|pmi|bridge|machine|modbus"
-```
-
-
-
-### run robot
+## launch **komatsu** in gazebo with custom world
 ```bash
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
-colcon build --packages-select ros2_application robot_bringup robot_description
+colcon build --packages-select robot_bringup robot_description
 source /opt/ros/humble/setup.bash
 source install/setup.bash
-ros2 launch robot_bringup komatsu_rviz_integration.launch.py \
-use_sim_time:=false \
-use_sim_imu:=false
+ros2 launch robot_bringup komatsu_gazebo.launch.py
 ```
 
-### run P12 controller
+## check robot model
+```bash
+gz model -m komatsu -i
+```
+
+## run teleop
+```bash
+source /opt/ros/humble/setup.bash
+source ~/Desktop/AlpineR/alpiner_ros2/ros2_ws/install/setup.bash
+ros2 run turtlebot3_teleop teleop_keyboard
+```
+
+## launch cartographer
 ```bash
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
-colcon build --packages-select ros_ll_controller_python
+colcon build --packages-select komatsu_cartographer
 source /opt/ros/humble/setup.bash
 source install/setup.bash
-ros2 run ros_ll_controller_python ll_controller
+ros2 launch komatsu_cartographer cartographer.launch.py use_sim_time:=True
 ```
-
-### start the bridge
-```bash
-source_atcom
-ros2 launch ros2machine bridge_write.launch.py
-```
-
-### check the bridge is running and topics are active
-```bash
-source_atcom
-ros2 node list
-ros2 topic list | grep atcom_wa380
-ros2 topic info /atcom_wa380/wheeler/write/nav_ctrl -v
-ros2 topic echo /atcom_wa380/wheeler/write/nav_ctrl
-```
-
-### check process without ros2
-```bash
-ps -ef | grep bridge_write
-```
-
-```bash
-grep -R "nav_ctrl" ~/ros2_ws/src/P12-ros-bridge-2-machine -n
-```
-exact subscribed topic is:
-`/atcom_wa380/wheeler/write/nav_ctrl`
-
-### check domain - host id
-```bash
-echo $ROS_DOMAIN_ID
-echo $ROS_LOCALHOST_ONLY
-hostname -I
-```
-
-### check DDS
-```bash
-echo $RMW_IMPLEMENTATION
-printenv | grep -E "RMW|CYCLONEDDS|FASTRTPS|FASTDDS|ROS_DISCOVERY_SERVER"
-```
-
-### check communication manually
-
-on HW terminal:
-```bash
-unset RMW_IMPLEMENTATION
-export ROS_DOMAIN_ID=0
-export ROS_LOCALHOST_ONLY=0
-source /opt/ros/humble/setup.bash
-
-ros2 topic pub /test_ping std_msgs/msg/String "{data: hello}" -r 1
-```
-
-on local terminal:
-```bash
-unset RMW_IMPLEMENTATION
-export ROS_DOMAIN_ID=0
-export ROS_LOCALHOST_ONLY=0
-source /opt/ros/humble/setup.bash
-
-ros2 topic list | grep test_ping
-ros2 topic echo /test_ping
-```
-
-
-## Action 12 — Path-Following Accuracy Evaluation
-
-### Goal
-Evaluate how accurately the robot follows the planned Nav2 path by comparing the reference path with the executed trajectory.
-
-### Scope
-This action adds an evaluation pipeline on top of the existing Action B stack without changing the current navigation architecture.
-
-### Inputs
-- Reference path from Nav2:
-    - `/plan`
-- Robot executed trajectory:
-    - `/odometry/filtered`
-    - or TF: `map -> base_footprint`
-- Goal information:
-    - `/goal_pose` or final goal from the sent navigation task
-
-### Outputs
-- Planned path vs executed path visualization
-- Path-following metrics per run
-- CSV log files for offline analysis
-- Thesis-ready plots and summary tables
-
-### Metrics
-- Cross-track error
-    - distance from robot pose to nearest point on reference path
-- Heading error
-    - yaw difference between robot heading and path tangent
-- Final position error
-    - distance between final robot pose and goal pose
-- Final yaw error
-- Mean error
-- RMS error
-- Maximum error
-- Completion time
-
-### Pipeline
-Goal
--> Nav2 Planner
--> /plan
--> Nav2 Controller
--> /cmd_vel
--> Low-level controller
--> Robot / simulator
--> /odometry/filtered
--> Evaluation node
+- Added local `komatsu_cartographer` package in `src/komatsu_cartographer` so Action 7 uses Komatsu-specific Cartographer tuning.
 
 
 
-First, launch the robot in rviz with the command on action 6, send a goal:
-```bash
-cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
-colcon build --packages-select ros2_application
-source install/setup.bash
-ros2 run ros2_application evaluator_node
-```
 
-### Verify Reference Path
-```bash
-ros2 topic echo /executed_path --once
-```
-
-### plot_eval
-```bash
-python3 ~/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/ros2_application/ros2_application/plot_eval.py
-```
