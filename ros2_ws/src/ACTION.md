@@ -1102,13 +1102,11 @@ rm -rf build/ install/ log/
 ## launch **komatsu** in gazebo with custom world
 ```bash
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
-colcon build --packages-select ros2_application robot_bringup robot_description
+colcon build --packages-select robot_bringup robot_description
 source /opt/ros/humble/setup.bash
 source install/setup.bash
 ros2 launch robot_bringup komatsu_gazebo.launch.py
 ```
-
-`komatsu_gazebo.launch.py` includes localization and mapping launch files from `ros2_application`, so that package must be built before running Action 7.
 
 ## check robot model
 ```bash
