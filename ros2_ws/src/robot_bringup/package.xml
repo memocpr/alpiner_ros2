@@ -11,6 +11,7 @@
   <exec_depend>gazebo_ros</exec_depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
+  <exec_depend>ros2_application</exec_depend>
   <exec_depend>robot_description</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
