@@ -41,7 +41,13 @@ def generate_launch_description():
                 ukf_local_params,
                 {
                     'use_sim_time': use_sim_time,
-                    'odom0': '/odom'
+                    'publish_tf': True,
+                    'world_frame': 'odom',
+                    'map_frame': 'map',
+                    'odom_frame': 'odom',
+                    'base_link_frame': 'base_footprint',
+                    'odom0': '/odom',
+                    'imu0': '/imu/data',
                 }
             ],
             remappings=[
@@ -81,7 +87,16 @@ def generate_launch_description():
             output='screen',
             parameters=[
                 ukf_global_params,
-                {'use_sim_time': use_sim_time}
+                {
+                    'use_sim_time': use_sim_time,
+                    'publish_tf': True,
+                    'world_frame': 'map',
+                    'map_frame': 'map',
+                    'odom_frame': 'odom',
+                    'base_link_frame': 'base_footprint',
+                    'odom0': '/odometry/gps',
+                    'odom1': '/odometry/filtered_local',
+                }
             ]
         ),
 
