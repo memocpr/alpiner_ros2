@@ -1144,5 +1144,24 @@ ros2 run nav2_map_server map_saver_cli -f src/robot_bringup/maps/simple_test_fie
 ```
 
 
-## Action 8: Gazebo + Nav2
 
+
+# Action 8: Gazebo + Nav2
+
+## run map server
+```bash
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
+source /opt/ros/humble/setup.bash
+colcon build --packages-select robot_description --symlink-install
+source install/setup.bash
+colcon build --packages-select robot_bringup ros2_application --symlink-install
+source install/setup.bash
+ros2 launch ros2_application komatsu_map_server_nav.launch.py
+```
+
+## verify map server
+```bash
+ros2 topic list | grep map
+ros2 topic echo /map --once
+ros2 topic echo /map --once | grep frame_id
+```
