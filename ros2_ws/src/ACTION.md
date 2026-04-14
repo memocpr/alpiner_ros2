@@ -1246,3 +1246,28 @@ ros2 run tf2_ros tf2_echo map odom
 ros2 run tf2_ros tf2_echo odom base_footprint
 ```
 
+## Notes
+
+- **Current Gazebo + Nav2 implementation**: `komatsu_gazebo_nav.launch.py` now defaults to **local UKF + static map->odom** for the static-map Gazebo test. This avoids the mock-GNSS/global-UKF drift that made `map -> base_footprint` move opposite to the planned path. In this default mode:
+  - `ukf_filter_node` publishes `/odometry/filtered`
+  - `map_to_odom_static_tf` publishes `map -> odom`
+  - `navsat_transform_node` and `ukf_global_node` are disabled
+
+- **Re-enable GNSS/global path for testing** only if you want to test the mock GNSS + global UKF chain explicitly:
+```bash
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+ros2 launch robot_bringup komatsu_gazebo_nav.launch.py \
+  use_mock_gnss:=true \
+  use_global_localization:=true \
+  use_static_map_to_odom:=false
+```
+
+- When GNSS/global path is enabled, verify these topics/TFs before testing Nav2:
+```bash
+ros2 node list | grep -E "navsat|ukf"
+ros2 topic echo /odometry/filtered_local --once
+ros2 topic echo /odometry/gps --once
+ros2 run tf2_ros tf2_echo map odom
+```

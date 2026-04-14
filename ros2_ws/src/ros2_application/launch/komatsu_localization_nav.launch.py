@@ -4,7 +4,7 @@ import os
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.conditions import IfCondition
+from launch.conditions import IfCondition, UnlessCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
@@ -19,6 +19,7 @@ def generate_launch_description():
 
     use_sim_time = LaunchConfiguration('use_sim_time')
     use_mock_gnss = LaunchConfiguration('use_mock_gnss')
+    use_global_localization = LaunchConfiguration('use_global_localization')
 
     return LaunchDescription([
 
@@ -29,6 +30,11 @@ def generate_launch_description():
 
         DeclareLaunchArgument(
             'use_mock_gnss',
+            default_value='true'
+        ),
+
+        DeclareLaunchArgument(
+            'use_global_localization',
             default_value='true'
         ),
 
@@ -52,7 +58,29 @@ def generate_launch_description():
             ],
             remappings=[
                 ('odometry/filtered', '/odometry/filtered_local')
-            ]
+            ],
+            condition=IfCondition(use_global_localization)
+        ),
+
+        Node(
+            package='robot_localization',
+            executable='ukf_node',
+            name='ukf_filter_node',
+            output='screen',
+            parameters=[
+                ukf_local_params,
+                {
+                    'use_sim_time': use_sim_time,
+                    'publish_tf': True,
+                    'world_frame': 'odom',
+                    'map_frame': 'map',
+                    'odom_frame': 'odom',
+                    'base_link_frame': 'base_footprint',
+                    'odom0': '/odom',
+                    'imu0': '/imu/data',
+                }
+            ],
+            condition=UnlessCondition(use_global_localization)
         ),
 
         Node(
@@ -77,7 +105,8 @@ def generate_launch_description():
                 ('gps/fix', '/gps/fix'),
                 ('gps/filtered', '/gps/filtered'),
                 ('odometry/filtered', '/odometry/filtered_local'),
-            ]
+            ],
+            condition=IfCondition(use_global_localization)
         ),
 
         Node(
@@ -97,7 +126,8 @@ def generate_launch_description():
                     'odom0': '/odometry/gps',
                     'odom1': '/odometry/filtered_local',
                 }
-            ]
+            ],
+            condition=IfCondition(use_global_localization)
         ),
 
         Node(

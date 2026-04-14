@@ -6,7 +6,8 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration
+from launch.conditions import IfCondition
+from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
 
 
@@ -22,10 +23,15 @@ def generate_launch_description():
     autostart = LaunchConfiguration('autostart')
     map_file = LaunchConfiguration('map')
     params_file = LaunchConfiguration('params_file')
+    use_mock_gnss = LaunchConfiguration('use_mock_gnss')
+    use_global_localization = LaunchConfiguration('use_global_localization')
+    use_static_map_to_odom = LaunchConfiguration('use_static_map_to_odom')
 
     x_pose = LaunchConfiguration('x_pose')
     y_pose = LaunchConfiguration('y_pose')
     z_pose = LaunchConfiguration('z_pose')
+    map_to_odom_x = LaunchConfiguration('map_to_odom_x')
+    map_to_odom_y = LaunchConfiguration('map_to_odom_y')
 
     world = os.path.join(
         bringup_dir,
@@ -90,8 +96,18 @@ def generate_launch_description():
         ),
         launch_arguments={
             'use_sim_time': use_sim_time,
-            'use_mock_gnss': 'true',
+            'use_mock_gnss': use_mock_gnss,
+            'use_global_localization': use_global_localization,
         }.items()
+    )
+
+    map_to_odom_static_tf_cmd = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='map_to_odom_static_tf',
+        arguments=[map_to_odom_x, map_to_odom_y, '0', '0', '0', '0', 'map', 'odom'],
+        parameters=[{'use_sim_time': use_sim_time}],
+        condition=IfCondition(use_static_map_to_odom),
     )
 
     map_server_cmd = IncludeLaunchDescription(
@@ -142,6 +158,18 @@ def generate_launch_description():
             default_value=default_params_file
         ),
         DeclareLaunchArgument(
+            'use_mock_gnss',
+            default_value='false'
+        ),
+        DeclareLaunchArgument(
+            'use_global_localization',
+            default_value='false'
+        ),
+        DeclareLaunchArgument(
+            'use_static_map_to_odom',
+            default_value='true'
+        ),
+        DeclareLaunchArgument(
             'x_pose',
             default_value='-24.1'
         ),
@@ -153,11 +181,20 @@ def generate_launch_description():
             'z_pose',
             default_value='0.0'
         ),
+        DeclareLaunchArgument(
+            'map_to_odom_x',
+            default_value=PythonExpression(['-(', x_pose, ')'])
+        ),
+        DeclareLaunchArgument(
+            'map_to_odom_y',
+            default_value=PythonExpression(['-(', y_pose, ')'])
+        ),
         gzserver_cmd,
         gzclient_cmd,
         robot_state_publisher_cmd,
         spawn_robot_cmd,
         localization_cmd,
+        map_to_odom_static_tf_cmd,
         map_server_cmd,
         nav2_cmd,
         rviz_cmd,
