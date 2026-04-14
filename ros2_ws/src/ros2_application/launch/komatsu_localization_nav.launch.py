@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+
+import os
+
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch.conditions import IfCondition
+from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
+from ament_index_python.packages import get_package_share_directory
+
+
+def generate_launch_description():
+
+    ros2_app_dir = get_package_share_directory('ros2_application')
+
+    ukf_local_params = os.path.join(ros2_app_dir, 'config', 'ukf_params.yaml')
+    ukf_global_params = os.path.join(ros2_app_dir, 'config', 'ukf_global.yaml')
+
+    use_sim_time = LaunchConfiguration('use_sim_time')
+    use_mock_gnss = LaunchConfiguration('use_mock_gnss')
+
+    return LaunchDescription([
+
+        DeclareLaunchArgument(
+            'use_sim_time',
+            default_value='true'
+        ),
+
+        DeclareLaunchArgument(
+            'use_mock_gnss',
+            default_value='true'
+        ),
+
+        Node(
+            package='robot_localization',
+            executable='ukf_node',
+            name='ukf_local_node',
+            output='screen',
+            parameters=[
+                ukf_local_params,
+                {
+                    'use_sim_time': use_sim_time,
+                    'odom0': '/odom'
+                }
+            ],
+            remappings=[
+                ('odometry/filtered', '/odometry/filtered_local')
+            ]
+        ),
+
+        Node(
+            package='robot_localization',
+            executable='navsat_transform_node',
+            name='navsat_transform_node',
+            output='screen',
+            parameters=[{
+                'use_sim_time': use_sim_time,
+                'frequency': 30.0,
+                'delay': 0.0,
+                'magnetic_declination_radians': 0.0,
+                'yaw_offset': 0.0,
+                'zero_altitude': True,
+                'broadcast_utm_transform': False,
+                'publish_filtered_gps': True,
+                'use_odometry_yaw': True,
+                'wait_for_datum': False,
+            }],
+            remappings=[
+                ('imu/data', '/imu/data'),
+                ('gps/fix', '/gps/fix'),
+                ('gps/filtered', '/gps/filtered'),
+                ('odometry/filtered', '/odometry/filtered_local'),
+            ]
+        ),
+
+        Node(
+            package='robot_localization',
+            executable='ukf_node',
+            name='ukf_global_node',
+            output='screen',
+            parameters=[
+                ukf_global_params,
+                {'use_sim_time': use_sim_time}
+            ]
+        ),
+
+        Node(
+            package='ros2_application',
+            executable='sim_gnss_publisher',
+            name='sim_gnss',
+            output='screen',
+            parameters=[{
+                'use_sim_time': use_sim_time,
+                'frame_id': 'gnss_link'
+            }],
+            condition=IfCondition(use_mock_gnss)
+        ),
+    ])

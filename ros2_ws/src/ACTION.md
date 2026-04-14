@@ -1153,8 +1153,10 @@ ros2 run nav2_map_server map_saver_cli -f src/robot_bringup/maps/simple_test_fie
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source /opt/ros/humble/setup.bash
 colcon build --packages-select robot_description --symlink-install
+source /opt/ros/humble/setup.bash
 source install/setup.bash
 colcon build --packages-select robot_bringup ros2_application --symlink-install
+source /opt/ros/humble/setup.bash
 source install/setup.bash
 ros2 launch ros2_application komatsu_map_server_nav.launch.py
 ```
@@ -1164,4 +1166,69 @@ ros2 launch ros2_application komatsu_map_server_nav.launch.py
 ros2 topic list | grep map
 ros2 topic echo /map --once
 ros2 topic echo /map --once | grep frame_id
+```
+
+## kill nodes
+```bash
+pkill -f bt_navigator
+pkill -f planner_server
+pkill -f controller_server
+pkill -f lifecycle_manager
+pkill -f cartographer
+pkill -f occupancy_grid_node
+pkill -f rviz
+pkill -f ukf_node
+pkill -f navsat_transform_node
+pkill -f sim_gnss_publisher
+pkill -f robot_state_publisher
+pkill -f joint_state_publisher
+pkill -f _ros2_daemon
+```
+```bash
+source /opt/ros/humble/setup.bash
+source ~/Desktop/AlpineR/alpiner_ros2/ros2_ws/install/setup.bash
+ros2 daemon stop
+ros2 daemon start
+```
+
+
+## run localization + nav2
+```bash
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
+source /opt/ros/humble/setup.bash
+colcon build --packages-select ros2_application robot_description --symlink-install
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+ros2 launch ros2_application komatsu_localization_nav.launch.py
+```
+
+## kill all nodes
+```bash
+pkill -f gzserver
+pkill -f gzclient
+pkill -f gazebo
+pkill -f ros2
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
+rm -rf build/ install/ log/
+```
+
+
+## run gazebo + nav2
+```bash
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
+source /opt/ros/humble/setup.bash
+colcon build --packages-select robot_description robot_bringup ros2_application --symlink-install
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+ros2 launch robot_bringup komatsu_gazebo_nav.launch.py
+```
+
+## check nodes
+```bash
+ros2 node list | grep -E "map_server|ukf|navsat|planner|controller|bt_navigator|rviz|robot_state_publisher"
+ros2 topic echo /gps/fix --once
+ros2 topic echo /odometry/filtered_local --once
+ros2 topic echo /odometry/gps --once
+ros2 run tf2_ros tf2_echo map odom
+ros2 run tf2_ros tf2_echo odom base_footprint
 ```

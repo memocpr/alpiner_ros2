@@ -16,6 +16,7 @@ setup(
         ('share/' + package_name + '/launch', glob('launch/*.launch.py')),
         ('share/' + package_name + '/config', [
             'config/ukf_params.yaml',
+            'config/ukf_global.yaml',
             'config/rtabmap_params.yaml',
         ]),
     ],
@@ -39,6 +40,7 @@ setup(
             'send_nav_goal = ros2_application.send_nav_goal:main',
             'cmd_vel_out_relay = ros2_application.cmd_vel_out_relay:main',
             'evaluator_node = ros2_application.evaluator_node:main',
+            'sim_gnss_publisher = ros2_application.sim_gnss_publisher:main',
         ],
     },
 )
