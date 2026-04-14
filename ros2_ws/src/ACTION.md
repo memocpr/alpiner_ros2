@@ -1183,8 +1183,12 @@ pkill -f sim_gnss_publisher
 pkill -f robot_state_publisher
 pkill -f joint_state_publisher
 pkill -f _ros2_daemon
-```
-```bash
+pkill -f gzserver
+pkill -f gzclient
+pkill -f gazebo
+pkill -f ros2
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
+rm -rf build/ install/ log/
 source /opt/ros/humble/setup.bash
 source ~/Desktop/AlpineR/alpiner_ros2/ros2_ws/install/setup.bash
 ros2 daemon stop
@@ -1201,17 +1205,6 @@ source /opt/ros/humble/setup.bash
 source install/setup.bash
 ros2 launch ros2_application komatsu_localization_nav.launch.py
 ```
-
-## kill all nodes
-```bash
-pkill -f gzserver
-pkill -f gzclient
-pkill -f gazebo
-pkill -f ros2
-cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
-rm -rf build/ install/ log/
-```
-
 
 ## run gazebo + nav2
 ```bash
