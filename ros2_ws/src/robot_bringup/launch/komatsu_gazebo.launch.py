@@ -14,8 +14,9 @@ def generate_launch_description():
     pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
 
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
-    x_pose = LaunchConfiguration('x_pose', default='-7.0')
-    y_pose = LaunchConfiguration('y_pose', default='-0.5')
+    # SW-corner spawn with ~2m clearance to walls (60x30 field), based on nav footprint extents.
+    x_pose = LaunchConfiguration('x_pose', default='-24.1')
+    y_pose = LaunchConfiguration('y_pose', default='-11.3')
     z_pose = LaunchConfiguration('z_pose', default='0.0')
 
     world = os.path.join(
