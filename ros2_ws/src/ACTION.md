@@ -1115,12 +1115,6 @@ ros2 launch robot_bringup komatsu_gazebo.launch.py
 gz model -m komatsu -i
 ```
 
-## run teleop
-```bash
-source /opt/ros/humble/setup.bash
-source ~/Desktop/AlpineR/alpiner_ros2/ros2_ws/install/setup.bash
-ros2 run turtlebot3_teleop teleop_keyboard
-```
 
 ## launch cartographer
 ```bash
@@ -1132,6 +1126,22 @@ ros2 launch komatsu_cartographer cartographer.launch.py use_sim_time:=True
 ```
 - Added local `komatsu_cartographer` package in `src/komatsu_cartographer` so Action 7 uses Komatsu-specific Cartographer tuning.
 
+## run teleop
+```bash
+source /opt/ros/humble/setup.bash
+source ~/Desktop/AlpineR/alpiner_ros2/ros2_ws/install/setup.bash
+ros2 run turtlebot3_teleop teleop_keyboard
+```
 
+## check map
+```bash
+ros2 topic list | grep map
+ros2 topic echo /map --once
+```
 
+## save map
+```bash
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
+ros2 run nav2_map_server map_saver_cli -f src/robot_bringup/maps/simple_test_field
+```
 
