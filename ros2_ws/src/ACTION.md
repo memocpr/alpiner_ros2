@@ -1219,22 +1219,30 @@ ros2 launch robot_bringup komatsu_gazebo_nav.launch.py
 ## check nodes
 ```bash
 ros2 node list | grep -E "map_server|ukf|navsat|planner|controller|bt_navigator|rviz|robot_state_publisher"
-ros2 action list | grep navigate
-ros2 lifecycle get /planner_server
-ros2 lifecycle get /controller_server
-ros2 lifecycle get /bt_navigator
-ros2 topic echo /gps/fix --once
-ros2 topic echo /odometry/filtered_local --once
-ros2 topic echo /odometry/gps --once
-ros2 run tf2_ros tf2_echo map odom
-ros2 run tf2_ros tf2_echo odom base_footprint
 ```
 
-bash
+```bash
+ros2 action list | grep navigate
+```
+
 ```bash
 ros2 lifecycle get /planner_server
 ros2 lifecycle get /controller_server
 ros2 lifecycle get /bt_navigator
 ```
-
+```bash
+ros2 topic echo /gps/fix --once
+```
+```bash
+ros2 topic echo /odometry/filtered_local --once
+```
+```bash
+ros2 topic echo /odometry/gps --once
+```
+```bash
+ros2 run tf2_ros tf2_echo map odom
+```
+```bash
+ros2 run tf2_ros tf2_echo odom base_footprint
+```
 
