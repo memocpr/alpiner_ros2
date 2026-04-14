@@ -101,6 +101,15 @@ def generate_launch_description():
         ),
 
         Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='gnss_static_tf',
+            arguments=['0', '0', '0', '0', '0', '0', 'base_footprint', 'gnss_link'],
+            parameters=[{'use_sim_time': use_sim_time}],
+            condition=IfCondition(use_mock_gnss)
+        ),
+
+        Node(
             package='ros2_application',
             executable='sim_gnss_publisher',
             name='sim_gnss',
