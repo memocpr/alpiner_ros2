@@ -35,7 +35,7 @@ def generate_launch_description():
         Node(
             package='robot_localization',
             executable='ukf_node',
-            name='ukf_local_node',
+            name='ukf_filter_node',
             output='screen',
             parameters=[
                 ukf_local_params,
