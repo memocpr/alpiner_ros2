@@ -107,7 +107,9 @@ def generate_launch_description():
         name='map_to_odom_static_tf',
         arguments=[map_to_odom_x, map_to_odom_y, '0', '0', '0', '0', 'map', 'odom'],
         parameters=[{'use_sim_time': use_sim_time}],
-        condition=IfCondition(use_static_map_to_odom),
+        condition=IfCondition(PythonExpression([
+            "'", use_static_map_to_odom, "' == 'true' and '", use_global_localization, "' != 'true'"
+        ])),
     )
 
     map_server_cmd = IncludeLaunchDescription(
@@ -159,7 +161,7 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'use_mock_gnss',
-            default_value='false'
+            default_value='true'
         ),
         DeclareLaunchArgument(
             'use_global_localization',

@@ -5,7 +5,7 @@ import os
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition, UnlessCondition
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 
@@ -107,6 +107,34 @@ def generate_launch_description():
                 ('odometry/filtered', '/odometry/filtered_local'),
             ],
             condition=IfCondition(use_global_localization)
+        ),
+
+        Node(
+            package='robot_localization',
+            executable='navsat_transform_node',
+            name='navsat_transform_node',
+            output='screen',
+            parameters=[{
+                'use_sim_time': use_sim_time,
+                'frequency': 30.0,
+                'delay': 0.0,
+                'magnetic_declination_radians': 0.0,
+                'yaw_offset': 0.0,
+                'zero_altitude': True,
+                'broadcast_utm_transform': False,
+                'publish_filtered_gps': True,
+                'use_odometry_yaw': True,
+                'wait_for_datum': False,
+            }],
+            remappings=[
+                ('imu/data', '/imu/data'),
+                ('gps/fix', '/gps/fix'),
+                ('gps/filtered', '/gps/filtered'),
+                ('odometry/filtered', '/odometry/filtered'),
+            ],
+            condition=IfCondition(PythonExpression([
+                "'", use_mock_gnss, "' == 'true' and '", use_global_localization, "' != 'true'"
+            ]))
         ),
 
         Node(

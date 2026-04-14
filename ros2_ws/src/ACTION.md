@@ -1248,12 +1248,14 @@ ros2 run tf2_ros tf2_echo odom base_footprint
 
 ## Notes
 
-- **Current Gazebo + Nav2 implementation**: `komatsu_gazebo_nav.launch.py` now defaults to **local UKF + static map->odom** for the static-map Gazebo test. This avoids the mock-GNSS/global-UKF drift that made `map -> base_footprint` move opposite to the planned path. In this default mode:
+- **Current Gazebo + Nav2 default flow** (`komatsu_gazebo_nav.launch.py`): GNSS pipeline is present, while global GNSS fusion is optional/off by default. This keeps static-map navigation stable and still lets you validate GNSS/navsat topics.
+  - `sim_gnss_publisher` publishes `/gps/fix`
+  - `navsat_transform_node` is active and publishes `/odometry/gps`
   - `ukf_filter_node` publishes `/odometry/filtered`
   - `map_to_odom_static_tf` publishes `map -> odom`
-  - `navsat_transform_node` and `ukf_global_node` are disabled
+  - `ukf_global_node` is disabled by default
 
-- **Re-enable GNSS/global path for testing** only if you want to test the mock GNSS + global UKF chain explicitly:
+- **Enable full GNSS global fusion** only when you want to test global UKF behavior:
 ```bash
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source /opt/ros/humble/setup.bash
@@ -1264,10 +1266,11 @@ ros2 launch robot_bringup komatsu_gazebo_nav.launch.py \
   use_static_map_to_odom:=false
 ```
 
-- When GNSS/global path is enabled, verify these topics/TFs before testing Nav2:
+- **Default-flow verification (GNSS present, global fusion off):**
 ```bash
-ros2 node list | grep -E "navsat|ukf"
-ros2 topic echo /odometry/filtered_local --once
+ros2 node list | grep -E "sim_gnss|navsat|ukf"
+ros2 topic echo /gps/fix --once
 ros2 topic echo /odometry/gps --once
+ros2 topic echo /odometry/filtered --once
 ros2 run tf2_ros tf2_echo map odom
 ```
