@@ -1105,7 +1105,7 @@ cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select robot_bringup robot_description
 source /opt/ros/humble/setup.bash
 source install/setup.bash
-ros2 launch robot_bringup komatsu_gazebo.launch.py
+ros2 launch robot_bringup komatsu_gazebo_cartagrapher.launch.py
 ```
 
 ## check robot model
