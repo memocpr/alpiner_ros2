@@ -1065,7 +1065,7 @@ ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 odom base_footprint
 ```
 
 
-## Action 7: Gazebo + simple custom controller
+## Action 7: Gazebo + Cartographer
 
 If `use_ll_controller:=true`, ensure PMI is installed once:
 ```bash
@@ -1144,4 +1144,7 @@ ros2 topic echo /map --once
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 ros2 run nav2_map_server map_saver_cli -f src/robot_bringup/maps/simple_test_field
 ```
+
+
+## Action 8: Gazebo + Nav2
 
