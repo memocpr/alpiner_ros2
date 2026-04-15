@@ -1,0 +1,16 @@
+material Field/AerialImage
+{
+  technique
+  {
+    pass
+    {
+      lighting off
+      texture_unit
+      {
+        texture field_map.png
+        filtering anisotropic
+        max_anisotropy 16
+      }
+    }
+  }
+}
