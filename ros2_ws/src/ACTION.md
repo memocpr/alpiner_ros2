@@ -1216,6 +1216,25 @@ source install/setup.bash
 ros2 launch robot_bringup komatsu_gazebo_nav.launch.py
 ```
 
+
+```bash
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
+colcon build --packages-select ros2_application
+source install/setup.bash
+ros2 run ros2_application evaluator_node
+```
+
+### Verify Reference Path
+```bash
+ros2 topic echo /executed_path --once
+```
+
+### plot_eval
+```bash
+python3 ~/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/ros2_application/ros2_application/plot_eval.py
+```
+
+
 ## check nodes
 ```bash
 ros2 node list | grep -E "map_server|ukf|navsat|planner|controller|bt_navigator|rviz|robot_state_publisher"
