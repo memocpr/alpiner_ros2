@@ -1277,13 +1277,14 @@ ros2 run tf2_ros tf2_echo odom base_footprint
 - **Enable full GNSS global fusion** only when you want to test global UKF behavior:
 ```bash
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
+rm -rf build install log
 source /opt/ros/humble/setup.bash
+colcon build --packages-select robot_bringup robot_description ros2_application
 source install/setup.bash
 ros2 launch robot_bringup komatsu_gazebo_nav.launch.py \
   use_mock_gnss:=true \
   use_global_localization:=true \
-  use_static_map_to_odom:=false \
-  map:=~/Desktop/earth_field/field_map.yaml
+  use_static_map_to_odom:=false
 ```
 
 - **Default-flow verification (GNSS present, global fusion off):**

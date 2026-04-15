@@ -42,7 +42,7 @@ def generate_launch_description():
     default_map_file = os.path.join(
         bringup_dir,
         'maps',
-        'simple_test_field.yaml'
+        'field_map.yaml'
     )
 
     default_params_file = os.path.join(
