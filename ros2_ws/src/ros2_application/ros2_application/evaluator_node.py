@@ -3,10 +3,14 @@ import csv
 import os
 import rclpy
 from rclpy.node import Node
+from rclpy.time import Time
+from rclpy.duration import Duration
 
 from nav_msgs.msg import Path, Odometry
 from geometry_msgs.msg import PoseStamped
 from action_msgs.msg import GoalStatusArray, GoalStatus
+from tf2_ros import Buffer, TransformListener, TransformException
+from tf2_geometry_msgs import do_transform_pose
 
 
 class EvaluatorNode(Node):
@@ -16,15 +20,19 @@ class EvaluatorNode(Node):
 
         self.plan = None
         self.reference_plan = None
+        self.plan_frame_id = None
         self.trajectory = []
         self.goal_reached_logged = False
         self.output_dir = os.path.expanduser('~/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/ros2_application/evaluations')
+
+        self.tf_buffer = Buffer(cache_time=Duration(seconds=10.0))
+        self.tf_listener = TransformListener(self.tf_buffer, self)
 
         os.makedirs(self.output_dir, exist_ok=True)
 
         self.executed_path_pub = self.create_publisher(Path, '/executed_path', 10)
         self.executed_path_msg = Path()
-        self.executed_path_msg.header.frame_id = 'map'
+        self.executed_path_msg.header.frame_id = ''
 
         self.create_subscription(
             Path,
@@ -50,11 +58,14 @@ class EvaluatorNode(Node):
         self.get_logger().info('Evaluator node started')
 
     def plan_callback(self, msg):
+        if msg.header.frame_id:
+            self.plan_frame_id = msg.header.frame_id
+
         if self.reference_plan is None and len(msg.poses) > 0:
             self.reference_plan = list(msg.poses)
             self.trajectory = []
             self.executed_path_msg = Path()
-            self.executed_path_msg.header.frame_id = 'map'
+            self.executed_path_msg.header.frame_id = self.plan_frame_id or 'map'
 
         self.plan = msg.poses
 
@@ -78,7 +89,34 @@ class EvaluatorNode(Node):
         if self.goal_reached_logged:
             return
 
-        pose = msg.pose.pose
+        if not self.plan_frame_id:
+            return
+
+        odom_pose = PoseStamped()
+        odom_pose.header = msg.header
+        odom_pose.pose = msg.pose.pose
+
+        pose_for_eval = odom_pose
+        if odom_pose.header.frame_id != self.plan_frame_id:
+            try:
+                transform = self.tf_buffer.lookup_transform(
+                    self.plan_frame_id,
+                    odom_pose.header.frame_id,
+                    Time.from_msg(msg.header.stamp),
+                    timeout=Duration(seconds=0.2)
+                )
+                pose_for_eval = PoseStamped()
+                pose_for_eval.header.stamp = msg.header.stamp
+                pose_for_eval.header.frame_id = self.plan_frame_id
+                pose_for_eval.pose = do_transform_pose(odom_pose.pose, transform)
+            except TransformException as ex:
+                self.get_logger().warn(
+                    f'Skipping odom sample, transform {odom_pose.header.frame_id} -> {self.plan_frame_id} unavailable: {ex}',
+                    throttle_duration_sec=2.0
+                )
+                return
+
+        pose = pose_for_eval.pose
 
         x = pose.position.x
         y = pose.position.y
@@ -94,10 +132,9 @@ class EvaluatorNode(Node):
         self.trajectory.append((t, x, y, yaw))
 
         pose_stamped = PoseStamped()
-        pose_stamped.header.stamp = msg.header.stamp
-        pose_stamped.header.frame_id = 'map'
+        pose_stamped.header = pose_for_eval.header
         pose_stamped.pose = pose
-        self.executed_path_msg.header.stamp = msg.header.stamp
+        self.executed_path_msg.header.stamp = pose_for_eval.header.stamp
         self.executed_path_msg.poses.append(pose_stamped)
         self.executed_path_pub.publish(self.executed_path_msg)
 
