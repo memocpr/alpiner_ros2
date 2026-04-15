@@ -146,6 +146,29 @@ def generate_launch_description():
                 ukf_global_params,
                 {
                     'use_sim_time': use_sim_time,
+                    'publish_tf': False,
+                    'world_frame': 'map',
+                    'map_frame': 'map',
+                    'odom_frame': 'odom',
+                    'base_link_frame': 'base_footprint',
+                    'odom0': '/odometry/gps',
+                    'odom1': '/odometry/filtered_local',
+                }
+            ],
+            condition=IfCondition(PythonExpression([
+                "'", use_global_localization, "' == 'true' and '", use_mock_gnss, "' == 'true'"
+            ]))
+        ),
+
+        Node(
+            package='robot_localization',
+            executable='ukf_node',
+            name='ukf_global_node',
+            output='screen',
+            parameters=[
+                ukf_global_params,
+                {
+                    'use_sim_time': use_sim_time,
                     'publish_tf': True,
                     'world_frame': 'map',
                     'map_frame': 'map',
@@ -155,7 +178,9 @@ def generate_launch_description():
                     'odom1': '/odometry/filtered_local',
                 }
             ],
-            condition=IfCondition(use_global_localization)
+            condition=IfCondition(PythonExpression([
+                "'", use_global_localization, "' == 'true' and '", use_mock_gnss, "' != 'true'"
+            ]))
         ),
 
         Node(

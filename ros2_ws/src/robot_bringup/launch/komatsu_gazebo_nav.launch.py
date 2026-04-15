@@ -36,7 +36,8 @@ def generate_launch_description():
     world = os.path.join(
         bringup_dir,
         'worlds',
-        'test_field.world'
+        'simple_world',
+        'field.sdf'
     )
 
     default_map_file = os.path.join(
@@ -108,7 +109,11 @@ def generate_launch_description():
         arguments=[map_to_odom_x, map_to_odom_y, '0', '0', '0', '0', 'map', 'odom'],
         parameters=[{'use_sim_time': use_sim_time}],
         condition=IfCondition(PythonExpression([
-            "'", use_static_map_to_odom, "' == 'true' and '", use_global_localization, "' != 'true'"
+            "('", use_static_map_to_odom, "' == 'true' and '", use_global_localization, "' != 'true') or ('",
+            use_mock_gnss,
+            "' == 'true' and '",
+            use_global_localization,
+            "' == 'true')"
         ])),
     )
 
