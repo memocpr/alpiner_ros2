@@ -108,12 +108,6 @@ gdal_translate -of PNG field_map.tif field_map.png
 
 ---
 
-### 4.3 Convert to PGM
-
-convert field_map.png field_map.pgm
-
----
-
 ### 4.4 Create YAML
 
 Create file:
