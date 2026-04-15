@@ -1282,7 +1282,8 @@ source install/setup.bash
 ros2 launch robot_bringup komatsu_gazebo_nav.launch.py \
   use_mock_gnss:=true \
   use_global_localization:=true \
-  use_static_map_to_odom:=false
+  use_static_map_to_odom:=false \
+  map:=~/Desktop/earth_field/field_map.yaml
 ```
 
 - **Default-flow verification (GNSS present, global fusion off):**
