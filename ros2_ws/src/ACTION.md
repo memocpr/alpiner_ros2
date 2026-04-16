@@ -1289,9 +1289,7 @@ ros2 launch robot_bringup komatsu_gazebo_nav.launch.py \
 
 ## run teleop
 ```bash
-source /opt/ros/humble/setup.bash
-source ~/Desktop/AlpineR/alpiner_ros2/ros2_ws/install/setup.bash
-ros2 run turtlebot3_teleop teleop_keyboard
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
 
 - **Default-flow verification (GNSS present, global fusion off):**
