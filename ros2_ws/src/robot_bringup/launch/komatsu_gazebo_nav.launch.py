@@ -23,7 +23,6 @@ def generate_launch_description():
     autostart = LaunchConfiguration('autostart')
     map_file = LaunchConfiguration('map')
     params_file = LaunchConfiguration('params_file')
-    use_mock_gnss = LaunchConfiguration('use_mock_gnss')
     use_global_localization = LaunchConfiguration('use_global_localization')
     use_static_map_to_odom = LaunchConfiguration('use_static_map_to_odom')
 
@@ -97,7 +96,6 @@ def generate_launch_description():
         ),
         launch_arguments={
             'use_sim_time': use_sim_time,
-            'use_mock_gnss': use_mock_gnss,
             'use_global_localization': use_global_localization,
         }.items()
     )
@@ -109,11 +107,7 @@ def generate_launch_description():
         arguments=[map_to_odom_x, map_to_odom_y, '0', '0', '0', '0', 'map', 'odom'],
         parameters=[{'use_sim_time': use_sim_time}],
         condition=IfCondition(PythonExpression([
-            "('", use_static_map_to_odom, "' == 'true' and '", use_global_localization, "' != 'true') or ('",
-            use_mock_gnss,
-            "' == 'true' and '",
-            use_global_localization,
-            "' == 'true')"
+            "'", use_static_map_to_odom, "' == 'true' and '", use_global_localization, "' != 'true'"
         ])),
     )
 
@@ -163,10 +157,6 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'params_file',
             default_value=default_params_file
-        ),
-        DeclareLaunchArgument(
-            'use_mock_gnss',
-            default_value='true'
         ),
         DeclareLaunchArgument(
             'use_global_localization',

@@ -155,4 +155,12 @@
         <origin xyz="0 0 0" rpy="0 0 0"/>
     </joint>
 
+    <!-- GNSS antenna: mounted on top of rear chassis -->
+    <link name="gnss_link"/>
+    <joint name="gnss_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="gnss_link"/>
+        <origin xyz="-1.0 0.0 2.0" rpy="0 0 0"/>
+    </joint>
+
 </robot>

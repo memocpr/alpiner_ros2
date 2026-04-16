@@ -1282,7 +1282,6 @@ source /opt/ros/humble/setup.bash
 colcon build --packages-select robot_bringup robot_description ros2_application
 source install/setup.bash
 ros2 launch robot_bringup komatsu_gazebo_nav.launch.py \
-  use_mock_gnss:=true \
   use_global_localization:=true \
   use_static_map_to_odom:=false
 ```
@@ -1292,9 +1291,9 @@ ros2 launch robot_bringup komatsu_gazebo_nav.launch.py \
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
 
-- **Default-flow verification (GNSS present, global fusion off):**
+- **Default-flow verification (GNSS from Gazebo NavSat plugin, global fusion off):**
 ```bash
-ros2 node list | grep -E "sim_gnss|navsat|ukf"
+ros2 node list | grep -E "navsat|ukf"
 ros2 topic echo /gps/fix --once
 ros2 topic echo /odometry/gps --once
 ros2 topic echo /odometry/filtered --once
