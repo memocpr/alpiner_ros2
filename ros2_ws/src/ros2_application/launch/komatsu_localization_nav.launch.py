@@ -23,7 +23,7 @@ def generate_launch_description():
     return LaunchDescription([
 
         DeclareLaunchArgument('use_sim_time', default_value='true'),
-        DeclareLaunchArgument('use_global_localization', default_value='true'),
+        DeclareLaunchArgument('use_global_localization', default_value='false'),
 
         # Local EKF: wheel odom (/odom) + IMU -> odom frame -> /odometry/filtered_local
         Node(
@@ -47,7 +47,7 @@ def generate_launch_description():
             remappings=[('odometry/filtered', '/odometry/filtered_local')],
         ),
 
-        # navsat_transform: /gps/fix + /imu/data + /odometry/filtered_local -> /odometry/gps
+        # Optional GNSS branch (tutorial-style): /gps/fix + /imu/data + local odom -> /odometry/gps
         Node(
             package='robot_localization',
             executable='navsat_transform_node',
@@ -74,7 +74,6 @@ def generate_launch_description():
             condition=IfCondition(use_global_localization),
         ),
 
-        # Global EKF: /odometry/gps + /odometry/filtered_local -> map frame -> TF map->odom
         Node(
             package='robot_localization',
             executable='ukf_node',
@@ -95,13 +94,5 @@ def generate_launch_description():
             ],
             condition=IfCondition(use_global_localization),
         ),
-
-        # GNSS antenna TF: matches offset defined in URDF gnss_joint
-        Node(
-            package='tf2_ros',
-            executable='static_transform_publisher',
-            name='gnss_static_tf',
-            arguments=['-1.0', '0.0', '2.0', '0', '0', '0', 'base_link', 'gnss_link'],
-            parameters=[{'use_sim_time': use_sim_time}],
-        ),
     ])
+

@@ -6,7 +6,6 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
 
@@ -23,8 +22,6 @@ def generate_launch_description():
     autostart = LaunchConfiguration('autostart')
     map_file = LaunchConfiguration('map')
     params_file = LaunchConfiguration('params_file')
-    use_global_localization = LaunchConfiguration('use_global_localization')
-    use_static_map_to_odom = LaunchConfiguration('use_static_map_to_odom')
 
     x_pose = LaunchConfiguration('x_pose')
     y_pose = LaunchConfiguration('y_pose')
@@ -96,19 +93,16 @@ def generate_launch_description():
         ),
         launch_arguments={
             'use_sim_time': use_sim_time,
-            'use_global_localization': use_global_localization,
         }.items()
     )
 
+    # Action 8 uses a fixed map workflow: map_server owns /map and this static TF provides map -> odom.
     map_to_odom_static_tf_cmd = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
         name='map_to_odom_static_tf',
         arguments=[map_to_odom_x, map_to_odom_y, '0', '0', '0', '0', 'map', 'odom'],
         parameters=[{'use_sim_time': use_sim_time}],
-        condition=IfCondition(PythonExpression([
-            "'", use_static_map_to_odom, "' == 'true' and '", use_global_localization, "' != 'true'"
-        ])),
     )
 
     map_server_cmd = IncludeLaunchDescription(
@@ -159,14 +153,6 @@ def generate_launch_description():
             default_value=default_params_file
         ),
         DeclareLaunchArgument(
-            'use_global_localization',
-            default_value='false'
-        ),
-        DeclareLaunchArgument(
-            'use_static_map_to_odom',
-            default_value='true'
-        ),
-        DeclareLaunchArgument(
             'x_pose',
             default_value='-24.1'
         ),
@@ -196,3 +182,4 @@ def generate_launch_description():
         nav2_cmd,
         rviz_cmd,
     ])
+

@@ -342,8 +342,6 @@ ros2 launch ros2_application komatsu_mapping.launch.py use_sim_scan:=false scan_
 
 # Option B: Use dedicated hardware launch (cleaner)
 ros2 launch ros2_application komatsu_mapping_hw.launch.py scan_topic:=/your_real_scan_topic laser_frame:=/your_laser_frame
-```
-
 ````md
 ## Action 4 Verification Commands
 
@@ -558,8 +556,6 @@ map -> odom -> base_footprint -> base_link -> laser_frame
 # 4. map -> odom -> base_footprint -> base_link TF chain exists
 # 5. OccupancyGrid data is available on /map
 ```
-````
-
 
 ### Notes
 
@@ -1208,11 +1204,6 @@ ros2 launch ros2_application komatsu_localization_nav.launch.py
 
 ## run gazebo + nav2
 ```bash
-cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
-source /opt/ros/humble/setup.bash
-colcon build --packages-select robot_description robot_bringup ros2_application --symlink-install
-source /opt/ros/humble/setup.bash
-source install/setup.bash
 ros2 launch robot_bringup komatsu_gazebo_nav.launch.py
 ```
 
@@ -1267,35 +1258,48 @@ ros2 run tf2_ros tf2_echo odom base_footprint
 
 ## Notes
 
-- **Current Gazebo + Nav2 default flow** (`komatsu_gazebo_nav.launch.py`): GNSS pipeline is present, while global GNSS fusion is optional/off by default. This keeps static-map navigation stable and still lets you validate GNSS/navsat topics.
-  - `sim_gnss_publisher` publishes `/gps/fix`
-  - `navsat_transform_node` is active and publishes `/odometry/gps`
-  - `ukf_filter_node` publishes `/odometry/filtered`
-  - `map_to_odom_static_tf` publishes `map -> odom`
-  - `ukf_global_node` is disabled by default
-
-- **Enable full GNSS global fusion** only when you want to test global UKF behavior:
+- **Current Gazebo + Nav2 default flow** (`komatsu_gazebo_nav.launch.py`): single-command static-map workflow.
+  - Run only:
 ```bash
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
-rm -rf build install log
+colcon build --packages-select robot_bringup robot_description ros2_application --symlink-install
 source /opt/ros/humble/setup.bash
-colcon build --packages-select robot_bringup robot_description ros2_application
 source install/setup.bash
-ros2 launch robot_bringup komatsu_gazebo_nav.launch.py \
-  use_global_localization:=true \
-  use_static_map_to_odom:=false
+ros2 launch robot_bringup komatsu_gazebo_nav.launch.py
+
 ```
+  - `ukf_filter_node` publishes `/odometry/filtered_local` and TF `odom -> base_footprint`
+  - `map_to_odom_static_tf` publishes `map -> odom`
+  - `map_server` provides `/map`
+  - Optional GNSS/global fusion nodes remain off by default
 
 ## run teleop
 ```bash
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
 
-- **Default-flow verification (GNSS from Gazebo NavSat plugin, global fusion off):**
+- **Default-flow verification:**
 ```bash
-ros2 node list | grep -E "navsat|ukf"
-ros2 topic echo /gps/fix --once
-ros2 topic echo /odometry/gps --once
-ros2 topic echo /odometry/filtered --once
+ros2 node list | grep -E "map_server|ukf_filter_node|planner_server|controller_server|bt_navigator"
+ros2 topic echo /odometry/filtered_local --once
 ros2 run tf2_ros tf2_echo map odom
+ros2 run tf2_ros tf2_echo odom base_footprint
+```
+
+```bash
+ros2 node list
+```
+
+```bash
+ros2 topic list | grep -E "gps|odometry|tf"
+```
+
+```bash
+ros2 run tf2_ros tf2_echo map odom
+ros2 run tf2_ros tf2_echo odom base_footprint
+ros2 run tf2_ros tf2_echo map base_footprint
+```
+
+```bash
+ros2 action list | grep navigate
 ```
