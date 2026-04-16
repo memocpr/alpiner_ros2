@@ -4,6 +4,15 @@
 
     <gravity>0 0 -9.81</gravity>
 
+    <!-- Spherical coordinates datum: fixes GPS nav origin and map->odom offset -->
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <latitude_deg>49.0</latitude_deg>
+      <longitude_deg>10.0</longitude_deg>
+      <elevation>400.0</elevation>
+      <heading_deg>0</heading_deg>
+    </spherical_coordinates>
+
     <scene>
       <ambient>1 1 1 1</ambient>
       <background>0.7 0.7 0.7 1</background>

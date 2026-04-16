@@ -150,7 +150,7 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'use_global_localization',
-            default_value='true'
+            default_value='false'  # static TF for stable nav; set true to enable GNSS UKF
         ),
         DeclareLaunchArgument(
             'map',

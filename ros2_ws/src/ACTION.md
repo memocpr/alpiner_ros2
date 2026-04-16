@@ -1241,7 +1241,7 @@ ros2 lifecycle get /controller_server
 ros2 lifecycle get /bt_navigator
 ```
 ```bash
-ros2 topic echo /gps/fix --once
+ros2 topic echo /gps/fix
 ```
 ```bash
 ros2 topic echo /odometry/filtered_local --once
@@ -1259,6 +1259,18 @@ ros2 run tf2_ros tf2_echo map odom
 ```
 ```bash
 ros2 run tf2_ros tf2_echo odom base_footprint
+```
+
+```bash
+ros2 node list | grep navsat
+```
+
+```bash
+ros2 node list | grep ukf
+```
+
+```bash
+ros2 topic list | grep odometry
 ```
 
 

@@ -48,6 +48,16 @@ def generate_launch_description():
         ),
 
         # GNSS branch: /gps/fix + /imu/data + local odom -> /odometry/gps
+        # Relay adds realistic covariance before navsat_transform consumes it
+        Node(
+            package='ros2_application',
+            executable='gps_covariance_relay',
+            name='gps_covariance_relay',
+            output='screen',
+            parameters=[{'use_sim_time': use_sim_time}],
+            condition=IfCondition(use_global_localization),
+        ),
+
         Node(
             package='robot_localization',
             executable='navsat_transform_node',
@@ -56,7 +66,7 @@ def generate_launch_description():
             parameters=[{
                 'use_sim_time': use_sim_time,
                 'frequency': 30.0,
-                'delay': 3.0,
+                'delay': 10.0,
                 'magnetic_declination_radians': 0.0,
                 'yaw_offset': 0.0,
                 'zero_altitude': True,
@@ -67,7 +77,7 @@ def generate_launch_description():
             }],
             remappings=[
                 ('imu/data', '/imu/data'),
-                ('gps/fix', '/gps/fix'),
+                ('gps/fix', '/gps/fix_cov'),
                 ('gps/filtered', '/gps/filtered'),
                 ('odometry/gps', '/odometry/gps'),
                 ('odometry/filtered', '/odometry/filtered_local'),

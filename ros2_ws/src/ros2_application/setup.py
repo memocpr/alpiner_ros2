@@ -41,6 +41,7 @@ setup(
             'cmd_vel_out_relay = ros2_application.cmd_vel_out_relay:main',
             'evaluator_node = ros2_application.evaluator_node:main',
             'sim_gnss_publisher = ros2_application.sim_gnss_publisher:main',
+            'gps_covariance_relay = ros2_application.gps_covariance_relay:main',
         ],
     },
 )
