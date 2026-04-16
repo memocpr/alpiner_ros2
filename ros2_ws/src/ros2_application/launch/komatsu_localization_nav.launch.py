@@ -3,8 +3,9 @@
 import os
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
-from launch.conditions import IfCondition
+from launch.actions import DeclareLaunchArgument, LogInfo, RegisterEventHandler
+from launch.conditions import IfCondition, UnlessCondition
+from launch.event_handlers import OnProcessExit, OnProcessStart
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
@@ -20,13 +21,7 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time')
     use_global_localization = LaunchConfiguration('use_global_localization')
 
-    return LaunchDescription([
-
-        DeclareLaunchArgument('use_sim_time', default_value='true'),
-        DeclareLaunchArgument('use_global_localization', default_value='true'),
-
-        # Local EKF: wheel odom (/odom) + IMU -> odom frame -> /odometry/filtered_local
-        Node(
+    ukf_local_node = Node(
             package='robot_localization',
             executable='ukf_node',
             name='ukf_filter_node',
@@ -45,20 +40,18 @@ def generate_launch_description():
                 }
             ],
             remappings=[('odometry/filtered', '/odometry/filtered_local')],
-        ),
+        )
 
-        # GNSS branch: /gps/fix + /imu/data + local odom -> /odometry/gps
-        # Relay adds realistic covariance before navsat_transform consumes it
-        Node(
+    gps_covariance_relay_node = Node(
             package='ros2_application',
             executable='gps_covariance_relay',
             name='gps_covariance_relay',
             output='screen',
             parameters=[{'use_sim_time': use_sim_time}],
             condition=IfCondition(use_global_localization),
-        ),
+        )
 
-        Node(
+    navsat_transform_node = Node(
             package='robot_localization',
             executable='navsat_transform_node',
             name='navsat_transform_node',
@@ -83,9 +76,9 @@ def generate_launch_description():
                 ('odometry/filtered', '/odometry/filtered_local'),
             ],
             condition=IfCondition(use_global_localization),
-        ),
+        )
 
-        Node(
+    ukf_global_node = Node(
             package='robot_localization',
             executable='ukf_node',
             name='ukf_global_node',
@@ -104,6 +97,95 @@ def generate_launch_description():
                 }
             ],
             condition=IfCondition(use_global_localization),
+        )
+
+    gnss_enabled_log = LogInfo(
+        condition=IfCondition(use_global_localization),
+        msg=(
+            'GNSS global localization ENABLED in komatsu_localization_nav.launch.py. '
+            'Starting /gps_covariance_relay, /navsat_transform_node, and /ukf_global_node. '
+            'Expected GNSS topics: /gps/fix_cov and /odometry/gps.'
         ),
+    )
+
+    gnss_disabled_log = LogInfo(
+        condition=UnlessCondition(use_global_localization),
+        msg=(
+            'GNSS global localization DISABLED in komatsu_localization_nav.launch.py. '
+            'Only /ukf_filter_node will run.'
+        ),
+    )
+
+    gps_covariance_relay_start_log = RegisterEventHandler(
+        OnProcessStart(
+            target_action=gps_covariance_relay_node,
+            on_start=[LogInfo(msg='Started /gps_covariance_relay: /gps/fix -> /gps/fix_cov')],
+        ),
+        condition=IfCondition(use_global_localization),
+    )
+
+    navsat_transform_start_log = RegisterEventHandler(
+        OnProcessStart(
+            target_action=navsat_transform_node,
+            on_start=[LogInfo(msg='Started /navsat_transform_node: consumes /gps/fix_cov and publishes /odometry/gps')],
+        ),
+        condition=IfCondition(use_global_localization),
+    )
+
+    ukf_global_start_log = RegisterEventHandler(
+        OnProcessStart(
+            target_action=ukf_global_node,
+            on_start=[LogInfo(msg='Started /ukf_global_node: fusing /odometry/gps with /odometry/filtered_local for dynamic map -> odom')],
+        ),
+        condition=IfCondition(use_global_localization),
+    )
+
+    gps_covariance_relay_exit_log = RegisterEventHandler(
+        OnProcessExit(
+            target_action=gps_covariance_relay_node,
+            on_exit=[LogInfo(msg='WARNING: /gps_covariance_relay exited. GNSS covariance relay is no longer running.')],
+        ),
+        condition=IfCondition(use_global_localization),
+    )
+
+    navsat_transform_exit_log = RegisterEventHandler(
+        OnProcessExit(
+            target_action=navsat_transform_node,
+            on_exit=[LogInfo(msg='WARNING: /navsat_transform_node exited. /odometry/gps will stop updating.')],
+        ),
+        condition=IfCondition(use_global_localization),
+    )
+
+    ukf_global_exit_log = RegisterEventHandler(
+        OnProcessExit(
+            target_action=ukf_global_node,
+            on_exit=[LogInfo(msg='WARNING: /ukf_global_node exited. Dynamic map -> odom is no longer being published.')],
+        ),
+        condition=IfCondition(use_global_localization),
+    )
+
+    return LaunchDescription([
+
+        DeclareLaunchArgument('use_sim_time', default_value='true'),
+        DeclareLaunchArgument(
+            'use_global_localization',
+            default_value='true',
+            description='Enable GNSS relay + navsat_transform + global UKF',
+        ),
+        gnss_enabled_log,
+        gnss_disabled_log,
+        # Local EKF: wheel odom (/odom) + IMU -> odom frame -> /odometry/filtered_local
+        ukf_local_node,
+        # GNSS branch: /gps/fix + /imu/data + local odom -> /odometry/gps
+        # Relay adds realistic covariance before navsat_transform consumes it
+        gps_covariance_relay_node,
+        navsat_transform_node,
+        ukf_global_node,
+        gps_covariance_relay_start_log,
+        navsat_transform_start_log,
+        ukf_global_start_log,
+        gps_covariance_relay_exit_log,
+        navsat_transform_exit_log,
+        ukf_global_exit_log,
     ])
 

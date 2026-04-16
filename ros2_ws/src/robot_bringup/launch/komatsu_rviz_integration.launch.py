@@ -148,6 +148,13 @@ def generate_launch_description():
         }.items(),
     )
 
+    localization_mode_log = LogInfo(
+        msg=(
+            'komatsu_rviz_integration.launch.py uses komatsu_localization.launch.py '
+            '(local UKF only). GNSS global localization nodes are not started by this launch.'
+        )
+    )
+
     mapping_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(ros2_app_dir, 'launch', 'komatsu_mapping.launch.py')
@@ -210,6 +217,7 @@ def generate_launch_description():
         robot_state_publisher,
         joint_state_publisher,
         cmd_vel_joint_state_publisher,
+        localization_mode_log,
         localization_launch,
         mapping_launch,
         nav2_launch,

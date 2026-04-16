@@ -4,8 +4,8 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
-from launch.conditions import UnlessCondition
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, LogInfo
+from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
@@ -89,14 +89,39 @@ def generate_launch_description():
         }.items()
     )
 
+    localization_launch_file = os.path.join(
+        ros2_app_dir,
+        'launch',
+        'komatsu_localization_nav.launch.py'
+    )
+
     localization_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(ros2_app_dir, 'launch', 'komatsu_localization_nav.launch.py')
+            localization_launch_file
         ),
         launch_arguments={
             'use_sim_time': use_sim_time,
             'use_global_localization': use_global_localization,
         }.items()
+    )
+
+    localization_include_log = LogInfo(
+        msg=[
+            'Including localization launch: ',
+            localization_launch_file,
+            ' with use_global_localization:=',
+            use_global_localization,
+        ]
+    )
+
+    gnss_enabled_log = LogInfo(
+        condition=IfCondition(use_global_localization),
+        msg='GNSS global localization is ENABLED. Static map -> odom fallback is disabled.',
+    )
+
+    gnss_disabled_log = LogInfo(
+        condition=UnlessCondition(use_global_localization),
+        msg='GNSS global localization is DISABLED. Starting static map -> odom fallback transform.',
     )
 
     # Fallback for non-GNSS mode only: when GNSS localization is enabled, robot_localization owns map -> odom.
@@ -150,7 +175,8 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'use_global_localization',
-            default_value='false'  # static TF for stable nav; set true to enable GNSS UKF
+            default_value='true',
+            description='Enable GNSS relay + navsat_transform + global UKF; disable only for explicit static fallback mode'
         ),
         DeclareLaunchArgument(
             'map',
@@ -184,6 +210,9 @@ def generate_launch_description():
         gzclient_cmd,
         robot_state_publisher_cmd,
         spawn_robot_cmd,
+        localization_include_log,
+        gnss_enabled_log,
+        gnss_disabled_log,
         localization_cmd,
         map_to_odom_static_tf_cmd,
         map_server_cmd,

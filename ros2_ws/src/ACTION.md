@@ -1299,3 +1299,12 @@ ros2 run tf2_ros tf2_echo map base_footprint
 ```bash
 ros2 action list | grep navigate
 ```
+```bash
+ros2 node list | grep -E "ukf|navsat|gps_cov"
+```
+
+```bash
+ros2 topic echo /gps/fix_cov --once
+```
+
+```bash

@@ -27,13 +27,30 @@ GPS_COVARIANCE = [
 class GpsCovarianceRelay(Node):
     def __init__(self):
         super().__init__('gps_covariance_relay')
+        self._received_fix = False
         self._pub = self.create_publisher(NavSatFix, '/gps/fix_cov', 10)
         self._sub = self.create_subscription(NavSatFix, '/gps/fix', self._cb, 10)
+        self._startup_warn_timer = self.create_timer(5.0, self._warn_if_no_fix)
+
+        self.get_logger().info(
+            'gps_covariance_relay started. Waiting for /gps/fix and publishing corrected fixes on /gps/fix_cov.'
+        )
 
     def _cb(self, msg: NavSatFix):
+        if not self._received_fix:
+            self._received_fix = True
+            self._startup_warn_timer.cancel()
+            self.get_logger().info('Received first /gps/fix message. GNSS covariance relay is active.')
+
         msg.position_covariance = GPS_COVARIANCE
         msg.position_covariance_type = NavSatFix.COVARIANCE_TYPE_DIAGONAL_KNOWN
         self._pub.publish(msg)
+
+    def _warn_if_no_fix(self):
+        if not self._received_fix:
+            self.get_logger().warning(
+                'No /gps/fix messages received yet. GNSS localization chain cannot produce /gps/fix_cov or /odometry/gps until GPS data arrives.'
+            )
 
 
 def main():
