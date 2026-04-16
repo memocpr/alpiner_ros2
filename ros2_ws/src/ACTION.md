@@ -1192,21 +1192,21 @@ ros2 daemon start
 ```
 
 
-## run localization + nav2
+- **Current Gazebo + Nav2 default flow** (`komatsu_gazebo_nav.launch.py`): single-command static-map workflow.
+    - Run only:
 ```bash
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
-source /opt/ros/humble/setup.bash
-colcon build --packages-select ros2_application robot_description --symlink-install
+colcon build --packages-select robot_bringup robot_description ros2_application --symlink-install
 source /opt/ros/humble/setup.bash
 source install/setup.bash
-ros2 launch ros2_application komatsu_localization_nav.launch.py
-```
-
-## run gazebo + nav2
-```bash
 ros2 launch robot_bringup komatsu_gazebo_nav.launch.py
+
 ```
 
+## run teleop
+```bash
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
+```
 
 ```bash
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
@@ -1247,8 +1247,13 @@ ros2 topic echo /gps/fix --once
 ros2 topic echo /odometry/filtered_local --once
 ```
 ```bash
+ros2 topic list | grep -E "gps|odometry"
+```
+
+```bash
 ros2 topic echo /odometry/gps --once
 ```
+
 ```bash
 ros2 run tf2_ros tf2_echo map odom
 ```
@@ -1256,27 +1261,6 @@ ros2 run tf2_ros tf2_echo map odom
 ros2 run tf2_ros tf2_echo odom base_footprint
 ```
 
-## Notes
-
-- **Current Gazebo + Nav2 default flow** (`komatsu_gazebo_nav.launch.py`): single-command static-map workflow.
-  - Run only:
-```bash
-cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
-colcon build --packages-select robot_bringup robot_description ros2_application --symlink-install
-source /opt/ros/humble/setup.bash
-source install/setup.bash
-ros2 launch robot_bringup komatsu_gazebo_nav.launch.py
-
-```
-  - `ukf_filter_node` publishes `/odometry/filtered_local` and TF `odom -> base_footprint`
-  - `map_to_odom_static_tf` publishes `map -> odom`
-  - `map_server` provides `/map`
-  - Optional GNSS/global fusion nodes remain off by default
-
-## run teleop
-```bash
-ros2 run teleop_twist_keyboard teleop_twist_keyboard
-```
 
 - **Default-flow verification:**
 ```bash

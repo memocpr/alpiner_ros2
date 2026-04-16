@@ -23,7 +23,7 @@ def generate_launch_description():
     return LaunchDescription([
 
         DeclareLaunchArgument('use_sim_time', default_value='true'),
-        DeclareLaunchArgument('use_global_localization', default_value='false'),
+        DeclareLaunchArgument('use_global_localization', default_value='true'),
 
         # Local EKF: wheel odom (/odom) + IMU -> odom frame -> /odometry/filtered_local
         Node(
@@ -47,7 +47,7 @@ def generate_launch_description():
             remappings=[('odometry/filtered', '/odometry/filtered_local')],
         ),
 
-        # Optional GNSS branch (tutorial-style): /gps/fix + /imu/data + local odom -> /odometry/gps
+        # GNSS branch: /gps/fix + /imu/data + local odom -> /odometry/gps
         Node(
             package='robot_localization',
             executable='navsat_transform_node',
@@ -69,6 +69,7 @@ def generate_launch_description():
                 ('imu/data', '/imu/data'),
                 ('gps/fix', '/gps/fix'),
                 ('gps/filtered', '/gps/filtered'),
+                ('odometry/gps', '/odometry/gps'),
                 ('odometry/filtered', '/odometry/filtered_local'),
             ],
             condition=IfCondition(use_global_localization),

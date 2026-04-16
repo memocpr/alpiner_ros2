@@ -5,6 +5,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
+from launch.conditions import UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
@@ -19,6 +20,7 @@ def generate_launch_description():
     nav2_bringup_dir = get_package_share_directory('nav2_bringup')
 
     use_sim_time = LaunchConfiguration('use_sim_time')
+    use_global_localization = LaunchConfiguration('use_global_localization')
     autostart = LaunchConfiguration('autostart')
     map_file = LaunchConfiguration('map')
     params_file = LaunchConfiguration('params_file')
@@ -93,16 +95,18 @@ def generate_launch_description():
         ),
         launch_arguments={
             'use_sim_time': use_sim_time,
+            'use_global_localization': use_global_localization,
         }.items()
     )
 
-    # Action 8 uses a fixed map workflow: map_server owns /map and this static TF provides map -> odom.
+    # Fallback for non-GNSS mode only: when GNSS localization is enabled, robot_localization owns map -> odom.
     map_to_odom_static_tf_cmd = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
         name='map_to_odom_static_tf',
         arguments=[map_to_odom_x, map_to_odom_y, '0', '0', '0', '0', 'map', 'odom'],
         parameters=[{'use_sim_time': use_sim_time}],
+        condition=UnlessCondition(use_global_localization),
     )
 
     map_server_cmd = IncludeLaunchDescription(
@@ -142,6 +146,10 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'autostart',
+            default_value='true'
+        ),
+        DeclareLaunchArgument(
+            'use_global_localization',
             default_value='true'
         ),
         DeclareLaunchArgument(
