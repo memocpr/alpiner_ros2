@@ -146,7 +146,7 @@ def generate_launch_description():
                 ukf_global_params,
                 {
                     'use_sim_time': use_sim_time,
-                    'publish_tf': False,
+                    'publish_tf': True,
                     'world_frame': 'map',
                     'map_frame': 'map',
                     'odom_frame': 'odom',

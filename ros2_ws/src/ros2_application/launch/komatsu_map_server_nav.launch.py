@@ -16,7 +16,7 @@ def generate_launch_description():
     default_map = os.path.join(
         bringup_dir,
         'maps',
-        'simple_test_field.yaml'
+        'field_map.yaml'
     )
 
     use_sim_time = LaunchConfiguration('use_sim_time')

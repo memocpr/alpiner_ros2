@@ -190,11 +190,11 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'map_to_odom_x',
-            default_value=PythonExpression(['-(', x_pose, ')'])
+            default_value=PythonExpression(['-(', x_pose, ') + 61.6'])
         ),
         DeclareLaunchArgument(
             'map_to_odom_y',
-            default_value=PythonExpression(['-(', y_pose, ')'])
+            default_value=PythonExpression(['-(', y_pose, ') + 23.7'])
         ),
         gzserver_cmd,
         gzclient_cmd,
