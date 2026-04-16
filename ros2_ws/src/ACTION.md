@@ -1287,6 +1287,13 @@ ros2 launch robot_bringup komatsu_gazebo_nav.launch.py \
   use_static_map_to_odom:=false
 ```
 
+## run teleop
+```bash
+source /opt/ros/humble/setup.bash
+source ~/Desktop/AlpineR/alpiner_ros2/ros2_ws/install/setup.bash
+ros2 run turtlebot3_teleop teleop_keyboard
+```
+
 - **Default-flow verification (GNSS present, global fusion off):**
 ```bash
 ros2 node list | grep -E "sim_gnss|navsat|ukf"
