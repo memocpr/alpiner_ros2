@@ -18,6 +18,8 @@ setup(
             'config/ukf_params.yaml',
             'config/ukf_global.yaml',
             'config/rtabmap_params.yaml',
+            'config/gps_waypoints.yaml',
+            'config/gps_wpf_demo.mvc',
         ]),
     ],
     install_requires=['setuptools'],
@@ -43,6 +45,7 @@ setup(
             'sim_gnss_publisher = ros2_application.sim_gnss_publisher:main',
             'gps_covariance_relay = ros2_application.gps_covariance_relay:main',
             'gps_waypoint_follower = ros2_application.gps_waypoint_follower:main',
+            'gps_waypoint_logger = ros2_application.gps_waypoint_logger:main',
         ],
     },
 )
