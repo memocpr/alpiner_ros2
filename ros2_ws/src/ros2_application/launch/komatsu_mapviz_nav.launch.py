@@ -58,4 +58,17 @@ def generate_launch_description():
             arguments=['0', '0', '0', '0', '0', '0', 'map', 'origin'],
             parameters=[{'use_sim_time': use_sim_time}]
         ),
+
+        Node(
+            package='robot_localization',
+            executable='navsat_transform_node',
+            name='navsat_transform_mapviz',
+            output='screen',
+            parameters=[{
+                'use_sim_time': use_sim_time,
+                'broadcast_cartesian_transform': True,
+                'publish_filtered_gps': True,
+                'use_odometry_yaw': True,
+            }],
+        ),
     ])
