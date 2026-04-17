@@ -1308,7 +1308,7 @@ ros2 topic echo /gps/fix_cov --once
 ```
 
 
-### GPS waypoint follower
+### GPS waypoint follower node
 
 ```bash
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
