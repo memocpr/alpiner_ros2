@@ -20,90 +20,92 @@ def generate_launch_description():
 
     use_sim_time = LaunchConfiguration('use_sim_time')
     use_global_localization = LaunchConfiguration('use_global_localization')
+    yaw_offset = LaunchConfiguration('yaw_offset')
+    wait_for_datum = LaunchConfiguration('wait_for_datum')
 
     ukf_local_node = Node(
-            package='robot_localization',
-            executable='ukf_node',
-            name='ukf_filter_node',
-            output='screen',
-            parameters=[
-                ukf_local_params,
-                {
-                    'use_sim_time': use_sim_time,
-                    'publish_tf': True,
-                    'world_frame': 'odom',
-                    'odom_frame': 'odom',
-                    'map_frame': 'map',
-                    'base_link_frame': 'base_footprint',
-                    'odom0': '/odom',
-                    'imu0': '/imu/data',
-                }
-            ],
-            remappings=[('odometry/filtered', '/odometry/filtered_local')],
-        )
+        package='robot_localization',
+        executable='ukf_node',
+        name='ukf_filter_node_odom',
+        output='screen',
+        parameters=[
+            ukf_local_params,
+            {
+                'use_sim_time': use_sim_time,
+                'publish_tf': True,
+                'world_frame': 'odom',
+                'odom_frame': 'odom',
+                'map_frame': 'map',
+                'base_link_frame': 'base_footprint',
+                'odom0': '/odom',
+                'imu0': '/imu/data',
+            }
+        ],
+        remappings=[('odometry/filtered', '/odometry/filtered_local')],
+    )
 
     gps_covariance_relay_node = Node(
-            package='ros2_application',
-            executable='gps_covariance_relay',
-            name='gps_covariance_relay',
-            output='screen',
-            parameters=[{'use_sim_time': use_sim_time}],
-            condition=IfCondition(use_global_localization),
-        )
+        package='ros2_application',
+        executable='gps_covariance_relay',
+        name='gps_covariance_relay',
+        output='screen',
+        parameters=[{'use_sim_time': use_sim_time}],
+        condition=IfCondition(use_global_localization),
+    )
 
     navsat_transform_node = Node(
-            package='robot_localization',
-            executable='navsat_transform_node',
-            name='navsat_transform_node',
-            output='screen',
-            parameters=[{
-                'use_sim_time': use_sim_time,
-                'frequency': 30.0,
-                'delay': 10.0,
-                'magnetic_declination_radians': 0.0,
-                'yaw_offset': 0.0,
-                'zero_altitude': True,
-                'broadcast_utm_transform': False,
-                'publish_filtered_gps': True,
-                'use_odometry_yaw': True,
-                'wait_for_datum': True,
-            }],
-            remappings=[
-                ('imu/data', '/imu/data'),
-                ('gps/fix', '/gps/fix_cov'),
-                ('gps/filtered', '/gps/filtered'),
-                ('odometry/gps', '/odometry/gps'),
-                ('odometry/filtered', '/odometry/filtered_local'),
-            ],
-            condition=IfCondition(use_global_localization),
-        )
+        package='robot_localization',
+        executable='navsat_transform_node',
+        name='navsat_transform_node',
+        output='screen',
+        parameters=[{
+            'use_sim_time': use_sim_time,
+            'frequency': 30.0,
+            'delay': 3.0,
+            'magnetic_declination_radians': 0.0,
+            'yaw_offset': yaw_offset,
+            'zero_altitude': True,
+            'broadcast_utm_transform': False,
+            'publish_filtered_gps': True,
+            'use_odometry_yaw': True,
+            'wait_for_datum': wait_for_datum,
+        }],
+        remappings=[
+            ('imu/data', '/imu/data'),
+            ('gps/fix', '/gps/fix_cov'),
+            ('gps/filtered', '/gps/filtered'),
+            ('odometry/gps', '/odometry/gps'),
+            ('odometry/filtered', '/odometry/filtered_local'),
+        ],
+        condition=IfCondition(use_global_localization),
+    )
 
     ukf_global_node = Node(
-            package='robot_localization',
-            executable='ukf_node',
-            name='ukf_global_node',
-            output='screen',
-            parameters=[
-                ukf_global_params,
-                {
-                    'use_sim_time': use_sim_time,
-                    'publish_tf': True,
-                    'world_frame': 'map',
-                    'map_frame': 'map',
-                    'odom_frame': 'odom',
-                    'base_link_frame': 'base_footprint',
-                    'odom0': '/odometry/gps',
-                    'odom1': '/odometry/filtered_local',
-                }
-            ],
-            condition=IfCondition(use_global_localization),
-        )
+        package='robot_localization',
+        executable='ukf_node',
+        name='ukf_filter_node_map',
+        output='screen',
+        parameters=[
+            ukf_global_params,
+            {
+                'use_sim_time': use_sim_time,
+                'publish_tf': True,
+                'world_frame': 'map',
+                'map_frame': 'map',
+                'odom_frame': 'odom',
+                'base_link_frame': 'base_footprint',
+                'odom0': '/odometry/gps',
+                'odom1': '/odometry/filtered_local',
+            }
+        ],
+        condition=IfCondition(use_global_localization),
+    )
 
     gnss_enabled_log = LogInfo(
         condition=IfCondition(use_global_localization),
         msg=(
             'GNSS global localization ENABLED in komatsu_localization_nav.launch.py. '
-            'Starting /gps_covariance_relay, /navsat_transform_node, and /ukf_global_node. '
+            'Starting /gps_covariance_relay, /navsat_transform_node, and /ukf_filter_node_map. '
             'Expected GNSS topics: /gps/fix_cov and /odometry/gps.'
         ),
     )
@@ -112,7 +114,7 @@ def generate_launch_description():
         condition=UnlessCondition(use_global_localization),
         msg=(
             'GNSS global localization DISABLED in komatsu_localization_nav.launch.py. '
-            'Only /ukf_filter_node will run.'
+            'Only /ukf_filter_node_odom will run.'
         ),
     )
 
@@ -135,7 +137,7 @@ def generate_launch_description():
     ukf_global_start_log = RegisterEventHandler(
         OnProcessStart(
             target_action=ukf_global_node,
-            on_start=[LogInfo(msg='Started /ukf_global_node: fusing /odometry/gps with /odometry/filtered_local for dynamic map -> odom')],
+            on_start=[LogInfo(msg='Started /ukf_filter_node_map: fusing /odometry/gps with /odometry/filtered_local for dynamic map -> odom')],
         ),
         condition=IfCondition(use_global_localization),
     )
@@ -159,7 +161,7 @@ def generate_launch_description():
     ukf_global_exit_log = RegisterEventHandler(
         OnProcessExit(
             target_action=ukf_global_node,
-            on_exit=[LogInfo(msg='WARNING: /ukf_global_node exited. Dynamic map -> odom is no longer being published.')],
+            on_exit=[LogInfo(msg='WARNING: /ukf_filter_node_map exited. Dynamic map -> odom is no longer being published.')],
         ),
         condition=IfCondition(use_global_localization),
     )
@@ -172,12 +174,19 @@ def generate_launch_description():
             default_value='true',
             description='Enable GNSS relay + navsat_transform + global UKF',
         ),
+        DeclareLaunchArgument(
+            'yaw_offset',
+            default_value='0.0',
+            description='ENU heading offset for navsat_transform_node',
+        ),
+        DeclareLaunchArgument(
+            'wait_for_datum',
+            default_value='false',
+            description='Wait for manual datum initialization before navsat_transform starts publishing',
+        ),
         gnss_enabled_log,
         gnss_disabled_log,
-        # Local EKF: wheel odom (/odom) + IMU -> odom frame -> /odometry/filtered_local
         ukf_local_node,
-        # GNSS branch: /gps/fix + /imu/data + local odom -> /odometry/gps
-        # Relay adds realistic covariance before navsat_transform consumes it
         gps_covariance_relay_node,
         navsat_transform_node,
         ukf_global_node,
@@ -188,4 +197,3 @@ def generate_launch_description():
         navsat_transform_exit_log,
         ukf_global_exit_log,
     ])
-
