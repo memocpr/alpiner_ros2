@@ -258,6 +258,10 @@ global_costmap:
       # Main 2D navigation frame for articulated vehicle.
       robot_base_frame: base_footprint
 
+      rolling_window: true
+      width: 120.0
+      height: 120.0
+
       # Same global planning footprint as local costmap.
       footprint: "[[4.50, 1.70], [4.50, -1.70], [-4.50, -1.70], [-4.50, 1.70]]"
 
@@ -267,7 +271,7 @@ global_costmap:
 
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
-        enabled: false # Keep static-map planning stable in Action 8 default flow.
+        enabled: true
         observation_sources: scan
         scan:
           # A relative topic will be appended to the parent of the global_costmap namespace.
@@ -288,6 +292,7 @@ global_costmap:
 
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
+        enabled: false
         map_subscribe_transient_local: true
 
       inflation_layer:
