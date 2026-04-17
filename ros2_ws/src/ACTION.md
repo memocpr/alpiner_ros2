@@ -1307,4 +1307,17 @@ ros2 node list | grep -E "ukf|navsat|gps_cov"
 ros2 topic echo /gps/fix_cov --once
 ```
 
+
+### GPS waypoint follower
+
 ```bash
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
+colcon build --packages-select ros2_application
+source install/setup.bash
+
+ros2 run ros2_application gps_waypoint_follower \
+~/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/ros2_application/config/gps_waypoints.yaml
+```
+
+```bash
+

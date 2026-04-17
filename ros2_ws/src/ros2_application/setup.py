@@ -42,6 +42,7 @@ setup(
             'evaluator_node = ros2_application.evaluator_node:main',
             'sim_gnss_publisher = ros2_application.sim_gnss_publisher:main',
             'gps_covariance_relay = ros2_application.gps_covariance_relay:main',
+            'gps_waypoint_follower = ros2_application.gps_waypoint_follower:main',
         ],
     },
 )
