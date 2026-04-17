@@ -18,7 +18,7 @@ def generate_launch_description():
     mapviz_config = os.path.join(
         ros2_app_dir,
         'config',
-        'mapviz_config.yaml'
+        'gps_wpf_demo.mvc'
     )
 
     return LaunchDescription([
@@ -33,10 +33,10 @@ def generate_launch_description():
             executable='mapviz',
             name='mapviz',
             output='screen',
-            parameters=[
-                {'use_sim_time': use_sim_time},
-                mapviz_config
-            ]
+            parameters=[{
+                'use_sim_time': use_sim_time,
+                'config': mapviz_config
+            }]
         ),
 
         Node(
@@ -55,6 +55,7 @@ def generate_launch_description():
             package='tf2_ros',
             executable='static_transform_publisher',
             name='mapviz_tf',
-            arguments=['0', '0', '0', '0', '0', '0', 'map', 'origin']
+            arguments=['0', '0', '0', '0', '0', '0', 'map', 'origin'],
+            parameters=[{'use_sim_time': use_sim_time}]
         ),
     ])
