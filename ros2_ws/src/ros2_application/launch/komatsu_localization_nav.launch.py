@@ -66,7 +66,7 @@ def generate_launch_description():
                 'broadcast_utm_transform': False,
                 'publish_filtered_gps': True,
                 'use_odometry_yaw': True,
-                'wait_for_datum': False,
+                'wait_for_datum': True,
             }],
             remappings=[
                 ('imu/data', '/imu/data'),
