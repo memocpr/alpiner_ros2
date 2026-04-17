@@ -1199,7 +1199,7 @@ cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select robot_bringup robot_description ros2_application --symlink-install
 source /opt/ros/humble/setup.bash
 source install/setup.bash
-ros2 launch robot_bringup komatsu_gazebo_nav.launch.py
+ros2 launch robot_bringup komatsu_gazebo_nav.launch.py use_sim_time:=true
 
 ```
 
