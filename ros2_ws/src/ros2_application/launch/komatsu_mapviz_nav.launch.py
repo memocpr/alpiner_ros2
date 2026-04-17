@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+
+import os
+
+from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
+
+
+def generate_launch_description():
+
+    ros2_app_dir = get_package_share_directory('ros2_application')
+
+    use_sim_time = LaunchConfiguration('use_sim_time')
+
+    mapviz_config = os.path.join(
+        ros2_app_dir,
+        'config',
+        'mapviz_config.yaml'
+    )
+
+    return LaunchDescription([
+
+        DeclareLaunchArgument(
+            'use_sim_time',
+            default_value='true'
+        ),
+
+        Node(
+            package='mapviz',
+            executable='mapviz',
+            name='mapviz',
+            output='screen',
+            parameters=[
+                {'use_sim_time': use_sim_time},
+                mapviz_config
+            ]
+        ),
+
+        Node(
+            package='swri_transform_util',
+            executable='initialize_origin.py',
+            name='initialize_origin',
+            output='screen',
+            parameters=[
+                {'use_sim_time': use_sim_time},
+                {'local_xy_frame': 'map'},
+                {'local_xy_origin': 'auto'}
+            ]
+        ),
+
+        Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='mapviz_tf',
+            arguments=['0', '0', '0', '0', '0', '0', 'map', 'origin']
+        ),
+    ])

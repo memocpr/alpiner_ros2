@@ -24,6 +24,7 @@ def generate_launch_description():
     autostart = LaunchConfiguration('autostart')
     map_file = LaunchConfiguration('map')
     params_file = LaunchConfiguration('params_file')
+    enable_mapviz = LaunchConfiguration('enable_mapviz')
 
     x_pose = LaunchConfiguration('x_pose')
     y_pose = LaunchConfiguration('y_pose')
@@ -116,15 +117,14 @@ def generate_launch_description():
 
     gnss_enabled_log = LogInfo(
         condition=IfCondition(use_global_localization),
-        msg='GNSS global localization is ENABLED. Static map -> odom fallback is disabled.',
+        msg='GNSS global localization mode ENABLED: GNSS localization ON, map_server OFF, static map->odom TF OFF.',
     )
 
     gnss_disabled_log = LogInfo(
         condition=UnlessCondition(use_global_localization),
-        msg='GNSS global localization is DISABLED. Starting static map -> odom fallback transform.',
+        msg='Fallback localization mode ENABLED: GNSS localization OFF, map_server ON, static map->odom TF ON.',
     )
 
-    # Fallback for non-GNSS mode only: when GNSS localization is enabled, robot_localization owns map -> odom.
     map_to_odom_static_tf_cmd = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
@@ -141,7 +141,18 @@ def generate_launch_description():
         launch_arguments={
             'use_sim_time': use_sim_time,
             'map': map_file,
-        }.items()
+        }.items(),
+        condition=UnlessCondition(use_global_localization),
+    )
+
+    mapviz_cmd = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(ros2_app_dir, 'launch', 'komatsu_mapviz_nav.launch.py')
+        ),
+        launch_arguments={
+            'use_sim_time': use_sim_time,
+        }.items(),
+        condition=IfCondition(enable_mapviz),
     )
 
     nav2_cmd = IncludeLaunchDescription(
@@ -176,7 +187,12 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'use_global_localization',
             default_value='true',
-            description='Enable GNSS relay + navsat_transform + global UKF; disable only for explicit static fallback mode'
+            description='true: GNSS mode, false: static map fallback mode'
+        ),
+        DeclareLaunchArgument(
+            'enable_mapviz',
+            default_value='true',
+            description='Launch Mapviz support alongside bringup'
         ),
         DeclareLaunchArgument(
             'map',
@@ -216,7 +232,7 @@ def generate_launch_description():
         localization_cmd,
         map_to_odom_static_tf_cmd,
         map_server_cmd,
+        mapviz_cmd,
         nav2_cmd,
         rviz_cmd,
     ])
-
