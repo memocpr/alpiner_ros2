@@ -1,0 +1,84 @@
+capture_directory: "~"
+fixed_frame: map
+target_frame: <none>
+fix_orientation: false
+rotate_90: false
+enable_antialiasing: true
+show_displays: true
+show_status_bar: true
+show_capture_tools: true
+window_width: 1886
+window_height: 1040
+view_scale: 370071200
+offset_x: -1.35705289e+11
+offset_y: 1.12008028e+11
+use_latest_transforms: true
+background: "#000000"
+image_transport: raw
+displays:
+  - type: mapviz_plugins/tf_frame
+    name: new display
+    config:
+      visible: true
+      collapsed: false
+      frame: map
+      color: "#0055ff"
+      draw_style: lines
+      position_tolerance: 3
+      buffer_size: 2
+      static_arrow_sizes: false
+      arrow_size: 25
+  - type: mapviz_plugins/odometry
+    name: new display
+    config:
+      visible: true
+      collapsed: false
+      topic: /odometry/filtered
+      color: "#00ff00"
+      draw_style: arrows
+      position_tolerance: 1
+      buffer_size: 0
+      show_laps: false
+      show_covariance: false
+      show_all_covariances: false
+      static_arrow_sizes: false
+      arrow_size: 25
+      show_timestamps: 0
+      qos_depth: 10
+      qos_history: 1
+      qos_reliability: 1
+      qos_durability: 2
+  - type: mapviz_plugins/navsat
+    name: new display
+    config:
+      visible: true
+      collapsed: false
+      topic: /gps/fix
+      color: "#ff0000"
+      draw_style: lines
+      position_tolerance: 1
+      buffer_size: 46
+      qos_depth: 10
+      qos_history: 1
+      qos_reliability: 1
+      qos_durability: 2
+  - type: mapviz_plugins/odometry
+    name: new display
+    config:
+      visible: true
+      collapsed: false
+      topic: /odometry/gps
+      color: "#aaff00"
+      draw_style: lines
+      position_tolerance: 0
+      buffer_size: 0
+      show_laps: false
+      show_covariance: false
+      show_all_covariances: false
+      static_arrow_sizes: false
+      arrow_size: 25
+      show_timestamps: 0
+      qos_depth: 10
+      qos_history: 1
+      qos_reliability: 1
+      qos_durability: 2
