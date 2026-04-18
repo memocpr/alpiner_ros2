@@ -1166,27 +1166,11 @@ ros2 topic echo /map --once | grep frame_id
 
 ## kill nodes
 ```bash
-pkill -f bt_navigator
-pkill -f planner_server
-pkill -f controller_server
-pkill -f lifecycle_manager
-pkill -f cartographer
-pkill -f occupancy_grid_node
-pkill -f rviz
-pkill -f ukf_node
-pkill -f navsat_transform_node
-pkill -f sim_gnss_publisher
-pkill -f robot_state_publisher
-pkill -f joint_state_publisher
-pkill -f _ros2_daemon
-pkill -f gzserver
-pkill -f gzclient
-pkill -f gazebo
-pkill -f ros2
+kill -9 $(ps aux | grep -E "ros2|gz|gazebo|nav2" | grep -v grep | awk '{print $2}')
+pkill -f mapviz_tf
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 rm -rf build/ install/ log/
 source /opt/ros/humble/setup.bash
-source ~/Desktop/AlpineR/alpiner_ros2/ros2_ws/install/setup.bash
 ros2 daemon stop
 ros2 daemon start
 ```
@@ -1208,6 +1192,8 @@ ros2 launch robot_bringup komatsu_gazebo_nav.launch.py use_sim_time:=true
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
 
+## Evaluation
+
 ```bash
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application
@@ -1215,7 +1201,7 @@ source install/setup.bash
 ros2 run ros2_application evaluator_node
 ```
 
-### Verify Reference Path
+
 ```bash
 ros2 topic echo /executed_path --once
 ```
@@ -1308,7 +1294,7 @@ ros2 topic echo /gps/fix_cov --once
 ```
 
 
-### GPS waypoint follower node
+## GPS waypoint follower node
 
 ```bash
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
@@ -1318,7 +1304,25 @@ source install/setup.bash
 ros2 launch ros2_application komatsu_gps_waypoint_follower.launch.py
 ```
 
+activate lifecycle and check action server:
+```bash
+ros2 lifecycle set /waypoint_follower configure
+ros2 lifecycle set /waypoint_follower activate
+```
+```bash
+ros2 action info /follow_waypoints
+```
+
 ```bash
 ros2 run ros2_application gps_waypoint_logger
+```
+
+```bash
+ros2 service list | grep fromLL
+ros2 topic echo /odometry/gps --once
+ros2 topic echo /gps/filtered --once
+ros2 topic hz /odometry/filtered_local
+ros2 topic echo /gps/fix --once
+ros2 topic echo /gps/fix_cov --once
 ```
 
