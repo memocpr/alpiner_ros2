@@ -1162,7 +1162,7 @@ ros2 topic echo /map --once | grep frame_id
 ```
 
 
-# Action 9 : Gazebo + Nav2 + GNSS
+# Action 9 : Gazebo + Nav2 + GNSS (with static map fallback)
 
 ## kill nodes
 ```bash
