@@ -44,6 +44,9 @@ def generate_launch_description():
             executable='initialize_origin.py',
             name='initialize_origin',
             output='screen',
+            remappings=[
+                ('fix', 'gps/fix'),
+            ],
             parameters=[
                 {'use_sim_time': use_sim_time},
                 {'local_xy_frame': 'map'},
@@ -59,16 +62,4 @@ def generate_launch_description():
             parameters=[{'use_sim_time': use_sim_time}]
         ),
 
-        Node(
-            package='robot_localization',
-            executable='navsat_transform_node',
-            name='navsat_transform_mapviz',
-            output='screen',
-            parameters=[{
-                'use_sim_time': use_sim_time,
-                'broadcast_cartesian_transform': True,
-                'publish_filtered_gps': True,
-                'use_odometry_yaw': True,
-            }],
-        ),
     ])

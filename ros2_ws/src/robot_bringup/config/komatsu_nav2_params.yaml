@@ -259,8 +259,8 @@ global_costmap:
       robot_base_frame: base_footprint
 
       rolling_window: true
-      width: 120.0
-      height: 120.0
+      width: 120
+      height: 120
 
       # Same global planning footprint as local costmap.
       footprint: "[[4.50, 1.70], [4.50, -1.70], [-4.50, -1.70], [-4.50, 1.70]]"

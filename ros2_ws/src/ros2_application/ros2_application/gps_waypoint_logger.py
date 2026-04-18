@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
 import sys
+import select
 import yaml
 import threading
 
 import rclpy
+from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import NavSatFix
@@ -60,7 +62,14 @@ class GpsWaypointLogger(Node):
     def input_loop(self):
         try:
             while not self._stop_requested and rclpy.ok():
-                input()
+                ready, _, _ = select.select([sys.stdin], [], [], 0.2)
+                if not ready:
+                    continue
+
+                line = sys.stdin.readline()
+                if line == '':
+                    raise EOFError
+
                 self.save_waypoint()
         except (KeyboardInterrupt, EOFError):
             self._stop_requested = True
@@ -75,18 +84,20 @@ def main():
 
     node = GpsWaypointLogger(output_file)
 
-    input_thread = threading.Thread(target=node.input_loop, daemon=True)
+    input_thread = threading.Thread(target=node.input_loop)
     input_thread.start()
 
     try:
         rclpy.spin(node)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, ExternalShutdownException):
         pass
     finally:
         node._stop_requested = True
+        input_thread.join(timeout=1.0)
         node.write_file()
         node.destroy_node()
-        rclpy.shutdown()
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == '__main__':
