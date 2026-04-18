@@ -1167,12 +1167,8 @@ ros2 topic echo /map --once | grep frame_id
 ## kill nodes
 ```bash
 kill -9 $(ps aux | grep -E "ros2|gz|gazebo|nav2" | grep -v grep | awk '{print $2}')
-pkill -f mapviz_tf
-pkill -f mapviz
-pkill -f initialize_origin.py
-pkill -f robot_state_publisher
-pkill -f navsat_transform_node
-pkill -f "ukf_node|planner_server|controller_server|bt_navigator|waypoint_follower|velocity_smoother"
+pkill -f "ukf_node|planner_server|controller_server|bt_navigator|waypoint_follower|velocity_smoother|initialize_origin|map_to_odom_static_tf|mapviz|mapviz_tf|robot_state_publisher
+"
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 rm -rf build/ install/ log/
 source /opt/ros/humble/setup.bash
