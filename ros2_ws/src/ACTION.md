@@ -1168,6 +1168,11 @@ ros2 topic echo /map --once | grep frame_id
 ```bash
 kill -9 $(ps aux | grep -E "ros2|gz|gazebo|nav2" | grep -v grep | awk '{print $2}')
 pkill -f mapviz_tf
+pkill -f mapviz
+pkill -f initialize_origin.py
+pkill -f robot_state_publisher
+pkill -f navsat_transform_node
+pkill -f "ukf_node|planner_server|controller_server|bt_navigator|waypoint_follower|velocity_smoother"
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 rm -rf build/ install/ log/
 source /opt/ros/humble/setup.bash
@@ -1298,6 +1303,7 @@ activate lifecycle and check action server:
 ros2 lifecycle set /waypoint_follower configure
 ros2 lifecycle set /waypoint_follower activate
 ```
+If `/waypoint_follower` is already active, `configure` returns "Unknown transition". In that case, skip directly to action check.
 ```bash
 ros2 action info /follow_waypoints
 ```
@@ -1313,5 +1319,12 @@ ros2 topic echo /gps/filtered --once
 ros2 topic hz /odometry/filtered_local
 ros2 topic echo /gps/fix --once
 ros2 topic echo /gps/fix_cov --once
+```
+
+### Check Available Topics
+```bash
+ros2 topic list
+ros2 topic list | grep odom
+ros2 topic list | grep imu
 ```
 
