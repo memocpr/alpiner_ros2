@@ -1140,10 +1140,7 @@ ros2 run nav2_map_server map_saver_cli -f src/robot_bringup/maps/simple_test_fie
 ```
 
 
-
-
-# Action 8: Gazebo + Nav2
-
+# Action 8: Gazebo + Nav2 + map_server
 ## run map server
 ```bash
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
@@ -1163,6 +1160,9 @@ ros2 topic list | grep map
 ros2 topic echo /map --once
 ros2 topic echo /map --once | grep frame_id
 ```
+
+
+# Action 9 : Gazebo + Nav2 + GNSS
 
 ## kill nodes
 ```bash
@@ -1227,7 +1227,7 @@ ros2 lifecycle get /controller_server
 ros2 lifecycle get /bt_navigator
 ```
 ```bash
-ros2 topic echo /gps/fix
+ros2 topic echo /gps/fix --once
 ```
 ```bash
 ros2 topic echo /odometry/filtered_local --once
@@ -1259,15 +1259,6 @@ ros2 node list | grep ukf
 ros2 topic list | grep odometry
 ```
 
-
-- **Default-flow verification:**
-```bash
-ros2 node list | grep -E "map_server|ukf_filter_node|planner_server|controller_server|bt_navigator"
-ros2 topic echo /odometry/filtered_local --once
-ros2 run tf2_ros tf2_echo map odom
-ros2 run tf2_ros tf2_echo odom base_footprint
-```
-
 ```bash
 ros2 node list
 ```
@@ -1282,9 +1273,6 @@ ros2 run tf2_ros tf2_echo odom base_footprint
 ros2 run tf2_ros tf2_echo map base_footprint
 ```
 
-```bash
-ros2 action list | grep navigate
-```
 ```bash
 ros2 node list | grep -E "ukf|navsat|gps_cov"
 ```
