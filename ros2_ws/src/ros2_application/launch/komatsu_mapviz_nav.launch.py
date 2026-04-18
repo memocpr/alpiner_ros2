@@ -40,6 +40,13 @@ def generate_launch_description():
         ),
 
         Node(
+            package='ros2_application',
+            executable='send_nav_goal',
+            output='screen',
+            parameters=[{'use_sim_time': use_sim_time}]
+        ),
+
+        Node(
             package='swri_transform_util',
             executable='initialize_origin.py',
             name='initialize_origin',

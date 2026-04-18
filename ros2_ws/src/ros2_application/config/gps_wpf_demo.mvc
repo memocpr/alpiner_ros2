@@ -34,19 +34,39 @@ displays:
       visible: true
       collapsed: false
       topic: clicked_point
-      output_frame: wgs84
+      output_frame: map
   - type: mapviz_plugins/tf_frame
     name: new display
     config:
       visible: true
       collapsed: false
-      frame: base_link
+      frame: base_footprint
       color: "#00ff00"
       draw_style: arrows
       position_tolerance: 0
       buffer_size: 1
       static_arrow_sizes: true
       arrow_size: 53
+  - type: mapviz_plugins/odometry
+    name: odometry
+    config:
+      visible: true
+      collapsed: false
+      topic: /odometry/filtered
+      color: "#ffaa00"
+      draw_style: lines
+      position_tolerance: 0
+      buffer_size: 200
+  - type: mapviz_plugins/path
+    name: global_plan
+    config:
+      visible: true
+      collapsed: false
+      topic: /plan
+      color: "#ff00ff"
+      draw_style: lines
+      position_tolerance: 0
+      buffer_size: 20
   - type: mapviz_plugins/navsat
     name: new display
     config:
