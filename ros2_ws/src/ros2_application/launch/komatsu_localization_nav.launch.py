@@ -75,7 +75,7 @@ def generate_launch_description():
             ('gps/fix', '/gps/fix_cov'),
             ('gps/filtered', '/gps/filtered'),
             ('odometry/gps', '/odometry/gps'),
-            ('odometry/filtered', '/odometry/filtered_local'),
+            ('odometry/filtered', '/odometry/filtered'),
         ],
         condition=IfCondition(use_global_localization),
     )
@@ -94,8 +94,9 @@ def generate_launch_description():
                 'map_frame': 'map',
                 'odom_frame': 'odom',
                 'base_link_frame': 'base_footprint',
-                'odom0': '/odometry/gps',
-                'odom1': '/odometry/filtered_local',
+                'odom0': '/odom',
+                'odom1': '/odometry/gps',
+                'imu0': '/imu/data',
             }
         ],
         condition=IfCondition(use_global_localization),
@@ -137,7 +138,7 @@ def generate_launch_description():
     ukf_global_start_log = RegisterEventHandler(
         OnProcessStart(
             target_action=ukf_global_node,
-            on_start=[LogInfo(msg='Started /ukf_filter_node_map: fusing /odometry/gps with /odometry/filtered_local for dynamic map -> odom')],
+            on_start=[LogInfo(msg='Started /ukf_filter_node_map: fusing /odom + /odometry/gps + /imu/data for dynamic map -> odom')],
         ),
         condition=IfCondition(use_global_localization),
     )
