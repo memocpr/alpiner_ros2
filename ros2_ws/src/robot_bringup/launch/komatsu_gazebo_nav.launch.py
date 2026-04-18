@@ -24,7 +24,7 @@ def generate_launch_description():
     autostart = LaunchConfiguration('autostart')
     map_file = LaunchConfiguration('map')
     params_file = LaunchConfiguration('params_file')
-    enable_mapviz = LaunchConfiguration('enable_mapviz')
+    enable_rviz = LaunchConfiguration('enable_rviz')
 
     x_pose = LaunchConfiguration('x_pose')
     y_pose = LaunchConfiguration('y_pose')
@@ -151,8 +151,7 @@ def generate_launch_description():
         ),
         launch_arguments={
             'use_sim_time': use_sim_time,
-        }.items(),
-        condition=IfCondition(enable_mapviz),
+        }.items()
     )
 
     nav2_cmd = IncludeLaunchDescription(
@@ -173,6 +172,7 @@ def generate_launch_description():
         output='screen',
         arguments=['-d', default_rviz_config],
         parameters=[{'use_sim_time': use_sim_time}],
+        condition=IfCondition(enable_rviz),
     )
 
     return LaunchDescription([
@@ -190,9 +190,9 @@ def generate_launch_description():
             description='true: GNSS mode, false: static map fallback mode'
         ),
         DeclareLaunchArgument(
-            'enable_mapviz',
-            default_value='true',
-            description='Launch Mapviz support alongside bringup'
+            'enable_rviz',
+            default_value='false',
+            description='Launch RViz support alongside bringup'
         ),
         DeclareLaunchArgument(
             'map',
