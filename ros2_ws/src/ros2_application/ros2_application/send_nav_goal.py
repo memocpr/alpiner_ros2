@@ -5,6 +5,11 @@ from geometry_msgs.msg import PointStamped, PoseStamped
 from nav2_simple_commander.robot_navigator import BasicNavigator
 from rclpy.node import Node
 from rclpy.executors import ExternalShutdownException
+from tf2_ros import TransformException
+from tf2_ros.buffer import Buffer
+from tf2_ros.transform_listener import TransformListener
+import tf2_geometry_msgs
+from math import atan2
 
 
 class MapvizNavGoalSender(Node):
@@ -18,27 +23,43 @@ class MapvizNavGoalSender(Node):
             self._clicked_point_cb,
             10,
         )
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
 
     def _clicked_point_cb(self, msg: PointStamped) -> None:
-        if msg.header.frame_id != 'map':
-            self.get_logger().warning(
-                f'Ignoring /clicked_point in frame {msg.header.frame_id!r}; expected map.'
-            )
-            return
+        # Accept clicked points from mapviz (may come in 'origin' frame from local_xy_origin)
+        target_frame = 'map'
+        source_frame = msg.header.frame_id
+
+        # If clicked point is in 'origin' frame, transform to 'map'
+        if source_frame != target_frame:
+            try:
+                transform = self.tf_buffer.lookup_transform(
+                    target_frame, source_frame,
+                    rclpy.time.Time(), timeout=rclpy.duration.Duration(seconds=0.5)
+                )
+                point_stamped = tf2_geometry_msgs.do_transform_point(msg, transform)
+            except TransformException as e:
+                self.get_logger().warning(
+                    f'Cannot transform from {source_frame} to {target_frame}: {e}'
+                )
+                return
+        else:
+            point_stamped = msg
 
         pose = PoseStamped()
         pose.header.frame_id = 'map'
         pose.header.stamp = self.get_clock().now().to_msg()
-        pose.pose.position.x = msg.point.x
-        pose.pose.position.y = msg.point.y
-        pose.pose.position.z = msg.point.z
+        pose.pose.position.x = point_stamped.point.x
+        pose.pose.position.y = point_stamped.point.y
+        pose.pose.position.z = point_stamped.point.z
         pose.pose.orientation.w = 1.0
 
         self.goal_pub.publish(pose)
         self.navigator.goToPose(pose)
         self.get_logger().info(
-            f'Sent Nav2 goal from /clicked_point: x={pose.pose.position.x:.3f}, '
-            f'y={pose.pose.position.y:.3f}'
+            f'Sent Nav2 goal from /clicked_point ({source_frame} -> {target_frame}): '
+            f'x={pose.pose.position.x:.3f}, y={pose.pose.position.y:.3f}'
         )
 
 

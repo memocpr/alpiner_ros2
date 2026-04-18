@@ -34,7 +34,7 @@ displays:
       visible: true
       collapsed: false
       topic: clicked_point
-      output_frame: map
+      output_frame: origin
   - type: mapviz_plugins/tf_frame
     name: new display
     config:
@@ -52,7 +52,7 @@ displays:
     config:
       visible: true
       collapsed: false
-      topic: /odometry/filtered
+      topic: /odometry/filtered_local
       color: "#ffaa00"
       draw_style: lines
       position_tolerance: 0

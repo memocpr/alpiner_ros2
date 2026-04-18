@@ -1,14 +1,16 @@
 ukf_filter_node_map:
   ros__parameters:
     frequency: 30.0
-    sensor_timeout: 0.2
+    sensor_timeout: 0.5
     two_d_mode: true
     publish_tf: true
+    publish_tf_covariance: false
 
     map_frame: map
     odom_frame: odom
     base_link_frame: base_footprint
     world_frame: map
+    tf_prefix: ""
 
     # Wheel odometry in odom frame: fuse velocities and yaw rate for smooth local motion.
     odom0: /odom

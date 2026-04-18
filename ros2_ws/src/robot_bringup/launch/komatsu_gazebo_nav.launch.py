@@ -117,7 +117,7 @@ def generate_launch_description():
 
     gnss_enabled_log = LogInfo(
         condition=IfCondition(use_global_localization),
-        msg='GNSS global localization mode ENABLED: GNSS localization ON, map_server OFF, static map->odom TF OFF.',
+        msg='GNSS global localization mode ENABLED: GNSS localization ON, map_server OFF, TF from UKF/navsat only.',
     )
 
     gnss_disabled_log = LogInfo(
@@ -129,11 +129,14 @@ def generate_launch_description():
         package='tf2_ros',
         executable='static_transform_publisher',
         name='map_to_odom_static_tf',
-        arguments=[map_to_odom_x, map_to_odom_y, '0', '0', '0', '0', 'map', 'odom'],
+        arguments=['--x', map_to_odom_x, '--y', map_to_odom_y, '--z', '0',
+                   '--frame-id', 'map', '--child-frame-id', 'odom'],
         parameters=[{'use_sim_time': use_sim_time}],
-        condition=UnlessCondition(use_global_localization),
+        condition=UnlessCondition(use_global_localization),  # Fallback mode only
     )
 
+    # Keep odom->base_footprint dynamic from local UKF in all modes.
+    # In GNSS mode, map->odom is dynamic from global UKF/navsat.
     map_server_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(ros2_app_dir, 'launch', 'komatsu_map_server_nav.launch.py')
@@ -186,7 +189,7 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'use_global_localization',
-            default_value='true',
+            default_value='false',
             description='true: GNSS mode, false: static map fallback mode'
         ),
         DeclareLaunchArgument(

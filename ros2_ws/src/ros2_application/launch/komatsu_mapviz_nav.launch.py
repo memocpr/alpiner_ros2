@@ -65,7 +65,7 @@ def generate_launch_description():
             package='tf2_ros',
             executable='static_transform_publisher',
             name='mapviz_tf',
-            arguments=['0', '0', '0', '0', '0', '0', 'map', 'origin'],
+            arguments=['--frame-id', 'map', '--child-frame-id', 'origin'],
             parameters=[{'use_sim_time': use_sim_time}]
         ),
 

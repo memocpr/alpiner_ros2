@@ -23,6 +23,8 @@ def generate_launch_description():
     yaw_offset = LaunchConfiguration('yaw_offset')
     wait_for_datum = LaunchConfiguration('wait_for_datum')
 
+    # Local UKF: always runs and publishes odom -> base_footprint TF.
+    # Global UKF publishes map -> odom in GNSS mode.
     ukf_local_node = Node(
         package='robot_localization',
         executable='ukf_node',
@@ -75,7 +77,8 @@ def generate_launch_description():
             ('gps/fix', '/gps/fix_cov'),
             ('gps/filtered', '/gps/filtered'),
             ('odometry/gps', '/odometry/gps'),
-            ('odometry/filtered', '/odometry/filtered'),
+            # navsat_transform should consume local odom estimate, not global UKF output.
+            ('odometry/filtered', '/odometry/filtered_local'),
         ],
         condition=IfCondition(use_global_localization),
     )
@@ -98,6 +101,9 @@ def generate_launch_description():
                 'odom1': '/odometry/gps',
                 'imu0': '/imu/data',
             }
+        ],
+        remappings=[
+            ('odometry/filtered', '/odometry/filtered'),  # Publish filtered odometry to /odometry/filtered
         ],
         condition=IfCondition(use_global_localization),
     )
