@@ -20,6 +20,7 @@ def generate_launch_description():
 
     use_sim_time = LaunchConfiguration('use_sim_time')
     use_global_localization = LaunchConfiguration('use_global_localization')
+    odom_topic = LaunchConfiguration('odom_topic')
     yaw_offset = LaunchConfiguration('yaw_offset')
     wait_for_datum = LaunchConfiguration('wait_for_datum')
 
@@ -39,7 +40,7 @@ def generate_launch_description():
                 'odom_frame': 'odom',
                 'map_frame': 'map',
                 'base_link_frame': 'base_footprint',
-                'odom0': '/odom',
+                'odom0': odom_topic,
                 'imu0': '/imu/data',
             }
         ],
@@ -69,7 +70,7 @@ def generate_launch_description():
             'zero_altitude': True,
             'broadcast_utm_transform': False,
             'publish_filtered_gps': True,
-            'use_odometry_yaw': True,
+            'use_odometry_yaw': False,
             'wait_for_datum': wait_for_datum,
         }],
         remappings=[
@@ -97,7 +98,7 @@ def generate_launch_description():
                 'map_frame': 'map',
                 'odom_frame': 'odom',
                 'base_link_frame': 'base_footprint',
-                'odom0': '/odom',
+                'odom0': odom_topic,
                 'odom1': '/odometry/gps',
                 'imu0': '/imu/data',
             }
@@ -176,6 +177,11 @@ def generate_launch_description():
     return LaunchDescription([
 
         DeclareLaunchArgument('use_sim_time', default_value='true'),
+        DeclareLaunchArgument(
+            'odom_topic',
+            default_value='/odom',
+            description='Odometry source topic for local/global UKF (Gazebo default: /odom)',
+        ),
         DeclareLaunchArgument(
             'use_global_localization',
             default_value='true',

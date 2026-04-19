@@ -126,6 +126,8 @@
             <publish_odom>true</publish_odom>
             <publish_odom_tf>false</publish_odom_tf>
             <publish_wheel_tf>false</publish_wheel_tf>
+            <!-- Keep /odom consistent with Gazebo world pose to match GNSS motion. -->
+            <odometrySource>world</odometrySource>
 
             <odometry_frame>odom</odometry_frame>
             <robot_base_frame>base_footprint</robot_base_frame>
@@ -139,18 +141,7 @@
         </plugin>
     </gazebo>
 
-    <!-- ===== Ground Truth Odometry Plugin (optional, for testing) ===== -->
-    <gazebo>
-        <plugin name="ground_truth" filename="libgazebo_ros_p3d.so">
-            <ros>
-                <namespace>/</namespace>
-                <remapping>odom:=ground_truth/odom</remapping>
-            </ros>
-            <body_name>base_link</body_name>
-            <frame_name>odom</frame_name>
-            <update_rate>50.0</update_rate>
-        </plugin>
-    </gazebo>
+    <!-- Ground-truth p3d plugin removed from default bringup to avoid invalid-link errors. -->
 
     <!-- ===== GPS / NavSat Plugin ===== -->
     <gazebo reference="gnss_link">

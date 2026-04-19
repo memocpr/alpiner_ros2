@@ -1178,7 +1178,9 @@ ros2 node list
 ```
 
 
-- **Current Gazebo + Nav2 default flow** (`komatsu_gazebo_nav.launch.py`): single-command static-map workflow.
+- **Current Gazebo + Nav2 default flow** (`komatsu_gazebo_nav.launch.py`): single-command GNSS localization workflow (with static-map fallback available via `use_global_localization:=false`).
+    - Simulated publishers in `ros2_application` (`sim_odometry_publisher`, `sim_imu_publisher`, `sim_scan_publisher`, `sim_gnss_publisher`) are removed.
+    - Sensor and GNSS sources come directly from Gazebo topics (`/odom`, `/imu/data`, `/scan`, `/gps/fix`).
     - Run only:
 ```bash
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws

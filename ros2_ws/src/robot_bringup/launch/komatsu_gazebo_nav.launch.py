@@ -117,7 +117,7 @@ def generate_launch_description():
 
     gnss_enabled_log = LogInfo(
         condition=IfCondition(use_global_localization),
-        msg='GNSS global localization mode ENABLED: GNSS localization ON, map_server OFF, TF from UKF/navsat only.',
+        msg='GNSS global localization mode ENABLED: GNSS localization ON, map_server ON, TF map->odom from UKF/navsat.',
     )
 
     gnss_disabled_log = LogInfo(
@@ -145,16 +145,6 @@ def generate_launch_description():
             'use_sim_time': use_sim_time,
             'map': map_file,
         }.items(),
-        condition=UnlessCondition(use_global_localization),
-    )
-
-    sim_gnss_cmd = Node(
-        package='ros2_application',
-        executable='sim_gnss_publisher',
-        name='sim_gnss',
-        output='screen',
-        parameters=[{'use_sim_time': use_sim_time}],
-        condition=IfCondition(use_sim_time),
     )
 
     mapviz_cmd = IncludeLaunchDescription(
@@ -163,6 +153,7 @@ def generate_launch_description():
         ),
         launch_arguments={
             'use_sim_time': use_sim_time,
+            'use_global_localization': use_global_localization,
         }.items()
     )
 
@@ -198,7 +189,7 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'use_global_localization',
-            default_value='false',
+            default_value='true',
             description='true: GNSS mode, false: static map fallback mode'
         ),
         DeclareLaunchArgument(
@@ -244,7 +235,6 @@ def generate_launch_description():
         localization_cmd,
         map_to_odom_static_tf_cmd,
         map_server_cmd,
-        sim_gnss_cmd,
         mapviz_cmd,
         nav2_cmd,
         rviz_cmd,

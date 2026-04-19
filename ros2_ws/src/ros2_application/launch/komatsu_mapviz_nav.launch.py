@@ -6,6 +6,7 @@ import tempfile
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
+from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
@@ -28,6 +29,7 @@ def generate_launch_description():
     ros2_app_dir = get_package_share_directory('ros2_application')
 
     use_sim_time = LaunchConfiguration('use_sim_time')
+    use_global_localization = LaunchConfiguration('use_global_localization')
 
     mapviz_config = _prepare_mapviz_config(os.path.join(
         ros2_app_dir,
@@ -39,6 +41,11 @@ def generate_launch_description():
 
         DeclareLaunchArgument(
             'use_sim_time',
+            default_value='true'
+        ),
+
+        DeclareLaunchArgument(
+            'use_global_localization',
             default_value='true'
         ),
 
@@ -66,13 +73,14 @@ def generate_launch_description():
             name='initialize_origin',
             output='screen',
             remappings=[
-                ('fix', 'gps/fix'),
+                ('fix', 'gps/fix_cov'),
             ],
             parameters=[
                 {'use_sim_time': use_sim_time},
                 {'local_xy_frame': 'map'},
                 {'local_xy_origin': 'auto'}
-            ]
+            ],
+            condition=IfCondition(use_global_localization),
         ),
 
         Node(
