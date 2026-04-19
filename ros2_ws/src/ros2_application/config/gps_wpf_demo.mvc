@@ -15,6 +15,7 @@ offset_y: -4.65194941
 use_latest_transforms: true
 background: "#000000"
 image_transport: raw
+
 displays:
   - type: mapviz_plugins/tile_map
     name: new display
@@ -22,12 +23,13 @@ displays:
       visible: true
       collapsed: false
       custom_sources:
-        - base_url: https://tiles.stadiamaps.com/tiles/alidade_satellite/{level}/{x}/{y}.png?api_key=api_key
+        - base_url: https://tiles.stadiamaps.com/tiles/alidade_satellite/{level}/{x}/{y}.png?api_key=${STADIA_API_KEY}
           max_zoom: 15
           name: Stadia (alidade_satellite)
           type: wmts
       bing_api_key: ""
       source: Stadia (alidade_satellite)
+
   - type: mapviz_plugins/point_click_publisher
     name: new display
     config:
@@ -35,6 +37,7 @@ displays:
       collapsed: false
       topic: clicked_point
       output_frame: origin
+
   - type: mapviz_plugins/tf_frame
     name: new display
     config:
@@ -47,6 +50,7 @@ displays:
       buffer_size: 1
       static_arrow_sizes: true
       arrow_size: 53
+
   - type: mapviz_plugins/odometry
     name: odometry
     config:
@@ -57,6 +61,7 @@ displays:
       draw_style: lines
       position_tolerance: 0
       buffer_size: 200
+
   - type: mapviz_plugins/path
     name: global_plan
     config:
@@ -67,6 +72,7 @@ displays:
       draw_style: lines
       position_tolerance: 0
       buffer_size: 20
+
   - type: mapviz_plugins/navsat
     name: new display
     config:
