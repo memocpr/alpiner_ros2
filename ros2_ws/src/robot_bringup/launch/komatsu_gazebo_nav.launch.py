@@ -148,6 +148,15 @@ def generate_launch_description():
         condition=UnlessCondition(use_global_localization),
     )
 
+    sim_gnss_cmd = Node(
+        package='ros2_application',
+        executable='sim_gnss_publisher',
+        name='sim_gnss',
+        output='screen',
+        parameters=[{'use_sim_time': use_sim_time}],
+        condition=IfCondition(use_sim_time),
+    )
+
     mapviz_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(ros2_app_dir, 'launch', 'komatsu_mapviz_nav.launch.py')
@@ -235,6 +244,7 @@ def generate_launch_description():
         localization_cmd,
         map_to_odom_static_tf_cmd,
         map_server_cmd,
+        sim_gnss_cmd,
         mapviz_cmd,
         nav2_cmd,
         rviz_cmd,
