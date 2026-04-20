@@ -12,12 +12,12 @@ ukf_filter_node_map:
     world_frame: map
     tf_prefix: ""
 
-    # Wheel odometry in odom frame: fuse velocities and yaw rate for smooth local motion.
+    # Keep global filter anchored to GNSS. Local odom velocities remain in ukf_filter_node_odom.
     odom0: /odom
     odom0_config: [false, false, false,
                    false, false, false,
-                   true,  true,  true,
-                   false, false, true,
+                   false, false, false,
+                   false, false, false,
                    false, false, false]
     odom0_differential: false
     odom0_relative: false

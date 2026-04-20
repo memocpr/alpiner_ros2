@@ -4,7 +4,7 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, LogInfo
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, LogInfo, TimerAction
 from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PythonExpression
@@ -23,6 +23,8 @@ def generate_launch_description():
     autostart = LaunchConfiguration('autostart')
     params_file = LaunchConfiguration('params_file')
     enable_rviz = LaunchConfiguration('enable_rviz')
+    localization_start_delay = LaunchConfiguration('localization_start_delay')
+    nav2_start_delay = LaunchConfiguration('nav2_start_delay')
 
     x_pose = LaunchConfiguration('x_pose')
     y_pose = LaunchConfiguration('y_pose')
@@ -154,6 +156,16 @@ def generate_launch_description():
             description='Launch RViz support alongside bringup'
         ),
         DeclareLaunchArgument(
+            'localization_start_delay',
+            default_value='5.0',
+            description='Delay (s) before starting GNSS localization nodes'
+        ),
+        DeclareLaunchArgument(
+            'nav2_start_delay',
+            default_value='8.0',
+            description='Delay (s) before starting mapviz and Nav2 nodes'
+        ),
+        DeclareLaunchArgument(
             'params_file',
             default_value=default_params_file
         ),
@@ -173,10 +185,20 @@ def generate_launch_description():
         gzclient_cmd,
         robot_state_publisher_cmd,
         spawn_robot_cmd,
-        localization_include_log,
-        gnss_enabled_log,
-        localization_cmd,
-        mapviz_cmd,
-        nav2_cmd,
+        TimerAction(
+            period=localization_start_delay,
+            actions=[
+                localization_include_log,
+                gnss_enabled_log,
+                localization_cmd,
+            ],
+        ),
+        TimerAction(
+            period=nav2_start_delay,
+            actions=[
+                mapviz_cmd,
+                nav2_cmd,
+            ],
+        ),
         rviz_cmd,
     ])

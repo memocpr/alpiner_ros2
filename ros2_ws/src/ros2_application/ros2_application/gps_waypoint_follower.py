@@ -4,15 +4,11 @@ import math
 import yaml
 
 import rclpy
-from rclpy.duration import Duration
 from rclpy.node import Node
 
-from geometry_msgs.msg import PoseStamped, Quaternion
-from geographic_msgs.msg import GeoPoint
-from sensor_msgs.msg import NavSatFix
-from robot_localization.srv import FromLL
+from geometry_msgs.msg import Quaternion
+from geographic_msgs.msg import GeoPose
 from nav2_simple_commander.robot_navigator import BasicNavigator
-from tf2_ros import Buffer, TransformException, TransformListener
 
 
 def quaternion_from_euler(roll: float, pitch: float, yaw: float) -> Quaternion:
@@ -47,143 +43,34 @@ class GpsWaypointFollower(Node):
         self.navigator = BasicNavigator("basic_navigator")
         self.parser = YamlWaypointParser(yaml_file_path)
 
-        self.fromll_client = self.create_client(FromLL, "/fromLL")
-        self.tf_buffer = Buffer()
-        self.tf_listener = TransformListener(self.tf_buffer, self)
-        self.latest_fix = None
-        self.fallback_reference_fix = None
-        self.fallback_reference_pose = None
-        self._logged_fromll_mode = False
-        self._logged_fallback_mode = False
-
-        self.create_subscription(NavSatFix, "/gps/fix", self._gps_fix_cb, 10)
-
-    def _gps_fix_cb(self, msg: NavSatFix) -> None:
-        self.latest_fix = msg
-
-    def _wait_for_latest_fix(self, timeout_s: float = 15.0) -> NavSatFix:
-        deadline = time.monotonic() + timeout_s
-        while rclpy.ok() and time.monotonic() < deadline:
-            if self.latest_fix is not None:
-                return self.latest_fix
-            rclpy.spin_once(self, timeout_sec=0.2)
-
-        raise RuntimeError(
-            "No /gps/fix messages received. Waypoint follower needs GNSS data to convert latitude/longitude waypoints."
-        )
-
-    def _wait_for_current_map_pose(self, timeout_s: float = 15.0) -> PoseStamped:
-        deadline = time.monotonic() + timeout_s
-        while rclpy.ok() and time.monotonic() < deadline:
-            try:
-                transform = self.tf_buffer.lookup_transform(
-                    "map",
-                    "base_footprint",
-                    rclpy.time.Time(),
-                    timeout=Duration(seconds=0.2),
-                )
-                pose = PoseStamped()
-                pose.header.frame_id = "map"
-                pose.header.stamp = self.get_clock().now().to_msg()
-                pose.pose.position.x = transform.transform.translation.x
-                pose.pose.position.y = transform.transform.translation.y
-                pose.pose.position.z = transform.transform.translation.z
-                pose.pose.orientation = transform.transform.rotation
-                return pose
-            except TransformException:
-                rclpy.spin_once(self, timeout_sec=0.2)
-
-        raise RuntimeError(
-            "TF map -> base_footprint is unavailable. Start navigation bringup before running the waypoint follower."
-        )
-
-    def _ensure_fallback_reference(self) -> None:
-        if self.fallback_reference_fix is not None and self.fallback_reference_pose is not None:
-            return
-
-        self.fallback_reference_fix = self._wait_for_latest_fix()
-        self.fallback_reference_pose = self._wait_for_current_map_pose()
-
-        if not self._logged_fallback_mode:
-            self.get_logger().info(
-                "Using /gps/fix + current TF as fallback because /fromLL is unavailable."
-            )
-            self._logged_fallback_mode = True
-
-    def _gps_to_map_pose_from_reference(self, latitude: float, longitude: float, yaw: float) -> PoseStamped:
-        self._ensure_fallback_reference()
-
-        ref_fix = self.fallback_reference_fix
-        ref_pose = self.fallback_reference_pose
-
-        meters_per_deg_lat = 111320.0
-        meters_per_deg_lon = 111320.0 * math.cos(math.radians(ref_fix.latitude))
-        if abs(meters_per_deg_lon) < 1e-9:
-            meters_per_deg_lon = 1e-9
-
-        east_m = (float(longitude) - float(ref_fix.longitude)) * meters_per_deg_lon
-        north_m = (float(latitude) - float(ref_fix.latitude)) * meters_per_deg_lat
-
-        pose = PoseStamped()
-        pose.header.frame_id = "map"
-        pose.header.stamp = self.get_clock().now().to_msg()
-        pose.pose.position.x = ref_pose.pose.position.x + east_m
-        pose.pose.position.y = ref_pose.pose.position.y + north_m
-        pose.pose.position.z = ref_pose.pose.position.z
-        pose.pose.orientation = quaternion_from_euler(0.0, 0.0, float(yaw))
-        return pose
-
-    def gps_to_map_pose(self, latitude: float, longitude: float, yaw: float) -> PoseStamped:
-        if self.fromll_client.wait_for_service(timeout_sec=0.25):
-            if not self._logged_fromll_mode:
-                self.get_logger().info("Using /fromLL service for GPS waypoint conversion.")
-                self._logged_fromll_mode = True
-
-            req = FromLL.Request()
-            req.ll_point = GeoPoint(latitude=float(latitude), longitude=float(longitude), altitude=0.0)
-
-            future = self.fromll_client.call_async(req)
-            rclpy.spin_until_future_complete(self, future)
-
-            if future.result() is None:
-                raise RuntimeError("Failed to call /fromLL service")
-
-            map_point = future.result().map_point
-
-            pose = PoseStamped()
-            pose.header.frame_id = "map"
-            pose.header.stamp = self.get_clock().now().to_msg()
-            pose.pose.position.x = map_point.x
-            pose.pose.position.y = map_point.y
-            pose.pose.position.z = map_point.z
-            pose.pose.orientation = quaternion_from_euler(0.0, 0.0, float(yaw))
-            return pose
-
-        return self._gps_to_map_pose_from_reference(latitude, longitude, yaw)
+    def _waypoint_to_geopose(self, latitude: float, longitude: float, yaw: float) -> GeoPose:
+        gps_pose = GeoPose()
+        gps_pose.position.latitude = float(latitude)
+        gps_pose.position.longitude = float(longitude)
+        gps_pose.position.altitude = 0.0
+        gps_pose.orientation = quaternion_from_euler(0.0, 0.0, float(yaw))
+        return gps_pose
 
     def run(self) -> None:
         self.get_logger().info("Waiting briefly for Nav2 servers...")
-        time.sleep(3.0)
+        time.sleep(2.0)
 
-        map_waypoints = []
+        gps_waypoints = []
         for wp in self.parser.get_waypoints():
             latitude = wp["latitude"]
             longitude = wp["longitude"]
             yaw = wp.get("yaw", 0.0)
 
-            pose = self.gps_to_map_pose(latitude, longitude, yaw)
-            map_waypoints.append(pose)
-
+            gps_waypoints.append(self._waypoint_to_geopose(latitude, longitude, yaw))
             self.get_logger().info(
-                f"GPS ({latitude}, {longitude}) -> map ({pose.pose.position.x:.3f}, {pose.pose.position.y:.3f})"
+                f"Loaded GPS waypoint: lat={float(latitude):.8f}, lon={float(longitude):.8f}, yaw={float(yaw):.3f}"
             )
 
-        if not map_waypoints:
+        if not gps_waypoints:
             raise RuntimeError("No waypoints found in the YAML file.")
 
-        self.get_logger().info(f"Sending {len(map_waypoints)} waypoint(s) to Nav2.")
-        if not self.navigator.followWaypoints(map_waypoints):
-            raise RuntimeError("Nav2 rejected the FollowWaypoints request.")
+        self.get_logger().info(f"Sending {len(gps_waypoints)} GPS waypoint(s) to Nav2.")
+        self.navigator.followGpsWaypoints(gps_waypoints)
 
         while not self.navigator.isTaskComplete():
             time.sleep(0.1)

@@ -73,7 +73,7 @@ def generate_launch_description():
             name='initialize_origin',
             output='screen',
             remappings=[
-                ('fix', 'gps/fix_cov'),
+                ('fix', 'gps/fix'),
             ],
             parameters=[
                 {'use_sim_time': use_sim_time},

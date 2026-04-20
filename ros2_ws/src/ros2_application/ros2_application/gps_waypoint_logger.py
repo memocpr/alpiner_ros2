@@ -4,12 +4,13 @@ import sys
 import select
 import yaml
 import threading
+import math
 
 import rclpy
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
-from sensor_msgs.msg import NavSatFix
+from sensor_msgs.msg import NavSatFix, Imu
 
 
 class GpsWaypointLogger(Node):
@@ -18,14 +19,22 @@ class GpsWaypointLogger(Node):
 
         self.output_file = output_file
         self.latest = None
+        self.latest_yaw = 0.0
         self.waypoints = []
         self._stop_requested = False
 
         self.create_subscription(
             NavSatFix,
-            '/gps/fix_cov',
+            '/gps/fix',
             self.callback,
             qos_profile_sensor_data
+        )
+
+        self.create_subscription(
+            Imu,
+            '/imu/data',
+            self.imu_callback,
+            qos_profile_sensor_data,
         )
 
         self.get_logger().info('GPS waypoint logger started.')
@@ -33,6 +42,13 @@ class GpsWaypointLogger(Node):
 
     def callback(self, msg: NavSatFix):
         self.latest = msg
+
+    def imu_callback(self, msg: Imu):
+        q = msg.orientation
+        # Yaw extraction for ENU orientation.
+        siny_cosp = 2.0 * (q.w * q.z + q.x * q.y)
+        cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
+        self.latest_yaw = math.atan2(siny_cosp, cosy_cosp)
 
     def save_waypoint(self):
         if self.latest is None:
@@ -42,7 +58,7 @@ class GpsWaypointLogger(Node):
         wp = {
             'latitude': float(self.latest.latitude),
             'longitude': float(self.latest.longitude),
-            'yaw': 0.0
+            'yaw': float(self.latest_yaw)
         }
 
         self.waypoints.append(wp)

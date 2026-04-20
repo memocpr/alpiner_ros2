@@ -7,6 +7,7 @@
     <!-- Spherical coordinates datum: fixes GPS nav origin and map->odom offset -->
     <spherical_coordinates>
       <surface_model>EARTH_WGS84</surface_model>
+      <world_frame_orientation>ENU</world_frame_orientation>
       <latitude_deg>46.963855868</latitude_deg>
       <longitude_deg>7.488532205</longitude_deg>
       <elevation>540.0</elevation>

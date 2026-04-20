@@ -6,7 +6,7 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, LogInfo, RegisterEventHandler
 from launch.conditions import IfCondition, UnlessCondition
 from launch.event_handlers import OnProcessExit, OnProcessStart
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 
@@ -20,6 +20,14 @@ def generate_launch_description():
 
     use_sim_time = LaunchConfiguration('use_sim_time')
     use_global_localization = LaunchConfiguration('use_global_localization')
+    use_global_ukf = LaunchConfiguration('use_global_ukf')
+    use_dynamic_map_tf = PythonExpression([
+        "'", use_global_localization, "' == 'true' and '", use_global_ukf, "' == 'true'"
+    ])
+    use_static_map_tf = PythonExpression([
+        "'", use_global_localization, "' == 'true' and '", use_global_ukf, "' != 'true'"
+    ])
+
     odom_topic = LaunchConfiguration('odom_topic')
     yaw_offset = LaunchConfiguration('yaw_offset')
     wait_for_datum = LaunchConfiguration('wait_for_datum')
@@ -70,7 +78,7 @@ def generate_launch_description():
             'zero_altitude': True,
             'broadcast_utm_transform': False,
             'publish_filtered_gps': True,
-            'use_odometry_yaw': False,
+            'use_odometry_yaw': True,
             'wait_for_datum': wait_for_datum,
         }],
         remappings=[
@@ -106,11 +114,20 @@ def generate_launch_description():
         remappings=[
             ('odometry/filtered', '/odometry/filtered'),  # Publish filtered odometry to /odometry/filtered
         ],
-        condition=IfCondition(use_global_localization),
+        condition=IfCondition(use_dynamic_map_tf),
+    )
+
+    map_to_odom_static_tf = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='map_to_odom_static_tf',
+        arguments=['0', '0', '0', '0', '0', '0', 'map', 'odom'],
+        parameters=[{'use_sim_time': use_sim_time}],
+        condition=IfCondition(use_static_map_tf),
     )
 
     gnss_enabled_log = LogInfo(
-        condition=IfCondition(use_global_localization),
+        condition=IfCondition(use_dynamic_map_tf),
         msg=(
             'GNSS global localization ENABLED in komatsu_localization_nav.launch.py. '
             'Starting /gps_covariance_relay, /navsat_transform_node, and /ukf_filter_node_map. '
@@ -126,12 +143,20 @@ def generate_launch_description():
         ),
     )
 
+    static_map_tf_log = LogInfo(
+        condition=IfCondition(use_static_map_tf),
+        msg=(
+            'GNSS mode using static map->odom TF. '
+            'Set use_global_ukf:=true to enable dynamic map->odom from /ukf_filter_node_map.'
+        ),
+    )
+
     gps_covariance_relay_start_log = RegisterEventHandler(
         OnProcessStart(
             target_action=gps_covariance_relay_node,
             on_start=[LogInfo(msg='Started /gps_covariance_relay: /gps/fix -> /gps/fix_cov')],
         ),
-        condition=IfCondition(use_global_localization),
+        condition=IfCondition(use_dynamic_map_tf),
     )
 
     navsat_transform_start_log = RegisterEventHandler(
@@ -139,7 +164,7 @@ def generate_launch_description():
             target_action=navsat_transform_node,
             on_start=[LogInfo(msg='Started /navsat_transform_node: consumes /gps/fix_cov and publishes /odometry/gps')],
         ),
-        condition=IfCondition(use_global_localization),
+        condition=IfCondition(use_dynamic_map_tf),
     )
 
     ukf_global_start_log = RegisterEventHandler(
@@ -147,7 +172,7 @@ def generate_launch_description():
             target_action=ukf_global_node,
             on_start=[LogInfo(msg='Started /ukf_filter_node_map: fusing /odom + /odometry/gps + /imu/data for dynamic map -> odom')],
         ),
-        condition=IfCondition(use_global_localization),
+        condition=IfCondition(use_dynamic_map_tf),
     )
 
     gps_covariance_relay_exit_log = RegisterEventHandler(
@@ -188,6 +213,11 @@ def generate_launch_description():
             description='Enable GNSS relay + navsat_transform + global UKF',
         ),
         DeclareLaunchArgument(
+            'use_global_ukf',
+            default_value='false',
+            description='Enable dynamic map->odom via global UKF (tutorial dual-EKF mode)',
+        ),
+        DeclareLaunchArgument(
             'yaw_offset',
             default_value='0.0',
             description='ENU heading offset for navsat_transform_node',
@@ -199,10 +229,12 @@ def generate_launch_description():
         ),
         gnss_enabled_log,
         gnss_disabled_log,
+        static_map_tf_log,
         ukf_local_node,
         gps_covariance_relay_node,
         navsat_transform_node,
         ukf_global_node,
+        map_to_odom_static_tf,
         gps_covariance_relay_start_log,
         navsat_transform_start_log,
         ukf_global_start_log,
