@@ -20,29 +20,19 @@ def generate_launch_description():
     nav2_bringup_dir = get_package_share_directory('nav2_bringup')
 
     use_sim_time = LaunchConfiguration('use_sim_time')
-    use_global_localization = LaunchConfiguration('use_global_localization')
     autostart = LaunchConfiguration('autostart')
-    map_file = LaunchConfiguration('map')
     params_file = LaunchConfiguration('params_file')
     enable_rviz = LaunchConfiguration('enable_rviz')
 
     x_pose = LaunchConfiguration('x_pose')
     y_pose = LaunchConfiguration('y_pose')
     z_pose = LaunchConfiguration('z_pose')
-    map_to_odom_x = LaunchConfiguration('map_to_odom_x')
-    map_to_odom_y = LaunchConfiguration('map_to_odom_y')
 
     world = os.path.join(
         bringup_dir,
         'worlds',
         'simple_world',
         'field.sdf'
-    )
-
-    default_map_file = os.path.join(
-        bringup_dir,
-        'maps',
-        'field_map.yaml'
     )
 
     default_params_file = os.path.join(
@@ -102,7 +92,7 @@ def generate_launch_description():
         ),
         launch_arguments={
             'use_sim_time': use_sim_time,
-            'use_global_localization': use_global_localization,
+            'use_global_localization': 'true',
         }.items()
     )
 
@@ -110,41 +100,12 @@ def generate_launch_description():
         msg=[
             'Including localization launch: ',
             localization_launch_file,
-            ' with use_global_localization:=',
-            use_global_localization,
+            ' in GPS-only mode (GNSS enabled).',
         ]
     )
 
     gnss_enabled_log = LogInfo(
-        condition=IfCondition(use_global_localization),
-        msg='GNSS global localization mode ENABLED: GNSS localization ON, map_server ON, TF map->odom from UKF/navsat.',
-    )
-
-    gnss_disabled_log = LogInfo(
-        condition=UnlessCondition(use_global_localization),
-        msg='Fallback localization mode ENABLED: GNSS localization OFF, map_server ON, static map->odom TF ON.',
-    )
-
-    map_to_odom_static_tf_cmd = Node(
-        package='tf2_ros',
-        executable='static_transform_publisher',
-        name='map_to_odom_static_tf',
-        arguments=['--x', map_to_odom_x, '--y', map_to_odom_y, '--z', '0',
-                   '--frame-id', 'map', '--child-frame-id', 'odom'],
-        parameters=[{'use_sim_time': use_sim_time}],
-        condition=UnlessCondition(use_global_localization),  # Fallback mode only
-    )
-
-    # Keep odom->base_footprint dynamic from local UKF in all modes.
-    # In GNSS mode, map->odom is dynamic from global UKF/navsat.
-    map_server_cmd = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(ros2_app_dir, 'launch', 'komatsu_map_server_nav.launch.py')
-        ),
-        launch_arguments={
-            'use_sim_time': use_sim_time,
-            'map': map_file,
-        }.items(),
+        msg='GPS-only navigation ENABLED: GNSS localization ON, dynamic TF map->odom from UKF/navsat, no static map.',
     )
 
     mapviz_cmd = IncludeLaunchDescription(
@@ -153,7 +114,7 @@ def generate_launch_description():
         ),
         launch_arguments={
             'use_sim_time': use_sim_time,
-            'use_global_localization': use_global_localization,
+            'use_global_localization': 'true',
         }.items()
     )
 
@@ -188,18 +149,9 @@ def generate_launch_description():
             default_value='true'
         ),
         DeclareLaunchArgument(
-            'use_global_localization',
-            default_value='true',
-            description='true: GNSS mode, false: static map fallback mode'
-        ),
-        DeclareLaunchArgument(
             'enable_rviz',
             default_value='false',
             description='Launch RViz support alongside bringup'
-        ),
-        DeclareLaunchArgument(
-            'map',
-            default_value=default_map_file
         ),
         DeclareLaunchArgument(
             'params_file',
@@ -217,24 +169,13 @@ def generate_launch_description():
             'z_pose',
             default_value='0.0'
         ),
-        DeclareLaunchArgument(
-            'map_to_odom_x',
-            default_value=PythonExpression(['-(', x_pose, ') + 61.6'])
-        ),
-        DeclareLaunchArgument(
-            'map_to_odom_y',
-            default_value=PythonExpression(['-(', y_pose, ') + 23.7'])
-        ),
         gzserver_cmd,
         gzclient_cmd,
         robot_state_publisher_cmd,
         spawn_robot_cmd,
         localization_include_log,
         gnss_enabled_log,
-        gnss_disabled_log,
         localization_cmd,
-        map_to_odom_static_tf_cmd,
-        map_server_cmd,
         mapviz_cmd,
         nav2_cmd,
         rviz_cmd,
