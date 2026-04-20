@@ -1167,7 +1167,7 @@ ros2 topic echo /map --once | grep frame_id
 ## kill nodes
 ```bash
 kill -9 $(ps aux | grep -E "ros2|gz|gazebo|nav2" | grep -v grep | awk '{print $2}')
-pkill -f "ukf_node|planner_server|controller_server|bt_navigator|waypoint_follower|velocity_smoother|initialize_origin|map_to_odom_static_tf|mapviz|mapviz_tf|robot_state_publisher|teleop_twist_keyboard"
+pkill -f "ukf_node|planner_server|controller_server|bt_navigator|waypoint_follower|velocity_smoother|initialize_origin|map_to_odom_static_tf|mapviz|mapviz_tf|robot_state_publisher|teleop_twist_keyboard|navsat_transform_node"
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 rm -rf build/ install/ log/
 source /opt/ros/humble/setup.bash
@@ -1176,22 +1176,14 @@ ros2 daemon start
 ros2 node list
 ```
 
-
 - **Current Gazebo + Nav2 default 
   - flow:     no map_server
-
     GNSS + IMU + odom → localization
-
     map → odom → dynamic (from GNSS)
-
     Nav2 → no global planner
-  
     click on mapviz → sends goal
-
     Waypoint follower → sends goals sequentially
-
     Local costmap → obstacle avoidance only
-
     ➡ Simple GPS waypoint navigation (no map, no global planning)
 ```bash
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
