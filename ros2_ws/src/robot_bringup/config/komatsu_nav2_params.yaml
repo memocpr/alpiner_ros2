@@ -264,8 +264,8 @@ global_costmap:
 
       # GPS-only mode: rolling costmap (no static map).
       rolling_window: true
-      width: 50
-      height: 50
+      width: 200
+      height: 200
 
       # Same global planning footprint as local costmap.
       footprint: "[[4.00, 1.40], [4.00, -1.40], [-4.00, -1.40], [-4.00, 1.40]]"

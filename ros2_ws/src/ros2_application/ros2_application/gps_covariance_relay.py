@@ -12,10 +12,10 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import NavSatFix
 
-# Civilian GPS accuracy (variance = stddev^2)
-# Diagonal: East-East, North-North, Up-Up (all others 0)
-H_VAR = 2.25   # 1.5m stddev horizontal
-V_VAR = 9.0    # 3.0m stddev vertical
+# Gazebo GNSS is typically cleaner than real civilian GPS, so keep covariance
+# low enough for the global UKF to follow /odometry/gps closely in Action 9.
+H_VAR = 0.25   # 0.5m stddev horizontal
+V_VAR = 1.0    # 1.0m stddev vertical
 
 GPS_COVARIANCE = [
     H_VAR, 0.0,   0.0,

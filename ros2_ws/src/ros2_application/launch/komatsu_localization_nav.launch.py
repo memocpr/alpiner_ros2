@@ -79,7 +79,7 @@ def generate_launch_description():
             ('gps/fix', '/gps/fix_cov'),
             ('gps/filtered', '/gps/filtered'),
             ('odometry/gps', '/odometry/gps'),
-            ('odometry/filtered', '/odometry/filtered_local'),
+            ('odometry/filtered', '/odometry/filtered'),
         ],
         condition=IfCondition(use_global_localization),
     )
