@@ -4,7 +4,16 @@
 
     <gravity>0 0 -9.81</gravity>
 
-    <!-- Spherical coordinates datum: fixes GPS nav origin and map->odom offset -->
+    <!--
+      Geographic reference for GNSS-based navigation.
+      This makes the world correspond to a real Earth-fixed location.
+      ENU means:
+        +X = East
+        +Y = North
+        +Z = Up
+      heading_deg=0 means world +X is aligned with East.
+      If your aerial image is rotated relative to East/North, we will adjust heading_deg later.
+    -->
     <spherical_coordinates>
       <surface_model>EARTH_WGS84</surface_model>
       <world_frame_orientation>ENU</world_frame_orientation>
@@ -19,6 +28,10 @@
       <background>0.7 0.7 0.7 1</background>
       <shadows>false</shadows>
     </scene>
+
+    <include>
+      <uri>model://sun</uri>
+    </include>
 
     <model name="ground_plane">
       <static>true</static>
@@ -50,7 +63,6 @@
               <name>Field/AerialImage</name>
             </script>
           </material>
-
         </visual>
 
       </link>
