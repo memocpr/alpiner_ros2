@@ -1167,12 +1167,13 @@ ros2 topic echo /map --once | grep frame_id
 ## kill nodes
 ```bash
 kill -9 $(ps aux | grep -E "ros2|gz|gazebo|nav2" | grep -v grep | awk '{print $2}')
-pkill -f "ukf_node|planner_server|controller_server|bt_navigator|waypoint_follower|velocity_smoother|initialize_origin|map_to_odom_static_tf|mapviz|mapviz_tf|robot_state_publisher|teleop_twist_keyboard|navsat_transform_node"
+pkill -9 -f "komatsu_gazebo_nav.launch.py|gzserver|gzclient|navsat_transform_node|ukf_node|gps_covariance_relay|mapviz|initialize_origin.py|planner_server|controller_server|bt_navigator|lifecycle_manager"
+ros2 daemon stop
+sleep 2
+ros2 daemon start
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 rm -rf build/ install/ log/
 source /opt/ros/humble/setup.bash
-ros2 daemon stop
-ros2 daemon start
 ros2 node list
 ```
 
@@ -1205,14 +1206,6 @@ Quick sanity checks:
 ros2 node list | grep -E "ukf_filter_node_(odom|map)|navsat_transform_node|gps_covariance_relay"
 ros2 topic echo /odometry/gps --once | grep frame_id
 ros2 run tf2_ros tf2_echo map odom
-```
-
-If TF looks split or node names appear duplicated, hard reset then relaunch once:
-```bash
-pkill -9 -f "komatsu_gazebo_nav.launch.py|gzserver|gzclient|navsat_transform_node|ukf_node|gps_covariance_relay|mapviz|initialize_origin.py|planner_server|controller_server|bt_navigator|lifecycle_manager"
-ros2 daemon stop
-sleep 2
-ros2 daemon start
 ```
 
 ## run teleop
