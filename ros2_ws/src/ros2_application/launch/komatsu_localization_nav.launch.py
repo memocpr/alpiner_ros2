@@ -71,7 +71,7 @@ def generate_launch_description():
             'zero_altitude': True,
             'broadcast_utm_transform': False,
             'publish_filtered_gps': True,
-            'use_odometry_yaw': True,
+            'use_odometry_yaw': False,
             'wait_for_datum': wait_for_datum,
         }],
         remappings=[
@@ -192,7 +192,7 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'yaw_offset',
-            default_value='0.0',
+            default_value='3.141592653589793',
             description='ENU heading offset for navsat_transform_node',
         ),
         DeclareLaunchArgument(
