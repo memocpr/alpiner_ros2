@@ -175,7 +175,7 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'yaw_offset',
-            default_value='3.141592653589793',
+            default_value='0.0',
             description='ENU heading offset for navsat_transform_node',
         ),
         DeclareLaunchArgument(

@@ -20,7 +20,7 @@
       <latitude_deg>46.963855868</latitude_deg>
       <longitude_deg>7.488532205</longitude_deg>
       <elevation>540.0</elevation>
-      <heading_deg>0</heading_deg>
+      <heading_deg>180</heading_deg>
     </spherical_coordinates>
 
     <scene>
