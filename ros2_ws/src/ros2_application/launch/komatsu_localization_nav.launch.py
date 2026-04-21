@@ -67,7 +67,8 @@ def generate_launch_description():
             'magnetic_declination_radians': 0.0,
             'yaw_offset': yaw_offset,
             'zero_altitude': True,
-            'broadcast_utm_transform': True,
+            # Keep navsat transform behavior aligned with the Nav2 GPS tutorial.
+            'broadcast_cartesian_transform': True,
             'publish_filtered_gps': True,
             'use_odometry_yaw': True,
             'wait_for_datum': wait_for_datum,
@@ -77,7 +78,8 @@ def generate_launch_description():
             ('gps/fix', '/gps/fix_cov'),
             ('gps/filtered', '/gps/filtered'),
             ('odometry/gps', '/odometry/gps'),
-            ('odometry/filtered', '/odometry/filtered_local'),
+            # Feed navsat with global odometry so /odometry/gps stays in map-consistent coordinates.
+            ('odometry/filtered', '/odometry/filtered'),
         ],
     )
 

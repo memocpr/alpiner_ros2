@@ -1194,6 +1194,27 @@ ros2 launch robot_bringup komatsu_gazebo_nav.launch.py use_sim_time:=true
 
 ```
 
+### Action 9 verified GNSS behavior (important)
+
+- `navsat_transform_node` should consume `/odometry/filtered` (global EKF), not `/odometry/filtered_local`.
+- Expected `/odometry/gps` header frame is `map`.
+- `map -> odom` should remain smooth/small at idle. Large jumps usually indicate stale duplicate bringup processes.
+
+Quick sanity checks:
+```bash
+ros2 node list | grep -E "ukf_filter_node_(odom|map)|navsat_transform_node|gps_covariance_relay"
+ros2 topic echo /odometry/gps --once | grep frame_id
+ros2 run tf2_ros tf2_echo map odom
+```
+
+If TF looks split or node names appear duplicated, hard reset then relaunch once:
+```bash
+pkill -9 -f "komatsu_gazebo_nav.launch.py|gzserver|gzclient|navsat_transform_node|ukf_node|gps_covariance_relay|mapviz|initialize_origin.py|planner_server|controller_server|bt_navigator|lifecycle_manager"
+ros2 daemon stop
+sleep 2
+ros2 daemon start
+```
+
 ## run teleop
 ```bash
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
