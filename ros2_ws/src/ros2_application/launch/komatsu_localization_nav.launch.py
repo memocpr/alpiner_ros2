@@ -67,9 +67,9 @@ def generate_launch_description():
             'magnetic_declination_radians': 0.0,
             'yaw_offset': yaw_offset,
             'zero_altitude': True,
-            'broadcast_utm_transform': False,
+            'broadcast_utm_transform': True,
             'publish_filtered_gps': True,
-            'use_odometry_yaw': False,
+            'use_odometry_yaw': True,
             'wait_for_datum': wait_for_datum,
         }],
         remappings=[
