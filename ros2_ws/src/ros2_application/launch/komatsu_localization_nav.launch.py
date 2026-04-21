@@ -19,7 +19,6 @@ def generate_launch_description():
     ukf_global_params = os.path.join(ros2_app_dir, 'config', 'ukf_global.yaml')
 
     use_sim_time = LaunchConfiguration('use_sim_time')
-    use_global_localization = LaunchConfiguration('use_global_localization')
     odom_topic = LaunchConfiguration('odom_topic')
     yaw_offset = LaunchConfiguration('yaw_offset')
     wait_for_datum = LaunchConfiguration('wait_for_datum')
@@ -54,7 +53,6 @@ def generate_launch_description():
         name='gps_covariance_relay',
         output='screen',
         parameters=[{'use_sim_time': use_sim_time}],
-        condition=IfCondition(use_global_localization),
     )
 
     navsat_transform_node = Node(
@@ -75,13 +73,12 @@ def generate_launch_description():
             'wait_for_datum': wait_for_datum,
         }],
         remappings=[
-            ('imu/data', '/imu/data'),
+            ('imu', '/imu/data'),
             ('gps/fix', '/gps/fix_cov'),
             ('gps/filtered', '/gps/filtered'),
             ('odometry/gps', '/odometry/gps'),
             ('odometry/filtered', '/odometry/filtered_local'),
         ],
-        condition=IfCondition(use_global_localization),
     )
 
     # Global UKF: publishes dynamic map -> odom from GNSS
@@ -107,11 +104,9 @@ def generate_launch_description():
         remappings=[
             ('odometry/filtered', '/odometry/filtered'),
         ],
-        condition=IfCondition(use_global_localization),
     )
 
     gnss_enabled_log = LogInfo(
-        condition=IfCondition(use_global_localization),
         msg=(
             'GNSS global localization ENABLED. '
             'Starting gps_covariance_relay, navsat_transform_node, '
@@ -120,7 +115,6 @@ def generate_launch_description():
     )
 
     gnss_disabled_log = LogInfo(
-        condition=UnlessCondition(use_global_localization),
         msg=(
             'GNSS global localization DISABLED. '
             'Only ukf_filter_node_odom will run.'
@@ -132,7 +126,6 @@ def generate_launch_description():
             target_action=gps_covariance_relay_node,
             on_start=[LogInfo(msg='Started gps_covariance_relay: /gps/fix -> /gps/fix_cov')],
         ),
-        condition=IfCondition(use_global_localization),
     )
 
     navsat_transform_start_log = RegisterEventHandler(
@@ -140,7 +133,6 @@ def generate_launch_description():
             target_action=navsat_transform_node,
             on_start=[LogInfo(msg='Started navsat_transform_node: consumes /gps/fix_cov and publishes /odometry/gps')],
         ),
-        condition=IfCondition(use_global_localization),
     )
 
     ukf_global_start_log = RegisterEventHandler(
@@ -148,7 +140,6 @@ def generate_launch_description():
             target_action=ukf_global_node,
             on_start=[LogInfo(msg='Started ukf_filter_node_map: dynamic map->odom enabled')],
         ),
-        condition=IfCondition(use_global_localization),
     )
 
     gps_covariance_relay_exit_log = RegisterEventHandler(
@@ -156,7 +147,6 @@ def generate_launch_description():
             target_action=gps_covariance_relay_node,
             on_exit=[LogInfo(msg='WARNING: gps_covariance_relay exited.')],
         ),
-        condition=IfCondition(use_global_localization),
     )
 
     navsat_transform_exit_log = RegisterEventHandler(
@@ -164,7 +154,6 @@ def generate_launch_description():
             target_action=navsat_transform_node,
             on_exit=[LogInfo(msg='WARNING: navsat_transform_node exited. /odometry/gps will stop updating.')],
         ),
-        condition=IfCondition(use_global_localization),
     )
 
     ukf_global_exit_log = RegisterEventHandler(
@@ -172,7 +161,6 @@ def generate_launch_description():
             target_action=ukf_global_node,
             on_exit=[LogInfo(msg='WARNING: ukf_filter_node_map exited. Dynamic map->odom is no longer being published.')],
         ),
-        condition=IfCondition(use_global_localization),
     )
 
     return LaunchDescription([
@@ -184,11 +172,6 @@ def generate_launch_description():
             'odom_topic',
             default_value='/odom',
             description='Odometry source topic for local/global UKF (Gazebo default: /odom)',
-        ),
-        DeclareLaunchArgument(
-            'use_global_localization',
-            default_value='true',
-            description='Enable GNSS relay + navsat_transform + global UKF',
         ),
         DeclareLaunchArgument(
             'yaw_offset',

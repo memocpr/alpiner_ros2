@@ -1288,6 +1288,12 @@ ros2 node list | grep -E "ukf|navsat|gps_cov"
 ros2 topic echo /gps/fix_cov --once
 ```
 
+```bash
+ros2 node info /navsat_transform_node
+```
+
+
+
 
 ## GPS waypoint follower node
 
