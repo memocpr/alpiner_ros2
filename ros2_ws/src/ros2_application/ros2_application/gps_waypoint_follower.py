@@ -10,7 +10,7 @@ from rclpy.duration import Duration
 
 from geometry_msgs.msg import PointStamped, PoseStamped, Quaternion
 from geographic_msgs.msg import GeoPoint
-from nav2_simple_commander.robot_navigator import BasicNavigator
+from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
 from robot_localization.srv import FromLL
 from tf2_ros import TransformException
 from tf2_ros.buffer import Buffer
@@ -129,12 +129,29 @@ class GpsWaypointFollower(Node):
             raise RuntimeError("No valid waypoint could be converted to map frame.")
 
         self.get_logger().info(f"Sending {len(map_waypoints)} converted waypoint(s) to Nav2 /follow_waypoints.")
-        self.navigator.followWaypoints(map_waypoints)
+        accepted = self.navigator.followWaypoints(map_waypoints)
+        if not accepted:
+            raise RuntimeError('Nav2 rejected the /follow_waypoints request.')
 
         while not self.navigator.isTaskComplete():
             time.sleep(0.1)
 
         result = self.navigator.getResult()
+        wrapped_result = self.navigator.result_future.result() if self.navigator.result_future else None
+        missed_waypoints = []
+        if wrapped_result is not None and hasattr(wrapped_result, 'result'):
+            missed_waypoints = list(getattr(wrapped_result.result, 'missed_waypoints', []))
+
+        if result != TaskResult.SUCCEEDED or missed_waypoints:
+            error_msg = f"Waypoint task finished with result: {result}"
+            if missed_waypoints:
+                error_msg = (
+                    f"Waypoint task failed. Missed waypoint indices: {missed_waypoints}. "
+                    f"Action result: {result}"
+                )
+                self.get_logger().error(error_msg)
+            raise RuntimeError(error_msg)
+
         self.get_logger().info(f"Waypoint task finished with result: {result}")
 
 

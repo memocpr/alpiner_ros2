@@ -1167,7 +1167,7 @@ ros2 topic echo /map --once | grep frame_id
 ## kill nodes
 ```bash
 kill -9 $(ps aux | grep -E "ros2|gz|gazebo|nav2" | grep -v grep | awk '{print $2}')
-pkill -9 -f "komatsu_gazebo_nav.launch.py|gzserver|gzclient|navsat_transform_node|ukf_node|gps_covariance_relay|mapviz|initialize_origin.py|planner_server|controller_server|bt_navigator|lifecycle_manager"
+pkill -9 -f "komatsu_gazebo_nav.launch.py|gzserver|gzclient|navsat_transform_node|ukf_node|gps_covariance_relay|mapviz|initialize_origin.py|planner_server|controller_server|bt_navigator|lifecycle_manager|robot_state_publisher"
 ros2 daemon stop
 sleep 2
 ros2 daemon start
@@ -1200,6 +1200,7 @@ ros2 launch robot_bringup komatsu_gazebo_nav.launch.py use_sim_time:=true
 - `navsat_transform_node` should consume `/odometry/filtered` (global EKF), not `/odometry/filtered_local`.
 - Expected `/odometry/gps` header frame is `map`.
 - `map -> odom` should remain smooth/small at idle. Large jumps usually indicate stale duplicate bringup processes.
+- Rolling global costmap is enlarged to `450 x 450 m` so GPS waypoints farther from the current robot pose remain inside the planning window.
 
 Quick sanity checks:
 ```bash
@@ -1318,6 +1319,10 @@ source install/setup.bash
 
 ros2 launch ros2_application komatsu_gps_waypoint_follower.launch.py
 ```
+
+Verified behavior:
+- Default `gps_waypoints.yaml` converts to map-frame goals and reaches them successfully in Action 9.
+- `gps_waypoint_follower` now reports waypoint failures clearly if Nav2 misses any waypoint, instead of logging a misleading success.
 
 activate lifecycle and check action server:
 ```bash
