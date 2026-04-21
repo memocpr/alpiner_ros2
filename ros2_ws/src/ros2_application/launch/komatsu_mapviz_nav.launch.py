@@ -76,12 +76,12 @@ def generate_launch_description():
             ],
         ),
 
-        Node(
-            package='tf2_ros',
-            executable='static_transform_publisher',
-            name='mapviz_tf',
-            arguments=['--frame-id', 'map', '--child-frame-id', 'origin'],
-            parameters=[{'use_sim_time': use_sim_time}]
-        ),
+#        Node(
+#            package='tf2_ros',
+#            executable='static_transform_publisher',
+#            name='mapviz_tf',
+#            arguments=['--frame-id', 'map', '--child-frame-id', 'origin'],
+#            parameters=[{'use_sim_time': use_sim_time}]
+#        ),
 
     ])
