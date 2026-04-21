@@ -1187,7 +1187,7 @@ ros2 node list
     ➡ Simple GPS waypoint navigation (no map, no global planning)
 ```bash
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
-colcon build --packages-select robot_bringup robot_description ros2_application --symlink-install
+colcon build --packages-select robot_bringup robot_description ros2_application
 source /opt/ros/humble/setup.bash
 source install/setup.bash
 ros2 launch robot_bringup komatsu_gazebo_nav.launch.py use_sim_time:=true
