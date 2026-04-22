@@ -1307,7 +1307,10 @@ ros2 topic echo /gps/fix_cov --once
 ros2 node info /navsat_transform_node
 ```
 
-
+## check nav2
+```bash
+ros2 topic echo /joint_states --once
+````
 
 
 ## GPS waypoint follower node
