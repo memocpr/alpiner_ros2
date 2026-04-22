@@ -72,6 +72,7 @@ def generate_launch_description():
             'publish_filtered_gps': True,
             'use_odometry_yaw': True,
             'wait_for_datum': wait_for_datum,
+            'datum': [46.96452427251628, 7.490428219486696, 0.0],
         }],
         remappings=[
             ('imu', '/imu/data'),
@@ -182,8 +183,8 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'wait_for_datum',
-            default_value='false',
-            description='Wait for manual datum initialization before navsat_transform starts publishing',
+            default_value='true',
+            description='Use the configured manual datum before navsat_transform starts publishing',
         ),
 
         gnss_enabled_log,

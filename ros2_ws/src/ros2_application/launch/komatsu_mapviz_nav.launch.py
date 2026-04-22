@@ -72,7 +72,8 @@ def generate_launch_description():
             parameters=[
                 {'use_sim_time': use_sim_time},
                 {'local_xy_frame': 'map'},
-                {'local_xy_origin': 'auto'}
+                {'local_xy_origin': 'manual'},
+                {'local_xy_origins': [46.96452427251628, 7.490428219486696, 540.0, 0.0]}
             ],
         ),
 
