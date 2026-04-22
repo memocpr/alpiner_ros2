@@ -171,11 +171,11 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'x_pose',
-            default_value='-24.1'
+            default_value='-124.0'
         ),
         DeclareLaunchArgument(
             'y_pose',
-            default_value='-11.3'
+            default_value='-70.0'
         ),
         DeclareLaunchArgument(
             'z_pose',
