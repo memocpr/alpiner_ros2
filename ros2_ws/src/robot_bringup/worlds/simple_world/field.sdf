@@ -50,6 +50,7 @@
 
         <visual name="visual">
           <cast_shadows>false</cast_shadows>
+          <pose>0 0 -0.2 0 0 0</pose>
           <geometry>
             <plane>
               <normal>0 0 1</normal>
