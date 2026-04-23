@@ -957,6 +957,19 @@ ros2 topic echo /map --once | grep frame_id
 
 # Action 9 : Gazebo + Nav2 + GNSS (with static map fallback)
 
+### Action 9 command flow (current)
+
+- Nav2 publishes `geometry_msgs/Twist` on `/cmd_vel`
+- `ros_ll_controller_python` consumes command topic via `cmd_input_topic` (launch default: `/cmd_vel`)
+- LL controller publishes machine command on `/atcom_wa380/wheeler/write/nav_ctrl`
+
+Quick check:
+```bash
+ros2 topic info /cmd_vel -v
+ros2 topic echo /cmd_vel
+ros2 topic info /atcom_wa380/wheeler/write/nav_ctrl -v
+```
+
 ## kill nodes
 ```bash
 kill -9 $(ps aux | grep -E "ros2|gz|gazebo|nav2" | grep -v grep | awk '{print $2}')
@@ -1189,9 +1202,9 @@ export ATCOM_NS=atcom_wa380
 export PYTHONPATH=$PYTHONPATH:~/Desktop/AlpineR/alpiner_ros2/P12-python-machine>
 ```
 
-### check cmd_vel_out relay
+### check Nav2 velocity output (direct)
 ```bash
-ros2 topic echo /cmd_vel_out
+ros2 topic echo /cmd_vel
 ```
 
 ### check atcom
@@ -1277,15 +1290,15 @@ ros2 topic list | grep cmd_vel
 ```
 
 ```bash
-ros2 topic list | grep cmd_vel_out
+ros2 topic list | grep -E "cmd_vel|cmd_out"
 ```
 
 ```bash
-ros2 topic echo /cmd_vel_out
+ros2 topic echo /cmd_vel
 ```
 
 ```bash
-ros2 topic info /cmd_vel_out -v
+ros2 topic info /cmd_vel -v
 ```
 
 ```bash
@@ -1305,17 +1318,19 @@ x: -1.0
 y: 0.03054870430392691
 z: 0.03054870430392691`
 
-raw output is coming from /cmd_vel_nav
-publisher is controller_server
-and the extra fields match your custom cpp exactly.
-
-Your cpp sets:
-linear.x = linear_vel
-angular.z = angular_vel
-linear.y = distance_end_of_transformed_plan
-linear.z = lookahead_dist
-angular.x = dist_to_cusp
-angular.y = curvature
+> **Note:** `/cmd_vel_nav` is the raw controller output remapped from the controller_server's `cmd_vel`.
+> The velocity smoother then takes `/cmd_vel_nav` as input and publishes the final output on `/cmd_vel`:
+> `controller_server → /cmd_vel_nav → velocity_smoother → /cmd_vel`
+>
+> The current active RPP controller (standard Nav2 build) only sets `linear.x` and `angular.z` — all other fields are `0.0`. This is correct.
+>
+> The "expected" output with extra fields (`linear.y/z`, `angular.x/y`) was from a **legacy custom RPP controller** (see `KnowledgeBase/RetroFit_Kit_Code/`) that packed debug data into unused Twist fields:
+> - `linear.y` = distance_end_of_transformed_plan
+> - `linear.z` = lookahead_dist
+> - `angular.x` = dist_to_cusp
+> - `angular.y` = curvature
+>
+> This is **no longer active** in the current build.
 
 ```bash
 ros2 topic info /cmd_vel_nav -v

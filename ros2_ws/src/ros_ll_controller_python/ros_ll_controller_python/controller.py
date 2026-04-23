@@ -28,7 +28,7 @@ class LL_Controller(Node):
 
     # timer duration value for the main loop
     TIME_OPERATE_MACHINE = 0.04 # 25Hz
-    # max delay to consider a msg on /cmd_vel_out as still valid
+    # max delay to consider a command message as still valid
     # depends on the frequency of the cmd_vel publisher (10 Hz currently)
     MAX_DELAY_CMD_VEL_MSG = 0.25
 
@@ -53,6 +53,7 @@ class LL_Controller(Node):
         self.declare_parameter('d_gain_linear_speed_ll_controller', 0.0, ParameterDescriptor(description='Derivative gain for linear speed', read_only=True))
         self.declare_parameter('d_gain_angular_speed_ll_controller', 0.0, ParameterDescriptor(description='Derivative gain for angular speed', read_only=True))
         self.declare_parameter('min_target_angular_speed_ll_controller', 0.0, ParameterDescriptor(description='Minimum target value for angular speed, below we dont move', read_only=True))
+        self.declare_parameter('cmd_input_topic', '/cmd_out', ParameterDescriptor(description='Input Twist topic for LL controller command', read_only=True))
         
         # read parameters from launch file
         self.p_gain_brake = float(self.get_parameter('p_gain_braking_ll_controller').value)
@@ -64,12 +65,13 @@ class LL_Controller(Node):
         self.d_gain_linear_speed = float(self.get_parameter('d_gain_linear_speed_ll_controller').value)
         self.d_gain = float(self.get_parameter('d_gain_angular_speed_ll_controller').value)
         self.min_target_angular_speed_ll_controller = float(self.get_parameter('min_target_angular_speed_ll_controller').value)
+        self.cmd_input_topic = str(self.get_parameter('cmd_input_topic').value)
         logger.info('We got these parameters for steering : P :{} D : {} I : {}'.format(self.p_gain, self.d_gain, self.i_gain))
 
         # memorized messages
         self.mem_cmd_vel = None
         self.mem_machine_ind_all = None
-        # memorized timestamp of the latest /cmd_vel_out message
+        # memorized timestamp of the latest command message
         self.mem_time_latest_cmd_vel_received = None
         # flag to reset values only once per end of path
         self.has_been_reset = True
@@ -99,7 +101,7 @@ class LL_Controller(Node):
         """ start method
         """
         # start timer and subscribers/publishers
-        self.sub_cmd_vel = self.create_subscription(Twist,'/cmd_vel_out', self.cb_cmd_vel, 1)
+        self.sub_cmd_vel = self.create_subscription(Twist, self.cmd_input_topic, self.cb_cmd_vel, 1)
         self.sub_machine_ind_all = self.create_subscription(MachineIndAll,'/atcom_wa380/wheeler/read/all', self.cb_machine_ind_all, 1)
         self.pub_machine_set_all = self.create_publisher(MachineSetAll, '/atcom_wa380/wheeler/write/nav_ctrl', 1)
         self.pub_heartbeat = self.create_publisher(UInt16, '/atcom_wa380/wheeler/write/nav_heartbeat', 1)
@@ -125,7 +127,7 @@ class LL_Controller(Node):
         logger.info('end of path')
 
     def cb_cmd_vel(self, msg):
-        """callback of the /cmd_vel_out topic subscriber. this is the data used to trigger navigation.
+        """Callback of the configured command topic subscriber.
 
         Args:
             msg (Twist): Message containing linear and angular velocities, as well as custom data.
@@ -346,7 +348,7 @@ class LL_Controller(Node):
         mem_machine_ind_all = copy.deepcopy(self.mem_machine_ind_all)
         time_last_cmd_vel_received = copy.deepcopy(self.mem_time_latest_cmd_vel_received)
         
-        # make sure the message on /cmd_vel_nav is not too old
+        # make sure the latest command message is not too old
         delta_tm_msg = time.time() - time_last_cmd_vel_received
 
         # normal case, msg must arrive within 0.2s

@@ -34,7 +34,7 @@ You can launch the controller with the following command: `ros2 launch ros_ll_co
 
 This node works mainly on two types of events:
 
-1. Reception of a new target velocity (geometry_msgs/Twist) on the topic `/cmd_vel_out` and MachineIndAll received on the topic `/atcom_wa380/wheeler/read/all`
+1. Reception of a new target velocity (geometry_msgs/Twist) on the configured command topic (`/cmd_out` by default, `/cmd_vel` in `ll_controller.launch.py`) and MachineIndAll received on the topic `/atcom_wa380/wheeler/read/all`
 2. A timeout of the command timer, that currently runs at 25Hz (to be increased at 50Hz, or same as the one from remote control)
 
 At the reception of either message, the message's data is simply stored. 
