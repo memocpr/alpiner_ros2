@@ -744,204 +744,6 @@ use_sim_imu:=false
 ```bash
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
-
-### check the custom nav2 controller
-```bash
-cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
-
-source /opt/ros/humble/setup.bash
-source install/setup.bash
-
-ros2 pkg prefix nav2_regulated_pure_pursuit_controller
-```
-
-```bash
-cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
-
-rm -rf build/nav2_regulated_pure_pursuit_controller \
-       install/nav2_regulated_pure_pursuit_controller \
-       log
-
-colcon build --packages-select nav2_regulated_pure_pursuit_controller \
-  --allow-overriding nav2_regulated_pure_pursuit_controller
-
-source /opt/ros/humble/setup.bash
-source install/setup.bash
-
-ros2 pkg prefix nav2_regulated_pure_pursuit_controller
-```
-
-
-add .bashrc source line:
-```bash
-export ATCOM_NS=atcom_wa380
-export PYTHONPATH=$PYTHONPATH:~/Desktop/AlpineR/alpiner_ros2/P12-python-machine>
-```
-
-### check cmd_vel_out relay
-```bash
-ros2 topic echo /cmd_vel_out
-```
-
-### check atcom
-```bash
-ros2 pkg list | grep atcom
-```
-
-
-set pmi
-```bash
-cd ~/Desktop/AlpineR/alpiner_ros2/P12-python-machine-interface-master
-pip3 install -e .
-```
-
-set pymodbus
-```
-pip install pymodbus==2.5.3
-```
-
-
-```bash
-cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
-colcon build --packages-select ros_ll_controller_python
-source /opt/ros/humble/setup.bash
-source install/setup.bash
-ros2 run ros_ll_controller_python ll_controller
-```
-
-
-
-### Send Short Test Goal
-```bash
-ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose \
-"{pose: {header: {frame_id: map}, pose: {position: {x: -6.0, y: -6.0, z: 0.0}, orientation: {w: 1.0}}}}"
-```
-Expected:
-- Goal accepted
-- Robot publishes `/cmd_vel`
-
-
-### check plan
-```bash
-ros2 topic echo /plan --once
-```
-```bash
-ros2 topic echo /map --once
-```
-```bash
-ros2 run tf2_ros tf2_echo map base_link
-ros2 run tf2_ros tf2_echo odom base_footprint
-ros2 run tf2_ros tf2_echo base_footprint base_link
-```
-```bash
-ros2 topic echo /goal_pose --once
-```
-
-
-### see planners
-```bash
-ros2 node list | grep -E "planner_server|controller_server|bt_navigator"
-ros2 param get /planner_server planner_plugins
-ros2 param get /planner_server GridBased.plugin
-ros2 param get /controller_server controller_plugins
-ros2 param get /controller_server FollowPath.plugin
-ros2 param get /bt_navigator navigators
-ros2 action list
-ros2 action info /navigate_to_pose
-```
-
----
-
-### Step-by-step checks (Action 6)
-
-1. In RViz, confirm TF chain is present: `map -> odom -> base_footprint -> base_link`.
-2. Set **2D Pose Estimate** (initial pose) in RViz.
-3. Send **2D Nav Goal** in RViz.
-4. Verify a global/local path appears and updates.
-5. Verify path-following behavior and monitor `/cmd_vel`:
-
-
-### Action 6 Additional Verification Commands
-
-### Check Key Topics Rate
-```bash
-ros2 topic hz /scan
-ros2 topic hz /odometry/filtered
-ros2 topic hz /map
-```
-Expected:
-- `/scan` publishes continuously
-- `/odometry/filtered` publishes continuously
-- `/map` updates continuously in SLAM mode
-
----
-
-### Check Nav2 Velocity Output
-```bash
-ros2 topic echo /cmd_vel
-```
-Expected:
-- Non-zero `linear.x` and/or `angular.z` after sending a short goal
-
-
-```bash
-ros2 topic list | grep cmd_vel
-```
-
-```bash
-ros2 topic list | grep cmd_vel_out
-```
-
-```bash
-ros2 topic echo /cmd_vel_out
-```
-
-```bash
-ros2 topic info /cmd_vel_out -v
-```
-
-```bash
-ros2 topic info /atcom_wa380/wheeler/write/nav_ctrl -v
-```
-
-```bash
-ros2 topic echo /cmd_vel_nav
-```
-expected:
-`linear:
-x: 1.0
-y: 7.898482295126057
-z: 2.5
-angular:
-x: -1.0
-y: 0.03054870430392691
-z: 0.03054870430392691`
-
-raw output is coming from /cmd_vel_nav
-publisher is controller_server
-and the extra fields match your custom cpp exactly.
-
-Your cpp sets:
-linear.x = linear_vel
-angular.z = angular_vel
-linear.y = distance_end_of_transformed_plan
-linear.z = lookahead_dist
-angular.x = dist_to_cusp
-angular.y = curvature
-
-```bash
-ros2 topic info /cmd_vel_nav -v
-```
-
-```bash
-ros2 topic echo /map --once
-```
-
-```bash
-ros2 topic echo /scan --once
-```
-
-
 ### Check TF Chain
 ```bash
 ros2 run tf2_ros tf2_echo map odom
@@ -995,15 +797,6 @@ Expected:
 
 ---
 
-
-
-
-
-
-
-
-
-
 ### Notes
 
 - This Action 6 flow does **not** include P12 or `ros2_control`.
@@ -1015,16 +808,16 @@ Expected:
 
 1. SLAM + Nav2 (your current setup)
    Robot builds the map while driving.
-`   RTAB-Map → creates map
-   UKF → odom
-   Nav2 → navigate`
+   `   RTAB-Map → creates map
+      UKF → odom
+      Nav2 → navigate`
    RTAB-Map publishes: `map → odom`
 
 2. Static map + AMCL
    Robot uses a pre-built map for localization and navigation.
-  `map_server → load map
-  AMCL → localize robot
-  Nav2 → navigate`
+   `map_server → load map
+   AMCL → localize robot
+   Nav2 → navigate`
    AMCL publishes: `map → odom`
 
 3. Typical GNSS pipeline:
@@ -1041,8 +834,8 @@ Expected:
 - `sim_scan_publisher` now publishes LaserScan angles with consistent metadata (`angle_min/angle_max/angle_increment` matches beam count). This avoids RTAB-Map scan conversion failures that can prevent `/map` updates and Nav2 planning.
 - `rviz_integration.launch.py` now prints startup diagnostics for sim source flags and topic wiring (`odom_topic`, `scan_topic`) to simplify launch-time debugging.
 - Nav2 requires TF chain `map -> odom -> base_footprint -> base_link`.
-- **Robot shaking / not moving in RViz**: caused by multiple nodes publishing `odom -> base_footprint` simultaneously. 
-- The UKF (`publish_tf: true`) must be the **sole** publisher of this transform. Do **not** add a `static_transform_publisher` for `odom -> base_footprint` in the launch file, and do **not** broadcast TF from `sim_odometry_publisher` — it must only publish `/odometry/raw`. 
+- **Robot shaking / not moving in RViz**: caused by multiple nodes publishing `odom -> base_footprint` simultaneously.
+- The UKF (`publish_tf: true`) must be the **sole** publisher of this transform. Do **not** add a `static_transform_publisher` for `odom -> base_footprint` in the launch file, and do **not** broadcast TF from `sim_odometry_publisher` — it must only publish `/odometry/raw`.
 - Having both a static `[0,0,0]` TF and a dynamic UKF TF for the same frame pair causes the robot pose to snap back to origin on every static update, producing the shaking/spinning behaviour.
 - If `odom -> base_footprint` is missing, publish it for testing:
 
@@ -1085,7 +878,7 @@ source install/setup.bash
 ```
 
 
-## kill all nodes
+### kill all nodes
 ```bash
 pkill -f gzserver
 pkill -f gzclient
@@ -1095,7 +888,7 @@ cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 rm -rf build/ install/ log/
 ```
 
-## launch **komatsu** in gazebo with custom world
+### launch **komatsu** in gazebo with custom world
 ```bash
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select robot_bringup robot_description
@@ -1188,7 +981,7 @@ ros2 node list
     ➡ Simple GPS waypoint navigation (no map, no global planning)
 ```bash
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
-colcon build --packages-select robot_bringup robot_description ros2_application
+colcon build --packages-select robot_bringup robot_description ros2_application ros_ll_controller_python ros2_interfaces
 source /opt/ros/humble/setup.bash
 source install/setup.bash
 ros2 launch robot_bringup komatsu_gazebo_nav.launch.py use_sim_time:=true
@@ -1356,4 +1149,184 @@ ros2 topic list
 ros2 topic list | grep odom
 ros2 topic list | grep imu
 ```
+
+
+
+
+
+
+
+## Custom ros_ll_controller_python
+```bash
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
+
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+
+ros2 pkg prefix nav2_regulated_pure_pursuit_controller
+```
+
+```bash
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
+
+rm -rf build/nav2_regulated_pure_pursuit_controller \
+       install/nav2_regulated_pure_pursuit_controller \
+       log
+
+colcon build --packages-select nav2_regulated_pure_pursuit_controller \
+  --allow-overriding nav2_regulated_pure_pursuit_controller
+
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+
+ros2 pkg prefix nav2_regulated_pure_pursuit_controller
+```
+
+
+add .bashrc source line:
+```bash
+export ATCOM_NS=atcom_wa380
+export PYTHONPATH=$PYTHONPATH:~/Desktop/AlpineR/alpiner_ros2/P12-python-machine>
+```
+
+### check cmd_vel_out relay
+```bash
+ros2 topic echo /cmd_vel_out
+```
+
+### check atcom
+```bash
+ros2 pkg list | grep atcom
+```
+
+
+set pmi
+```bash
+cd ~/Desktop/AlpineR/alpiner_ros2/P12-python-machine-interface-master
+pip3 install -e .
+```
+
+set pymodbus
+```
+pip install pymodbus==2.5.3
+```
+
+## run custom controller
+
+```bash
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
+colcon build --packages-select ros_ll_controller_python
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+ros2 run ros_ll_controller_python ll_controller
+```
+
+
+
+### Send Short Test Goal
+```bash
+ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose \
+"{pose: {header: {frame_id: map}, pose: {position: {x: -6.0, y: -6.0, z: 0.0}, orientation: {w: 1.0}}}}"
+```
+Expected:
+- Goal accepted
+- Robot publishes `/cmd_vel`
+
+
+### check plan
+```bash
+ros2 topic echo /plan --once
+```
+```bash
+ros2 topic echo /map --once
+```
+```bash
+ros2 run tf2_ros tf2_echo map base_link
+ros2 run tf2_ros tf2_echo odom base_footprint
+ros2 run tf2_ros tf2_echo base_footprint base_link
+```
+```bash
+ros2 topic echo /goal_pose --once
+```
+
+### Additional Verification Commands
+
+### Check Key Topics Rate
+```bash
+ros2 topic hz /scan
+ros2 topic hz /odometry/filtered
+ros2 topic hz /map
+```
+Expected:
+- `/scan` publishes continuously
+- `/odometry/filtered` publishes continuously
+- `/map` updates continuously in SLAM mode
+
+---
+
+### Check Nav2 Velocity Output
+```bash
+ros2 topic echo /cmd_vel
+```
+Expected:
+- Non-zero `linear.x` and/or `angular.z` after sending a short goal
+
+
+```bash
+ros2 topic list | grep cmd_vel
+```
+
+```bash
+ros2 topic list | grep cmd_vel_out
+```
+
+```bash
+ros2 topic echo /cmd_vel_out
+```
+
+```bash
+ros2 topic info /cmd_vel_out -v
+```
+
+```bash
+ros2 topic info /atcom_wa380/wheeler/write/nav_ctrl -v
+```
+
+```bash
+ros2 topic echo /cmd_vel_nav
+```
+expected:
+`linear:
+x: 1.0
+y: 7.898482295126057
+z: 2.5
+angular:
+x: -1.0
+y: 0.03054870430392691
+z: 0.03054870430392691`
+
+raw output is coming from /cmd_vel_nav
+publisher is controller_server
+and the extra fields match your custom cpp exactly.
+
+Your cpp sets:
+linear.x = linear_vel
+angular.z = angular_vel
+linear.y = distance_end_of_transformed_plan
+linear.z = lookahead_dist
+angular.x = dist_to_cusp
+angular.y = curvature
+
+```bash
+ros2 topic info /cmd_vel_nav -v
+```
+
+```bash
+ros2 topic echo /map --once
+```
+
+```bash
+ros2 topic echo /scan --once
+```
+
 
