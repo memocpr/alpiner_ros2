@@ -55,9 +55,23 @@
     <xacro:property name="weight_r_axle" value="150"/> <!-- x2 -->
     <xacro:property name="total_weight" value="${weight_f_body+weight_r_body+weight_chassis+2*(wheel_weight_f + wheel_weight_r)}"/> <!-- 4300 -->
 
+
+    <xacro:property name="base_link_origin_z" value="${bottom_clearance}"/>
     <xacro:property name="chassis_center_z" value="${box_height_chassis/2.0}"/>
-    <xacro:property name="rear_body_center_z" value="${box_height_r_body/2.0}"/>
-    <xacro:property name="front_body_center_z" value="${box_height_f_body/2.0}"/>
+
+
+    <xacro:property name="rear_body_origin_x" value="${-box_len_r_body/2.0}"/>
+    <xacro:property name="rear_body_origin_z" value="${box_height_r_body/2.0}"/>
+    <xacro:property name="rear_axle_origin_x" value="${-half_wheelbase}"/>
+    <xacro:property name="rear_axle_origin_z" value="${wheel_rad_rear}"/>
+
+    <xacro:property name="front_body_origin_x" value="${box_len_f_body/2.0}"/>
+    <xacro:property name="front_body_origin_z" value="${box_height_f_body/2.0}"/>
+    <xacro:property name="front_axle_origin_x" value="${half_wheelbase}"/>
+
+    <xacro:property name="laser_origin_z" value="${full_height + 0.3}"/>
+    <xacro:property name="gnss_origin_x" value="-1.0"/>
+    <xacro:property name="gnss_origin_z" value="2.0"/>
 
     <link name="base_footprint"/>
 
@@ -65,7 +79,7 @@
     <joint name="base_link_joint" type="fixed">
         <parent link="base_footprint"/>
         <child link="base_link"/>
-        <origin xyz="0 0 ${bottom_clearance}" rpy="0 0 0"/>
+        <origin xyz="0 0 ${base_link_origin_z}" rpy="0 0 0"/>
     </joint>
 
     <link name="chassis">
@@ -101,13 +115,13 @@
 
     <link name="rear_body">
         <visual>
-            <origin xyz="${-box_len_r_body/2.0} 0 ${rear_body_center_z}"/>
+            <origin xyz="${rear_body_origin_x} 0 ${rear_body_origin_z}"/>
             <geometry><box size="${box_len_r_body} ${box_width_r_body} ${box_height_r_body}"/></geometry>
             <material name="red"/>
         </visual>
 
         <collision>
-            <origin xyz="${-box_len_r_body/2.0} 0 ${rear_body_center_z}"/>
+            <origin xyz="${rear_body_origin_x} 0 ${rear_body_origin_z}"/>
             <geometry><box size="${box_len_r_body} ${box_width_r_body} ${box_height_r_body}"/></geometry>
         </collision>
 
@@ -116,19 +130,19 @@
                 x="${box_len_r_body}"
                 y="${box_width_r_body}"
                 z="${box_height_r_body}"
-                o_xyz="${-box_len_r_body/2.0} 0 ${rear_body_center_z}"
+                o_xyz="${rear_body_origin_x} 0 ${rear_body_origin_z}"
                 o_rpy="0 0 0"/>
     </link>
 
     <link name="front_body">
         <visual>
-            <origin xyz="${box_len_f_body/2.0} 0 ${front_body_center_z}"/>
+            <origin xyz="${front_body_origin_x} 0 ${front_body_origin_z}"/>
             <geometry><box size="${box_len_f_body} ${box_width_f_body} ${box_height_f_body}"/></geometry>
             <material name="green"/>
         </visual>
 
         <collision>
-            <origin xyz="${box_len_f_body/2.0} 0 ${front_body_center_z}"/>
+            <origin xyz="${front_body_origin_x} 0 ${front_body_origin_z}"/>
             <geometry><box size="${box_len_f_body} ${box_width_f_body} ${box_height_f_body}"/></geometry>
         </collision>
 
@@ -137,7 +151,7 @@
                 x="${box_len_f_body}"
                 y="${box_width_f_body}"
                 z="${box_height_f_body}"
-                o_xyz="${box_len_f_body/2.0} 0 ${front_body_center_z}"
+                o_xyz="${front_body_origin_x} 0 ${front_body_origin_z}"
                 o_rpy="0 0 0"/>
     </link>
 
@@ -168,7 +182,7 @@
     <joint name="rear_axle_joint" type="fixed">
         <parent link="chassis"/>
         <child link="rear_axle"/>
-        <origin xyz="${-half_wheelbase} 0 0" rpy="0 0 0"/>
+        <origin xyz="${rear_axle_origin_x} 0 ${rear_axle_origin_z}" rpy="0 0 0"/>
     </joint>
 
     <link name="front_axle">
@@ -192,7 +206,7 @@
     <joint name="front_axle_roll_joint" type="revolute">
         <parent link="chassis"/>
         <child link="front_axle"/>
-        <origin xyz="${half_wheelbase} 0 0" rpy="0 0 0"/>
+        <origin xyz="${front_axle_origin_x} 0 0" rpy="0 0 0"/>
         <axis xyz="1 0 0"/>
         <limit lower="-0.1745329252" upper="0.1745329252" effort="2000.0" velocity="1.0"/>
     </joint>
@@ -210,7 +224,7 @@
     <joint name="laser_joint" type="fixed">
         <parent link="rear_body"/>
         <child link="laser_frame"/>
-        <origin xyz="0.0 0.0 ${full_height + 0.3}" rpy="0 0 0"/>
+        <origin xyz="0.0 0.0 ${laser_origin_z}" rpy="0 0 0"/>
     </joint>
 
     <link name="imu_link"/>
@@ -224,7 +238,7 @@
     <joint name="gnss_joint" type="fixed">
         <parent link="base_link"/>
         <child link="gnss_link"/>
-        <origin xyz="-1.0 0.0 2.0" rpy="0 0 0"/>
+        <origin xyz="${gnss_origin_x} 0.0 ${gnss_origin_z}" rpy="0 0 0"/>
     </joint>
 
 </robot>
