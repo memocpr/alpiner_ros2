@@ -33,7 +33,14 @@
   </xacro:macro>
 
   <xacro:macro name="steerable_wheel" params="name parent x y z radius width mass:=50.0 steer_limit:=0.9599310886 mimic_joint:='' mimic_multiplier:=1.0">
-    <link name="${name}_steer"/>
+    <link name="${name}_steer">
+      <!-- Keep a physical steering knuckle link so Gazebo doesn't prune the front wheel chain -->
+      <inertial>
+        <mass value="1.0"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+      </inertial>
+    </link>
 
     <joint name="${name}_steer_joint" type="revolute">
       <parent link="${parent}"/>
