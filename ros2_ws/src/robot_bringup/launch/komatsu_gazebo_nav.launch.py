@@ -64,7 +64,7 @@ def generate_launch_description():
 
     robot_state_publisher_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(robot_desc_dir, 'launch', 'robot_state_publisher.launch.py')
+            os.path.join(robot_desc_dir, 'launch', 'komatsu', 'robot_state_publisher.launch.py')
         ),
         launch_arguments={
             'use_sim_time': use_sim_time
@@ -73,7 +73,7 @@ def generate_launch_description():
 
     spawn_robot_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(robot_desc_dir, 'launch', 'spawn_my_robot.launch.py')
+            os.path.join(robot_desc_dir, 'launch', 'komatsu', 'spawn_my_robot.launch.py')
         ),
         launch_arguments={
             'x_pose': x_pose,

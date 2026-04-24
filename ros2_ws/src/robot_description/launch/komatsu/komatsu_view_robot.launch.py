@@ -9,7 +9,7 @@ def generate_launch_description():
     # Get package directories
     robot_description_dir = get_package_share_directory('robot_description')
     # Path to URDF xacro file
-    urdf_file = os.path.join(robot_description_dir, 'urdf', 'komatsu.urdf.xacro')
+    urdf_file = os.path.join(robot_description_dir, 'urdf/komatsu', 'komatsu.urdf.xacro')
     # Path to RViz config
     rviz_config_file = os.path.join(robot_description_dir, 'rviz', 'urdf_config.rviz')
     # Process xacro file

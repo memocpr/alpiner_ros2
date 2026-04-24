@@ -15,6 +15,7 @@ def generate_launch_description():
     default_xacro_file = os.path.join(
         get_package_share_directory('robot_description'),
         'urdf',
+        'komatsu',
         'komatsu_gazebo.urdf.xacro'
     )
     xacro_file = LaunchConfiguration('xacro_file')

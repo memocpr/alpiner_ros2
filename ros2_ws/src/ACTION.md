@@ -109,8 +109,10 @@ This package now includes a minimal local-test localization setup:
 ### Publish Robot Model and TF
 ```bash
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
+colcon build --packages-select robot_description
 source /opt/ros/humble/setup.bash
 source install/setup.bash
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 ros2 launch robot_description komatsu_view_robot.launch.py
 ```
 
