@@ -3,16 +3,26 @@
 
     <xacro:include filename="$(find robot_description)/urdf/fent/fent.urdf.xacro"/>
 
-    <gazebo reference="rear_chassis">
-        <material>Gazebo/Red</material>
+    <gazebo reference="chassis">
+        <material>Gazebo/DarkGrey</material>
         <mu1>0.5</mu1>
         <mu2>0.5</mu2>
     </gazebo>
 
-    <gazebo reference="front_chassis">
+    <gazebo reference="front_body">
         <material>Gazebo/Green</material>
-        <mu1>0.5</mu1>
-        <mu2>0.5</mu2>
+    </gazebo>
+
+    <gazebo reference="rear_body">
+        <material>Gazebo/Red</material>
+    </gazebo>
+
+    <gazebo reference="rear_axle">
+        <material>Gazebo/DarkGrey</material>
+    </gazebo>
+
+    <gazebo reference="front_axle">
+        <material>Gazebo/DarkGrey</material>
     </gazebo>
 
     <gazebo reference="rear_left_wheel">
@@ -105,8 +115,8 @@
             <left_joint>rear_left_wheel_joint</left_joint>
             <right_joint>rear_right_wheel_joint</right_joint>
 
-            <wheel_separation>${E_track}</wheel_separation>
-            <wheel_diameter>${2.0 * wheel_rad_r}</wheel_diameter>
+            <wheel_separation>${wheel_track}</wheel_separation>
+            <wheel_diameter>${2.0 * wheel_rad_rear}</wheel_diameter>
 
             <max_wheel_torque>80000</max_wheel_torque>
             <max_wheel_acceleration>20.0</max_wheel_acceleration>

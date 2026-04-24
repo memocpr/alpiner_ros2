@@ -30,16 +30,14 @@
     <xacro:property name="axle_rad_rear" value="0.13"/>
     <xacro:property name="axle_len_rear" value="${wheel_track-wheel_width_r}"/>
 
-    <xacro:property name="axle_to_front_chassis" value="wheel_rad_front"/> <!-- axes to front -->
-    <xacro:property name="axle_to_rear_chassis" value="wheel_rad_front"/> <!-- axes to rear -->
-    <xacro:property name="box_len_chassis" value="${wheelbase + 2*wheel_rad_front}"/>
+    <xacro:property name="box_len_chassis" value="${wheelbase + 2*wheel_rad_front - 0.20}"/>
     <xacro:property name="box_width_chassis" value="0.50"/>
     <xacro:property name="box_height_chassis" value="0.50"/>
 
     <xacro:property name="axle_to_front_f_body" value="${wheel_rad_front}"/>
     <xacro:property name="box_len_f_body" value="${axle_to_front_f_body + half_wheelbase}"/>
-    <xacro:property name="box_width_f_body" value="0.70"/>
-    <xacro:property name="box_height_f_body" value="1.30"/>
+    <xacro:property name="box_width_f_body" value="0.60"/>
+    <xacro:property name="box_height_f_body" value="0.50"/>
 
     <xacro:property name="axle_to_r_body" value="0.20"/>
     <xacro:property name="box_len_r_body" value="${axle_to_r_body + half_wheelbase}"/>
@@ -57,21 +55,23 @@
 
 
     <xacro:property name="base_link_origin_z" value="${bottom_clearance}"/>
-    <xacro:property name="chassis_center_z" value="${box_height_chassis/2.0}"/>
+    <xacro:property name="chassis_origin_z" value="${box_height_chassis/2.0}"/>
 
+    <xacro:property name="rear_axle_origin_x" value="${-half_wheelbase}"/>
+    <xacro:property name="rear_axle_origin_z" value="${wheel_rad_rear - (bottom_clearance+chassis_origin_z)}"/>
+
+    <xacro:property name="front_axle_origin_x" value="${half_wheelbase}"/>
+    <xacro:property name="front_axle_origin_z" value="${wheel_rad_front - (bottom_clearance+chassis_origin_z)}"/>
 
     <xacro:property name="rear_body_origin_x" value="${-box_len_r_body/2.0}"/>
-    <xacro:property name="rear_body_origin_z" value="${box_height_r_body/2.0}"/>
-    <xacro:property name="rear_axle_origin_x" value="${-half_wheelbase}"/>
-    <xacro:property name="rear_axle_origin_z" value="${wheel_rad_rear}"/>
+    <xacro:property name="rear_body_origin_z" value="${box_height_r_body/2.0 - chassis_origin_z}"/>
 
     <xacro:property name="front_body_origin_x" value="${box_len_f_body/2.0}"/>
-    <xacro:property name="front_body_origin_z" value="${box_height_f_body/2.0}"/>
-    <xacro:property name="front_axle_origin_x" value="${half_wheelbase}"/>
+    <xacro:property name="front_body_origin_z" value="${box_height_f_body/2.0 + chassis_origin_z}"/>
 
-    <xacro:property name="laser_origin_z" value="${full_height + 0.3}"/>
-    <xacro:property name="gnss_origin_x" value="-1.0"/>
-    <xacro:property name="gnss_origin_z" value="2.0"/>
+
+    <xacro:property name="laser_origin_z" value="${full_height - bottom_clearance + 0.15}"/>
+    <xacro:property name="gnss_origin_z" value="${full_height - bottom_clearance}"/>
 
     <link name="base_footprint"/>
 
@@ -84,12 +84,12 @@
 
     <link name="chassis">
         <visual>
-            <origin xyz="0 0 ${chassis_center_z}"/>
+            <origin xyz="0 0 0"/>
             <geometry><box size="${box_len_chassis} ${box_width_chassis} ${box_height_chassis}"/></geometry>
             <material name="grey"/>
         </visual>
         <collision>
-            <origin xyz="0 0 ${chassis_center_z}"/>
+            <origin xyz="0 0 0"/>
             <geometry><box size="${box_len_chassis} ${box_width_chassis} ${box_height_chassis}"/></geometry>
         </collision>
         <xacro:box_inertia
@@ -97,14 +97,14 @@
                 x="${box_len_chassis}"
                 y="${box_width_chassis}"
                 z="${box_height_chassis}"
-                o_xyz="0 0 ${chassis_center_z}"
+                o_xyz="0 0 0"
                 o_rpy="0 0 0"/>
     </link>
 
     <joint name="base_to_chassis_joint" type="fixed">
         <parent link="base_link"/>
         <child link="chassis"/>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <origin xyz="0 0 ${chassis_origin_z}" rpy="0 0 0"/>
     </joint>
 
     <joint name="base_to_rear_joint" type="fixed">
@@ -206,7 +206,7 @@
     <joint name="front_axle_roll_joint" type="revolute">
         <parent link="chassis"/>
         <child link="front_axle"/>
-        <origin xyz="${front_axle_origin_x} 0 0" rpy="0 0 0"/>
+        <origin xyz="${front_axle_origin_x} 0 ${front_axle_origin_z}" rpy="0 0 0"/>
         <axis xyz="1 0 0"/>
         <limit lower="-0.1745329252" upper="0.1745329252" effort="2000.0" velocity="1.0"/>
     </joint>
@@ -238,7 +238,7 @@
     <joint name="gnss_joint" type="fixed">
         <parent link="base_link"/>
         <child link="gnss_link"/>
-        <origin xyz="${gnss_origin_x} 0.0 ${gnss_origin_z}" rpy="0 0 0"/>
+        <origin xyz="0.0 0.0 ${gnss_origin_z}" rpy="0 0 0"/>
     </joint>
 
 </robot>
