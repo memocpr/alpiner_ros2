@@ -27,6 +27,10 @@
     <xacro:property name="box_width_f" value="0.50"/>
     <xacro:property name="box_height_f" value="1.30"/>
 
+
+    <xacro:property name="axle_rad" value="0.13"/>
+    <xacro:property name="axle_len" value="${E_track-wheel_width_f}"/>
+
     <xacro:property name="wheel_rad_r" value="0.78"/>
     <xacro:property name="wheel_width_r" value="0.54"/>
     <xacro:property name="X_len_r" value="0.20"/>
@@ -102,18 +106,44 @@
                 o_rpy="0 0 0"/>
     </link>
 
-    <joint name="rear_to_front_joint" type="fixed">
-        <parent link="rear_chassis"/>
+    <joint name="base_to_front_joint" type="fixed">
+        <parent link="base_link"/>
         <child link="front_chassis"/>
         <origin xyz="0 0 ${front_chassis_z_offset}" rpy="0 0 0"/>
+    </joint>
+
+    <link name="front_axle">
+        <visual>
+            <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
+            <geometry><cylinder radius="${axle_rad}" length="${axle_len}"/></geometry>
+            <material name="grey"/>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
+            <geometry><cylinder radius="${axle_rad}" length="${axle_len}"/></geometry>
+        </collision>
+        <xacro:cylinder_inertia
+                m="${wheel_weight_f}"
+                r="${axle_rad}"
+                l="${axle_len}"
+                o_xyz="0 0 0"
+                o_rpy="0 0 0"/>
+    </link>
+
+    <joint name="front_axle_roll_joint" type="revolute">
+        <parent link="front_chassis"/>
+        <child link="front_axle"/>
+        <origin xyz="${half_wb} 0 0" rpy="0 0 0"/>
+        <axis xyz="1 0 0"/>
+        <limit lower="-0.1745329252" upper="0.1745329252" effort="2000.0" velocity="1.0"/>
     </joint>
 
     <!-- ===== Wheels ===== -->
     <xacro:wheel name="rear_left_wheel"  parent="rear_chassis"  x="${-half_wb}" y="${ wheel_y}" z="0.0" radius="${wheel_rad_r}" width="${wheel_width_r}" mass="${wheel_weight_r}"/>
     <xacro:wheel name="rear_right_wheel" parent="rear_chassis"  x="${-half_wb}" y="${-wheel_y}" z="0.0" radius="${wheel_rad_r}" width="${wheel_width_r}" mass="${wheel_weight_r}"/>
 
-    <xacro:steerable_wheel name="front_left_wheel"  parent="front_chassis" x="${ half_wb}" y="${ wheel_y}" z="0.0" radius="${wheel_rad_f}" width="${wheel_width_f}" mass="${wheel_weight_f}" steer_limit="${front_steer_limit}"/>
-    <xacro:steerable_wheel name="front_right_wheel" parent="front_chassis" x="${ half_wb}" y="${-wheel_y}" z="0.0" radius="${wheel_rad_f}" width="${wheel_width_f}" mass="${wheel_weight_f}" steer_limit="${front_steer_limit}" mimic_joint="front_left_wheel_steer_joint"/>
+    <xacro:steerable_wheel name="front_left_wheel"  parent="front_axle" x="0.0" y="${ wheel_y}" z="0.0" radius="${wheel_rad_f}" width="${wheel_width_f}" mass="${wheel_weight_f}" steer_limit="${front_steer_limit}"/>
+    <xacro:steerable_wheel name="front_right_wheel" parent="front_axle" x="0.0" y="${-wheel_y}" z="0.0" radius="${wheel_rad_f}" width="${wheel_width_f}" mass="${wheel_weight_f}" steer_limit="${front_steer_limit}" mimic_joint="front_left_wheel_steer_joint"/>
 
 
     <!-- ===== Sensors ===== -->
