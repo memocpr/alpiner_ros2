@@ -32,5 +32,48 @@
     </joint>
   </xacro:macro>
 
+  <xacro:macro name="steerable_wheel" params="name parent x y z radius width mass:=50.0 steer_limit:=0.9599310886 mimic_joint:='' mimic_multiplier:=1.0">
+    <link name="${name}_steer"/>
+
+    <joint name="${name}_steer_joint" type="revolute">
+      <parent link="${parent}"/>
+      <child link="${name}_steer"/>
+      <origin xyz="${x} ${y} ${z}" rpy="0 0 0"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="${-steer_limit}" upper="${steer_limit}" effort="2000.0" velocity="1.5"/>
+      <xacro:if value="${mimic_joint != ''}">
+        <mimic joint="${mimic_joint}" multiplier="${mimic_multiplier}" offset="0.0"/>
+      </xacro:if>
+    </joint>
+
+    <link name="${name}">
+      <visual>
+        <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
+        <geometry>
+          <cylinder radius="${radius}" length="${width}"/>
+        </geometry>
+        <material name="black"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
+        <geometry>
+          <cylinder radius="${radius}" length="${width}"/>
+        </geometry>
+      </collision>
+      <xacro:cylinder_inertia m="${mass}"
+                              r="${radius}"
+                              l="${width}"
+                              o_xyz="0 0 0"
+                              o_rpy="0 0 0"/>
+    </link>
+
+    <joint name="${name}_joint" type="continuous">
+      <parent link="${name}_steer"/>
+      <child link="${name}"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+    </joint>
+  </xacro:macro>
+
 </robot>
 
