@@ -1347,3 +1347,17 @@ ros2 topic echo /scan --once
 ```
 
 
+# Action 10: Fendt robot model
+## Build and launch the Fendt URDF in RViz
+```bash
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
+source /opt/ros/humble/setup.bash
+colcon build --packages-select robot_description
+source install/setup.bash
+xacro src/robot_description/urdf/fent/fent.urdf.xacro > /tmp/fent.urdf
+ros2 launch robot_description fent_view_robot.launch.py
+```
+
+Expected:
+- `robot_state_publisher`, `joint_state_publisher_gui`, and `rviz2` start.
+- The Fendt model appears with different front/rear wheel sizes and body sections.
