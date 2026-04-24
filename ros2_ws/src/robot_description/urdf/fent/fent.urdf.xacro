@@ -130,7 +130,7 @@
                 o_rpy="0 0 0"/>
     </link>
 
-    <joint name="front_axle_roll_joint" type="revolute">
+    <joint name="front_axle_roll_joint" type="fixed">
         <parent link="front_chassis"/>
         <child link="front_axle"/>
         <origin xyz="${half_wb} 0 0" rpy="0 0 0"/>
