@@ -115,20 +115,6 @@
     <xacro:steerable_wheel name="front_left_wheel"  parent="front_chassis" x="${ half_wb}" y="${ wheel_y}" z="0.0" radius="${wheel_rad_f}" width="${wheel_width_f}" mass="${wheel_weight_f}" steer_limit="${front_steer_limit}"/>
     <xacro:steerable_wheel name="front_right_wheel" parent="front_chassis" x="${ half_wb}" y="${-wheel_y}" z="0.0" radius="${wheel_rad_f}" width="${wheel_width_f}" mass="${wheel_weight_f}" steer_limit="${front_steer_limit}" mimic_joint="front_left_wheel_steer_joint"/>
 
-    <!-- ===== Navigation reference frames ===== -->
-    <link name="base_front"/>
-    <joint name="base_front_joint" type="fixed">
-        <parent link="front_chassis"/>
-        <child link="base_front"/>
-        <origin xyz="${half_wb} 0 0" rpy="0 0 0"/>
-    </joint>
-
-    <link name="base_rear"/>
-    <joint name="base_rear_joint" type="fixed">
-        <parent link="rear_chassis"/>
-        <child link="base_rear"/>
-        <origin xyz="${-half_wb} 0 0" rpy="0 0 0"/>
-    </joint>
 
     <!-- ===== Sensors ===== -->
     <link name="laser_frame"/>
