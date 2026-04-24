@@ -10,44 +10,54 @@
     <material name="red"><color rgba="1.0 0.0 0.0 1.0"/></material>
 
     <!-- ===== Dimensions ===== -->
-    <xacro:property name="A_len" value="4.119"/>
-    <xacro:property name="B_wheelbase" value="2.370"/>
-    <xacro:property name="D_width" value="2.186"/>
-    <xacro:property name="E_track" value="1.660"/>
-    <xacro:property name="F_clearance" value="0.475"/>
-    <xacro:property name="H_height" value="2.620"/>
-    <xacro:property name="half_wb" value="${B_wheelbase/2.0}"/>
-    <xacro:property name="wheel_y" value="${E_track/2.0}"/>
+    <xacro:property name="full_length" value="4.119"/>
+    <xacro:property name="full_width" value="2.186"/>
+    <xacro:property name="full_height" value="2.620"/>
+    <xacro:property name="wheelbase" value="2.370"/>
+    <xacro:property name="wheel_track" value="1.660"/>
+    <xacro:property name="bottom_clearance" value="0.475"/>
+    <xacro:property name="half_wheelbase" value="${wheelbase/2.0}"/>
+    <xacro:property name="wheel_y_distance" value="${wheel_track/2.0}"/>
 
-    <xacro:property name="wheel_rad_f" value="0.59"/>
+    <xacro:property name="wheel_rad_front" value="0.59"/>
     <xacro:property name="wheel_width_f" value="0.44"/>
     <xacro:property name="front_steer_limit" value="0.7853981634"/>
-    <xacro:property name="X_len_f" value="${wheel_rad_f}"/>
-    <xacro:property name="box_len_f" value="${X_len_f + half_wb}"/>
-    <xacro:property name="box_width_f" value="0.50"/>
-    <xacro:property name="box_height_f" value="1.30"/>
+    <xacro:property name="axle_rad_front" value="0.13"/>
+    <xacro:property name="axle_len_front" value="${wheel_track-wheel_width_f}"/>
 
-
-    <xacro:property name="axle_rad" value="0.13"/>
-    <xacro:property name="axle_len" value="${E_track-wheel_width_f}"/>
-
-    <xacro:property name="wheel_rad_r" value="0.78"/>
+    <xacro:property name="wheel_rad_rear" value="0.78"/>
     <xacro:property name="wheel_width_r" value="0.54"/>
-    <xacro:property name="X_len_r" value="0.20"/>
-    <xacro:property name="box_len_r" value="${X_len_r + half_wb}"/>
-    <xacro:property name="box_width_r" value="${D_width-(2*wheel_width_r)}"/>
-    <xacro:property name="box_height_r" value="${H_height-F_clearance}"/>
+    <xacro:property name="axle_rad_rear" value="0.13"/>
+    <xacro:property name="axle_len_rear" value="${wheel_track-wheel_width_r}"/>
 
-    <xacro:property name="body_weight" value="1890"/>
-    <xacro:property name="wheel_weight_f" value="100"/>
+    <xacro:property name="axle_to_front_chassis" value="wheel_rad_front"/> <!-- axes to front -->
+    <xacro:property name="axle_to_rear_chassis" value="wheel_rad_front"/> <!-- axes to rear -->
+    <xacro:property name="box_len_chassis" value="${wheelbase + 2*wheel_rad_front}"/>
+    <xacro:property name="box_width_chassis" value="0.50"/>
+    <xacro:property name="box_height_chassis" value="0.50"/>
+
+    <xacro:property name="axle_to_front_f_body" value="${wheel_rad_front}"/>
+    <xacro:property name="box_len_f_body" value="${axle_to_front_f_body + half_wheelbase}"/>
+    <xacro:property name="box_width_f_body" value="0.70"/>
+    <xacro:property name="box_height_f_body" value="1.30"/>
+
+    <xacro:property name="axle_to_r_body" value="0.20"/>
+    <xacro:property name="box_len_r_body" value="${axle_to_r_body + half_wheelbase}"/>
+    <xacro:property name="box_width_r_body" value="${full_width-(2*wheel_width_r)}"/>
+    <xacro:property name="box_height_r_body" value="${full_height-bottom_clearance}"/>
+
+    <xacro:property name="weight_f_body" value="50"/>
+    <xacro:property name="weight_r_body" value="500"/>
+    <xacro:property name="weight_chassis" value="3000"/>
+    <xacro:property name="wheel_weight_f" value="100"/> <!-- x2 -->
+    <xacro:property name="weight_f_axle" value="100"/>
     <xacro:property name="wheel_weight_r" value="150"/>
-    <xacro:property name="total_weight" value="${2*(body_weight + wheel_weight_f + wheel_weight_r)}"/>
+    <xacro:property name="weight_r_axle" value="150"/> <!-- x2 -->
+    <xacro:property name="total_weight" value="${weight_f_body+weight_r_body+weight_chassis+2*(wheel_weight_f + wheel_weight_r)}"/> <!-- 4300 -->
 
-    <xacro:property name="front_chassis_z_offset" value="${wheel_rad_f - wheel_rad_r}"/>
-    <xacro:property name="rear_body_center_z" value="${F_clearance + box_height_r/2.0 - wheel_rad_r}"/>
-    <xacro:property name="rear_body_top_z" value="${rear_body_center_z + box_height_r/2.0}"/>
-    <xacro:property name="front_body_center_z" value="${F_clearance + box_height_f/2.0 - wheel_rad_f}"/>
-    <xacro:property name="front_body_top_z" value="${front_body_center_z + box_height_f/2.0}"/>
+    <xacro:property name="chassis_center_z" value="${bottom_clearance + box_height_chassis/2.0 - wheel_rad_rear}"/>
+    <xacro:property name="rear_body_center_z" value="${bottom_clearance + box_height_r_body/2.0 - wheel_rad_rear}"/>
+    <xacro:property name="front_body_center_z" value="${bottom_clearance + box_height_f_body/2.0 - wheel_rad_front}"/>
 
     <link name="base_footprint"/>
 
@@ -55,103 +65,103 @@
     <joint name="base_link_joint" type="fixed">
         <parent link="base_footprint"/>
         <child link="base_link"/>
-        <origin xyz="0 0 ${wheel_rad_r}" rpy="0 0 0"/>
+        <origin xyz="0 0 ${wheel_rad_rear}" rpy="0 0 0"/>
     </joint>
 
     <joint name="base_to_rear_joint" type="fixed">
         <parent link="base_link"/>
-        <child link="rear_chassis"/>
+        <child link="rear_body"/>
         <origin xyz="0 0 0" rpy="0 0 0"/>
     </joint>
 
-    <link name="rear_chassis">
+    <link name="rear_body">
         <visual>
-            <origin xyz="${-box_len_r/2.0} 0 ${rear_body_center_z}"/>
-            <geometry><box size="${box_len_r} ${box_width_r} ${box_height_r}"/></geometry>
+            <origin xyz="${-box_len_r_body/2.0} 0 ${rear_body_center_z}"/>
+            <geometry><box size="${box_len_r_body} ${box_width_r_body} ${box_height_r_body}"/></geometry>
             <material name="red"/>
         </visual>
 
         <collision>
-            <origin xyz="${-box_len_r/2.0} 0 ${rear_body_center_z}"/>
-            <geometry><box size="${box_len_r} ${box_width_r} ${box_height_r}"/></geometry>
+            <origin xyz="${-box_len_r_body/2.0} 0 ${rear_body_center_z}"/>
+            <geometry><box size="${box_len_r_body} ${box_width_r_body} ${box_height_r_body}"/></geometry>
         </collision>
 
         <xacro:box_inertia
-                m="${body_weight}"
-                x="${box_len_r}"
-                y="${box_width_r}"
-                z="${box_height_r}"
-                o_xyz="${-box_len_r/2.0} 0 ${rear_body_center_z}"
+                m="${weight_f_body}"
+                x="${box_len_r_body}"
+                y="${box_width_r_body}"
+                z="${box_height_r_body}"
+                o_xyz="${-box_len_r_body/2.0} 0 ${rear_body_center_z}"
                 o_rpy="0 0 0"/>
     </link>
 
-    <link name="front_chassis">
+    <link name="front_body">
         <visual>
-            <origin xyz="${box_len_f/2.0} 0 ${front_body_center_z}"/>
-            <geometry><box size="${box_len_f} ${box_width_f} ${box_height_f}"/></geometry>
+            <origin xyz="${box_len_f_body/2.0} 0 ${front_body_center_z}"/>
+            <geometry><box size="${box_len_f_body} ${box_width_f_body} ${box_height_f_body}"/></geometry>
             <material name="green"/>
         </visual>
 
         <collision>
-            <origin xyz="${box_len_f/2.0} 0 ${front_body_center_z}"/>
-            <geometry><box size="${box_len_f} ${box_width_f} ${box_height_f}"/></geometry>
+            <origin xyz="${box_len_f_body/2.0} 0 ${front_body_center_z}"/>
+            <geometry><box size="${box_len_f_body} ${box_width_f_body} ${box_height_f_body}"/></geometry>
         </collision>
 
         <xacro:box_inertia
-                m="${body_weight}"
-                x="${box_len_f}"
-                y="${box_width_f}"
-                z="${box_height_f}"
-                o_xyz="${box_len_f/2.0} 0 ${front_body_center_z}"
+                m="${weight_f_body}"
+                x="${box_len_f_body}"
+                y="${box_width_f_body}"
+                z="${box_height_f_body}"
+                o_xyz="${box_len_f_body/2.0} 0 ${front_body_center_z}"
                 o_rpy="0 0 0"/>
     </link>
 
     <joint name="base_to_front_joint" type="fixed">
         <parent link="base_link"/>
-        <child link="front_chassis"/>
-        <origin xyz="0 0 ${front_chassis_z_offset}" rpy="0 0 0"/>
+        <child link="front_body"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
     </joint>
 
     <link name="front_axle">
         <visual>
             <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
-            <geometry><cylinder radius="${axle_rad}" length="${axle_len}"/></geometry>
+            <geometry><cylinder radius="${axle_rad_front}" length="${axle_len_front}"/></geometry>
             <material name="grey"/>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
-            <geometry><cylinder radius="${axle_rad}" length="${axle_len}"/></geometry>
+            <geometry><cylinder radius="${axle_rad_front}" length="${axle_len_front}"/></geometry>
         </collision>
         <xacro:cylinder_inertia
                 m="${wheel_weight_f}"
-                r="${axle_rad}"
-                l="${axle_len}"
+                r="${axle_rad_front}"
+                l="${axle_len_front}"
                 o_xyz="0 0 0"
                 o_rpy="0 0 0"/>
     </link>
 
-    <joint name="front_axle_roll_joint" type="fixed">
-        <parent link="front_chassis"/>
+    <joint name="front_axle_roll_joint" type="revolute">
+        <parent link="front_body"/>
         <child link="front_axle"/>
-        <origin xyz="${half_wb} 0 0" rpy="0 0 0"/>
+        <origin xyz="${half_wheelbase} 0 0" rpy="0 0 0"/>
         <axis xyz="1 0 0"/>
         <limit lower="-0.1745329252" upper="0.1745329252" effort="2000.0" velocity="1.0"/>
     </joint>
 
     <!-- ===== Wheels ===== -->
-    <xacro:wheel name="rear_left_wheel"  parent="rear_chassis"  x="${-half_wb}" y="${ wheel_y}" z="0.0" radius="${wheel_rad_r}" width="${wheel_width_r}" mass="${wheel_weight_r}"/>
-    <xacro:wheel name="rear_right_wheel" parent="rear_chassis"  x="${-half_wb}" y="${-wheel_y}" z="0.0" radius="${wheel_rad_r}" width="${wheel_width_r}" mass="${wheel_weight_r}"/>
+    <xacro:wheel name="rear_left_wheel"  parent="rear_body"  x="${-half_wheelbase}" y="${ wheel_y_distance}" z="0.0" radius="${wheel_rad_rear}" width="${wheel_width_r}" mass="${wheel_weight_r}"/>
+    <xacro:wheel name="rear_right_wheel" parent="rear_body"  x="${-half_wheelbase}" y="${-wheel_y_distance}" z="0.0" radius="${wheel_rad_rear}" width="${wheel_width_r}" mass="${wheel_weight_r}"/>
 
-    <xacro:steerable_wheel name="front_left_wheel"  parent="front_axle" x="0.0" y="${ wheel_y}" z="0.0" radius="${wheel_rad_f}" width="${wheel_width_f}" mass="${wheel_weight_f}" steer_limit="${front_steer_limit}"/>
-    <xacro:steerable_wheel name="front_right_wheel" parent="front_axle" x="0.0" y="${-wheel_y}" z="0.0" radius="${wheel_rad_f}" width="${wheel_width_f}" mass="${wheel_weight_f}" steer_limit="${front_steer_limit}" mimic_joint="front_left_wheel_steer_joint"/>
+    <xacro:steerable_wheel name="front_left_wheel"  parent="front_axle" x="0.0" y="${ wheel_y_distance}" z="0.0" radius="${wheel_rad_front}" width="${wheel_width_f}" mass="${wheel_weight_f}" steer_limit="${front_steer_limit}"/>
+    <xacro:steerable_wheel name="front_right_wheel" parent="front_axle" x="0.0" y="${-wheel_y_distance}" z="0.0" radius="${wheel_rad_front}" width="${wheel_width_f}" mass="${wheel_weight_f}" steer_limit="${front_steer_limit}" mimic_joint="front_left_wheel_steer_joint"/>
 
 
     <!-- ===== Sensors ===== -->
     <link name="laser_frame"/>
     <joint name="laser_joint" type="fixed">
-        <parent link="rear_chassis"/>
+        <parent link="rear_body"/>
         <child link="laser_frame"/>
-        <origin xyz="0.0 0.0 ${rear_body_top_z + 0.3}" rpy="0 0 0"/>
+        <origin xyz="0.0 0.0 ${full_height + 0.3}" rpy="0 0 0"/>
     </joint>
 
     <link name="imu_link"/>
