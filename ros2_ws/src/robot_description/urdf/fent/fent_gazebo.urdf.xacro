@@ -19,7 +19,7 @@
         <material>Gazebo/Black</material>
         <mu1>1.0</mu1>
         <mu2>1.0</mu2>
-        <kp>1e6</kp>
+        <kp>4e6</kp>
         <kd>100.0</kd>
     </gazebo>
 
@@ -27,7 +27,7 @@
         <material>Gazebo/Black</material>
         <mu1>1.0</mu1>
         <mu2>1.0</mu2>
-        <kp>1e6</kp>
+        <kp>4e6</kp>
         <kd>100.0</kd>
     </gazebo>
 
@@ -35,7 +35,7 @@
         <material>Gazebo/Black</material>
         <mu1>0.4</mu1>
         <mu2>0.4</mu2>
-        <kp>1e6</kp>
+        <kp>4e6</kp>
         <kd>100.0</kd>
     </gazebo>
 
@@ -43,7 +43,7 @@
         <material>Gazebo/Black</material>
         <mu1>0.4</mu1>
         <mu2>0.4</mu2>
-        <kp>1e6</kp>
+        <kp>4e6</kp>
         <kd>100.0</kd>
     </gazebo>
 
