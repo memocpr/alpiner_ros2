@@ -54,6 +54,7 @@ class LL_Controller(Node):
         self.declare_parameter('d_gain_angular_speed_ll_controller', 0.0, ParameterDescriptor(description='Derivative gain for angular speed', read_only=True))
         self.declare_parameter('min_target_angular_speed_ll_controller', 0.0, ParameterDescriptor(description='Minimum target value for angular speed, below we dont move', read_only=True))
         self.declare_parameter('cmd_input_topic', '/cmd_vel_nav', ParameterDescriptor(description='Input Twist topic for LL controller command', read_only=True))
+        self.declare_parameter('teleop_input_topic', '/cmd_vel', ParameterDescriptor(description='Fallback teleop Twist topic', read_only=True))
 
         # read parameters from launch file
         self.p_gain_brake = float(self.get_parameter('p_gain_braking_ll_controller').value)
@@ -66,6 +67,7 @@ class LL_Controller(Node):
         self.d_gain = float(self.get_parameter('d_gain_angular_speed_ll_controller').value)
         self.min_target_angular_speed_ll_controller = float(self.get_parameter('min_target_angular_speed_ll_controller').value)
         self.cmd_input_topic = str(self.get_parameter('cmd_input_topic').value)
+        self.teleop_input_topic = str(self.get_parameter('teleop_input_topic').value)
         logger.info('We got these parameters for steering : P :{} D : {} I : {}'.format(self.p_gain, self.d_gain, self.i_gain))
 
         # memorized messages
@@ -101,7 +103,9 @@ class LL_Controller(Node):
         """ start method
         """
         # start timer and subscribers/publishers
-        self.sub_cmd_vel = self.create_subscription(Twist, self.cmd_input_topic, self.cb_cmd_vel, 1)
+        self.sub_cmd_vel = self.create_subscription(Twist, self.cmd_input_topic, self.cb_cmd_vel_nav2, 1)
+        if self.teleop_input_topic != self.cmd_input_topic:
+            self.sub_cmd_vel_teleop = self.create_subscription(Twist, self.teleop_input_topic, self.cb_cmd_vel_teleop, 1)
         self.sub_machine_ind_all = self.create_subscription(MachineIndAll,'/atcom_wa380/wheeler/read/all', self.cb_machine_ind_all, 1)
         self.pub_machine_set_all = self.create_publisher(MachineSetAll, '/atcom_wa380/wheeler/write/nav_ctrl', 1)
         self.pub_heartbeat = self.create_publisher(UInt16, '/atcom_wa380/wheeler/write/nav_heartbeat', 1)
@@ -126,13 +130,14 @@ class LL_Controller(Node):
         # memory target steering angles
         logger.info('end of path')
 
-    def cb_cmd_vel(self, msg):
-        """Callback of the configured command topic subscriber.
+    def _store_cmd_vel(self, msg, source):
+        """Store latest command with source-aware debug logging.
 
         Args:
             msg (Twist): Message containing linear and angular velocities, as well as custom data.
         """
-        logger.info('Twist Msg : lin.x {}; dist_end_path {}; lookahead {}; dist_cusp {}; curv {}; ang.z {}'.format(
+        logger.info('[{}] Twist Msg : lin.x {}; dist_end_path {}; lookahead {}; dist_cusp {}; curv {}; ang.z {}'.format(
+            source,
             msg.linear.x,
             msg.linear.y,
             msg.linear.z,
@@ -144,6 +149,28 @@ class LL_Controller(Node):
         # memorize data and timestamp
         self.mem_cmd_vel = msg
         self.mem_time_latest_cmd_vel_received = time.time()
+
+    def cb_cmd_vel_nav2(self, msg):
+        """Callback for raw Nav2 controller output (/cmd_vel_nav)."""
+        self._store_cmd_vel(msg, 'nav2')
+
+    def cb_cmd_vel_teleop(self, msg):
+        """Callback for teleop /cmd_vel, converted to LL-compatible Twist metadata."""
+        cmd = Twist()
+        cmd.linear.x = msg.linear.x
+        cmd.angular.z = msg.angular.z
+
+        # Keep LL path semantics valid when no custom Nav2 metadata exists.
+        cmd.linear.y = 100.0
+        cmd.linear.z = 2.0
+        cmd.angular.x = -1.0
+
+        ref_speed = abs(msg.linear.x)
+        if ref_speed < 0.2:
+            ref_speed = 0.2
+        curvature = msg.angular.z / ref_speed
+        cmd.angular.y = max(min(curvature, 0.25), -0.25)
+        self._store_cmd_vel(cmd, 'teleop')
 
     def cb_machine_ind_all(self, msg):
         """callback of the /atcom_wa380/wheeler/read/all

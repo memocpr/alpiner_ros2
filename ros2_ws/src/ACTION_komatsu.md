@@ -390,6 +390,14 @@ ros2 launch robot_bringup komatsu_gazebo.launch.py use_sim_time:=true use_ll_con
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
 
+Quick verify while teleop is sending commands:
+```bash
+ros2 topic echo /atcom_wa380/wheeler/write/nav_ctrl --once
+ros2 topic echo /cmd_vel_ll --once
+ros2 topic echo /joint_states --once
+```
+
+
 ### quick checks (new terminal)
 ```bash
 cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws

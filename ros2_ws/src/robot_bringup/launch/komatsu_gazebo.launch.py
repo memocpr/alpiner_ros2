@@ -24,6 +24,7 @@ def generate_launch_description():
     params_file = LaunchConfiguration('params_file')
     enable_rviz = LaunchConfiguration('enable_rviz')
     localization_start_delay = LaunchConfiguration('localization_start_delay')
+    ll_chain_start_delay = LaunchConfiguration('ll_chain_start_delay')
     nav2_start_delay = LaunchConfiguration('nav2_start_delay')
     use_ll_control_chain = LaunchConfiguration('use_ll_control_chain')
     atcom_ns = LaunchConfiguration('atcom_ns')
@@ -119,7 +120,7 @@ def generate_launch_description():
         launch_arguments={
             'use_sim_time': use_sim_time,
             'use_global_localization': 'true',
-        }.items()
+        }.items(),
     )
 
     nav2_cmd = IncludeLaunchDescription(
@@ -130,7 +131,7 @@ def generate_launch_description():
             'use_sim_time': use_sim_time,
             'params_file': params_file,
             'autostart': autostart,
-        }.items()
+        }.items(),
     )
 
     ll_controller_cmd = Node(
@@ -164,6 +165,12 @@ def generate_launch_description():
             {'model_name': 'komatsu'},
             {'cmd_vel_out_topic': '/cmd_vel_ll'},
             {'odom_topic': '/odom'},
+            {'max_forward_speed_mps': 1.4},
+            {'max_reverse_speed_mps': 0.8},
+            {'throttle_accel_mps2': 0.28},
+            {'max_brake_decel_mps2': 0.55},
+            {'max_articulation_angle_deg': 32.0},
+            {'max_articulation_rate_degps': 10.0},
         ],
         condition=IfCondition(use_ll_control_chain),
     )
@@ -196,6 +203,11 @@ def generate_launch_description():
             'localization_start_delay',
             default_value='5.0',
             description='Delay (s) before starting GNSS localization nodes'
+        ),
+        DeclareLaunchArgument(
+            'll_chain_start_delay',
+            default_value='3.0',
+            description='Delay (s) before starting LL controller + Gazebo bridge'
         ),
         DeclareLaunchArgument(
             'nav2_start_delay',
@@ -241,12 +253,17 @@ def generate_launch_description():
             ],
         ),
         TimerAction(
+            period=ll_chain_start_delay,
+            actions=[
+                ll_controller_cmd,
+                gazebo_machine_bridge_cmd,
+            ],
+        ),
+        TimerAction(
             period=nav2_start_delay,
             actions=[
                 mapviz_cmd,
                 nav2_cmd,
-                ll_controller_cmd,
-                gazebo_machine_bridge_cmd,
             ],
         ),
         rviz_cmd,

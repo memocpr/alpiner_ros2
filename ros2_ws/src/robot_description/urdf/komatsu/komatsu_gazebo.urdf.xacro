@@ -116,29 +116,29 @@
             <right_joint>rear_right_wheel_joint</right_joint>
 
             <!-- Kinematics -->
-            <wheelSeparation>2.160</wheelSeparation>
-            <wheelDiameter>1.6</wheelDiameter>
+            <wheel_separation>2.160</wheel_separation>
+            <wheel_diameter>1.6</wheel_diameter>
 
             <!-- Limits -->
             <max_wheel_torque>80000</max_wheel_torque>
             <max_wheel_acceleration>20.0</max_wheel_acceleration>
 
             <!-- Output -->
-            <publishOdom>true</publishOdom>
-            <publishOdomTF>false</publishOdomTF>
-            <publishWheelTF>false</publishWheelTF>
+            <publish_odom>true</publish_odom>
+            <publish_odom_tf>false</publish_odom_tf>
+            <publish_wheel_tf>false</publish_wheel_tf>
             <!-- Keep /odom consistent with Gazebo world pose to match GNSS motion. -->
             <odometrySource>world</odometrySource>
 
-            <odometryFrame>odom</odometryFrame>
-            <robotBaseFrame>base_footprint</robotBaseFrame>
+            <odometry_frame>odom</odometry_frame>
+            <robot_base_frame>base_footprint</robot_base_frame>
 
             <!-- Topics -->
-            <commandTopic>cmd_vel_ll</commandTopic>
-            <odometryTopic>odom</odometryTopic>
+            <command_topic>cmd_vel_ll</command_topic>
+            <odometry_topic>odom</odometry_topic>
 
             <!-- Update rate -->
-            <updateRate>50.0</updateRate>
+            <update_rate>50.0</update_rate>
         </plugin>
     </gazebo>
 
