@@ -268,20 +268,45 @@ set pymodbus
 pip install pymodbus==2.5.3
 ```
 
-## run custom controller
+## build custom RPP controller and check if it's loaded by Nav2
 
 ```bash
-cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
-colcon build --packages-select ros_ll_controller_python
+kill -9 $(ps aux | grep -E "ros2|gz|gazebo|nav2" | grep -v grep | awk '{print $2}') 2>/dev/null
+ros2 daemon stop
+sleep 2
+ros2 daemon start
+
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source /opt/ros/humble/setup.bash
+
+colcon build --symlink-install \
+  --packages-select nav2_regulated_pure_pursuit_controller \
+  --allow-overriding nav2_regulated_pure_pursuit_controller
 source install/setup.bash
+ros2 launch robot_bringup komatsu_gazebo.launch.py use_sim_time:=true
+```
+
+```bash
+ros2 pkg prefix nav2_regulated_pure_pursuit_controller
+```
+
+Expected:
+/home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws/install/nav2_regulated_pure_pursuit_controller
+
+
+### run custom RPP controller node
+```bash
 ros2 run ros_ll_controller_python ll_controller
 ```
 
-### check plan
+
 ```bash
-ros2 topic echo /plan --once
+pid=$(pgrep -f controller_server | head -n1)
+grep nav2_regulated_pure_pursuit_controller /proc/$pid/maps | head
 ```
+If /proc/$pid/maps shows /opt/ros/humble/.../libnav2_regulated_pure_pursuit_controller...so, it is not using your custom one.
+If it shows your workspace ...alpiner_ros2/ros2_ws/build/nav2_regulated_pure_pursuit_controller/libnav2_regulated_pure_pursuit_controller.so
+..., custom plugin is loaded.
 
 ---
 
@@ -307,7 +332,7 @@ ros2 topic info /atcom_wa380/wheeler/write/nav_ctrl -v
 ros2 topic echo /cmd_vel_nav
 ```
 expected:
-`linear:
+linear:
 x: 1.0
 y: 7.898482295126057
 z: 2.5
@@ -334,5 +359,8 @@ z: 0.03054870430392691`
 ros2 topic info /cmd_vel_nav -v
 ```
 
-
+check velocity smoother output:
+```bash
+ros2 node info /velocity_smoother
+```
 
