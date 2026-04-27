@@ -22,7 +22,7 @@
         <material>Gazebo/Black</material>
         <mu1>1.0</mu1>
         <mu2>1.0</mu2>
-        <kp>1e6</kp>
+        <kp>4e6</kp>
         <kd>100.0</kd>
     </gazebo>
 
@@ -30,23 +30,23 @@
         <material>Gazebo/Black</material>
         <mu1>1.0</mu1>
         <mu2>1.0</mu2>
-        <kp>1e6</kp>
+        <kp>4e6</kp>
         <kd>100.0</kd>
     </gazebo>
 
     <gazebo reference="front_left_wheel">
         <material>Gazebo/Black</material>
-        <mu1>0.05</mu1>
-        <mu2>0.05</mu2>
-        <kp>1e6</kp>
+        <mu1>1.0</mu1>
+        <mu2>1.0</mu2>
+        <kp>4e6</kp>
         <kd>100.0</kd>
     </gazebo>
 
     <gazebo reference="front_right_wheel">
         <material>Gazebo/Black</material>
-        <mu1>0.05</mu1>
-        <mu2>0.05</mu2>
-        <kp>1e6</kp>
+        <mu1>1.0</mu1>
+        <mu2>1.0</mu2>
+        <kp>4e6</kp>
         <kd>100.0</kd>
     </gazebo>
 
@@ -108,6 +108,7 @@
         <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
             <ros>
                 <namespace>/</namespace>
+                <remapping>/cmd_vel:=/cmd_vel_ll</remapping>
             </ros>
 
             <!-- Wheels -->
@@ -115,29 +116,29 @@
             <right_joint>rear_right_wheel_joint</right_joint>
 
             <!-- Kinematics -->
-            <wheel_separation>2.160</wheel_separation>
-            <wheel_diameter>1.6</wheel_diameter>
+            <wheelSeparation>2.160</wheelSeparation>
+            <wheelDiameter>1.6</wheelDiameter>
 
             <!-- Limits -->
             <max_wheel_torque>80000</max_wheel_torque>
             <max_wheel_acceleration>20.0</max_wheel_acceleration>
 
             <!-- Output -->
-            <publish_odom>true</publish_odom>
-            <publish_odom_tf>false</publish_odom_tf>
-            <publish_wheel_tf>false</publish_wheel_tf>
+            <publishOdom>true</publishOdom>
+            <publishOdomTF>false</publishOdomTF>
+            <publishWheelTF>false</publishWheelTF>
             <!-- Keep /odom consistent with Gazebo world pose to match GNSS motion. -->
             <odometrySource>world</odometrySource>
 
-            <odometry_frame>odom</odometry_frame>
-            <robot_base_frame>base_footprint</robot_base_frame>
+            <odometryFrame>odom</odometryFrame>
+            <robotBaseFrame>base_footprint</robotBaseFrame>
 
             <!-- Topics -->
-            <command_topic>cmd_vel</command_topic>
-            <odometry_topic>odom</odometry_topic>
+            <commandTopic>cmd_vel_ll</commandTopic>
+            <odometryTopic>odom</odometryTopic>
 
             <!-- Update rate -->
-            <update_rate>50.0</update_rate>
+            <updateRate>50.0</updateRate>
         </plugin>
     </gazebo>
 
@@ -168,6 +169,7 @@
             <joint_name>rear_right_wheel_joint</joint_name>
             <joint_name>front_left_wheel_joint</joint_name>
             <joint_name>front_right_wheel_joint</joint_name>
+            <joint_name>articulation_to_front</joint_name>
         </plugin>
     </gazebo>
 

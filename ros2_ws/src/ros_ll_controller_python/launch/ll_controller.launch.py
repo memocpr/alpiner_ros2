@@ -20,7 +20,7 @@ def generate_launch_description():
                 {"d_gain_linear_speed_ll_controller": 0.0}, # derivative gain linear speed, not implemented yet
                 {"d_gain_angular_speed_ll_controller": 0.0}, # derivative gain angular speed, not implemented yet
                 {"min_target_angular_speed_ll_controller": 0.0}, # minimum target so that we consider doing the regulation in rad/s
-                {"cmd_input_topic": "/cmd_vel"}, # Nav2 output topic consumed directly by LL controller
+                {"cmd_input_topic": "/cmd_vel_nav"}, # consume raw Nav2 controller output (before smoothing)
             ],
             respawn=True,
             namespace=EnvironmentVariable("ATCOM_NS"),

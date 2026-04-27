@@ -53,8 +53,8 @@ class LL_Controller(Node):
         self.declare_parameter('d_gain_linear_speed_ll_controller', 0.0, ParameterDescriptor(description='Derivative gain for linear speed', read_only=True))
         self.declare_parameter('d_gain_angular_speed_ll_controller', 0.0, ParameterDescriptor(description='Derivative gain for angular speed', read_only=True))
         self.declare_parameter('min_target_angular_speed_ll_controller', 0.0, ParameterDescriptor(description='Minimum target value for angular speed, below we dont move', read_only=True))
-        self.declare_parameter('cmd_input_topic', '/cmd_out', ParameterDescriptor(description='Input Twist topic for LL controller command', read_only=True))
-        
+        self.declare_parameter('cmd_input_topic', '/cmd_vel_nav', ParameterDescriptor(description='Input Twist topic for LL controller command', read_only=True))
+
         # read parameters from launch file
         self.p_gain_brake = float(self.get_parameter('p_gain_braking_ll_controller').value)
         self.throttle_reduction_factor = float(self.get_parameter('factor_throttle_reduction_when_not_active_braking').value)

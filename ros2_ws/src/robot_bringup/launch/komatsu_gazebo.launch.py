@@ -25,6 +25,8 @@ def generate_launch_description():
     enable_rviz = LaunchConfiguration('enable_rviz')
     localization_start_delay = LaunchConfiguration('localization_start_delay')
     nav2_start_delay = LaunchConfiguration('nav2_start_delay')
+    use_ll_control_chain = LaunchConfiguration('use_ll_control_chain')
+    atcom_ns = LaunchConfiguration('atcom_ns')
 
     x_pose = LaunchConfiguration('x_pose')
     y_pose = LaunchConfiguration('y_pose')
@@ -131,6 +133,41 @@ def generate_launch_description():
         }.items()
     )
 
+    ll_controller_cmd = Node(
+        package='ros_ll_controller_python',
+        executable='ll_controller',
+        name='ll_controller_python',
+        output='screen',
+        namespace=atcom_ns,
+        parameters=[
+            {'p_gain_braking_ll_controller': 0.5},
+            {'factor_throttle_reduction_when_not_active_braking': 0.5},
+            {'p_gain_linear_speed_ll_controller': 0.2},
+            {'p_gain_angular_speed_ll_controller': 0.14},
+            {'i_gain_linear_speed_ll_controller': 0.0},
+            {'i_gain_angular_speed_ll_controller': 0.0},
+            {'d_gain_linear_speed_ll_controller': 0.0},
+            {'d_gain_angular_speed_ll_controller': 0.0},
+            {'min_target_angular_speed_ll_controller': 0.0},
+            {'cmd_input_topic': '/cmd_vel_nav'},
+        ],
+        respawn=True,
+        condition=IfCondition(use_ll_control_chain),
+    )
+
+    gazebo_machine_bridge_cmd = Node(
+        package='ros2_application',
+        executable='gazebo_machine_bridge',
+        name='gazebo_machine_bridge',
+        output='screen',
+        parameters=[
+            {'model_name': 'komatsu'},
+            {'cmd_vel_out_topic': '/cmd_vel_ll'},
+            {'odom_topic': '/odom'},
+        ],
+        condition=IfCondition(use_ll_control_chain),
+    )
+
     rviz_cmd = Node(
         package='rviz2',
         executable='rviz2',
@@ -166,6 +203,16 @@ def generate_launch_description():
             description='Delay (s) before starting mapviz and Nav2 nodes'
         ),
         DeclareLaunchArgument(
+            'use_ll_control_chain',
+            default_value='true',
+            description='Run Nav2 -> LL controller -> Gazebo bridge command path'
+        ),
+        DeclareLaunchArgument(
+            'atcom_ns',
+            default_value='atcom_wa380',
+            description='Namespace for LL controller node name'
+        ),
+        DeclareLaunchArgument(
             'params_file',
             default_value=default_params_file
         ),
@@ -198,6 +245,8 @@ def generate_launch_description():
             actions=[
                 mapviz_cmd,
                 nav2_cmd,
+                ll_controller_cmd,
+                gazebo_machine_bridge_cmd,
             ],
         ),
         rviz_cmd,

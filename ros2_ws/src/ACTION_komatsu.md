@@ -3,14 +3,15 @@
 
 ### Action 9 command flow (current)
 
-- Nav2 publishes `geometry_msgs/Twist` on `/cmd_vel`
-- `ros_ll_controller_python` consumes command topic via `cmd_input_topic` (launch default: `/cmd_vel`)
-- LL controller publishes machine command on `/atcom_wa380/wheeler/write/nav_ctrl`
+- Nav2 controller publishes raw `geometry_msgs/Twist` on `/cmd_vel_nav`
+- `ros_ll_controller_python` consumes `/cmd_vel_nav` and publishes `/atcom_wa380/wheeler/write/nav_ctrl`
+- `gazebo_machine_bridge` converts `MachineSetAll` to `/cmd_vel_ll` and Gazebo consumes `/cmd_vel_ll`
 
 Quick check:
 ```bash
 ros2 topic info /cmd_vel -v
-ros2 topic echo /cmd_vel
+ros2 topic info /cmd_vel_nav -v
+ros2 topic info /cmd_vel_ll -v
 ros2 topic info /atcom_wa380/wheeler/write/nav_ctrl -v
 ```
 
@@ -363,4 +364,54 @@ check velocity smoother output:
 ```bash
 ros2 node info /velocity_smoother
 ```
+
+## action 10: GZ, custom RPP, GPS localization
+
+### quick run (single terminal)
+```bash
+kill -9 $(ps aux | grep -E "ros2|gz|gazebo|nav2" | grep -v grep | awk '{print $2}') 2>/dev/null
+ros2 daemon stop
+sleep 2
+ros2 daemon start
+
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+source /opt/ros/humble/setup.bash
+
+colcon build --symlink-install \
+  --packages-select nav2_regulated_pure_pursuit_controller ros_ll_controller_python ros2_application robot_bringup robot_description ros2_interfaces \
+  --allow-overriding nav2_regulated_pure_pursuit_controller
+
+source install/setup.bash
+ros2 launch robot_bringup komatsu_gazebo.launch.py use_sim_time:=true use_ll_control_chain:=true
+```
+
+## run teleop
+```bash
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
+```
+
+### quick checks (new terminal)
+```bash
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+
+ros2 topic info /cmd_vel_nav -v
+ros2 topic info /atcom_wa380/wheeler/write/nav_ctrl -v
+ros2 topic info /cmd_vel_ll -v
+ros2 topic info /atcom_wa380/wheeler/read/all -v
+```
+
+```bash
+ros2 topic echo /cmd_vel_nav --once
+ros2 topic echo /atcom_wa380/wheeler/write/nav_ctrl --once
+ros2 topic echo /joint_states --once
+```
+
+Expected for Action 10:
+- `/cmd_vel_nav` published by `controller_server`
+- `/atcom_wa380/wheeler/write/nav_ctrl` published by `ll_controller_python`
+- `/cmd_vel_ll` consumed by Gazebo drive plugin
+- `/joint_states` contains `articulation_to_front`
+- `/atcom_wa380/wheeler/read/all` feedback is present
 

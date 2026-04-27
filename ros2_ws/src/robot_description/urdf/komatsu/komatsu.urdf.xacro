@@ -102,11 +102,14 @@
                 o_rpy="0 0 0"/>
     </link>
 
-    <!-- articulation joints - temporarily fixed for stability -->
-    <joint name="articulation_to_front" type="fixed">
+    <!-- Simplified articulation: rear body is fixed to the articulation center, front yaws around it. -->
+    <joint name="articulation_to_front" type="revolute">
         <parent link="articulation_link"/>
         <child link="front_chassis"/>
         <origin xyz="0 0 0" rpy="0 0 0"/>
+        <axis xyz="0 0 1"/>
+        <limit lower="-0.610865" upper="0.610865" effort="80000" velocity="1.2"/>
+        <dynamics damping="120.0" friction="8.0"/>
     </joint>
 
     <joint name="articulation_to_rear" type="fixed">

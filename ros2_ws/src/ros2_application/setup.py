@@ -36,6 +36,7 @@ setup(
     entry_points={
         'console_scripts': [
             'cmd_vel_joint_state_publisher = ros2_application.cmd_vel_joint_state_publisher:main',
+            'gazebo_machine_bridge = ros2_application.gazebo_machine_bridge:main',
             'send_nav_goal = ros2_application.send_nav_goal:main',
             'evaluator_node = ros2_application.evaluator_node:main',
             'gps_covariance_relay = ros2_application.gps_covariance_relay:main',
