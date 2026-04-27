@@ -39,6 +39,7 @@ class LL_Controller(Node):
     # minimum target speed to trigger a move
     MIN_TARGET_LIN_SPEED_POS = 0.1
     MIN_TARGET_LIN_SPEED_NEG = -0.1
+    TELEOP_PRIORITY_TIMEOUT = 0.5
 
     def __init__(self):
         super().__init__('ll_controller_python')
@@ -73,6 +74,7 @@ class LL_Controller(Node):
         # memorized messages
         self.mem_cmd_vel = None
         self.mem_machine_ind_all = None
+        self.mem_time_latest_teleop_received = None
         # memorized timestamp of the latest command message
         self.mem_time_latest_cmd_vel_received = None
         # flag to reset values only once per end of path
@@ -152,10 +154,14 @@ class LL_Controller(Node):
 
     def cb_cmd_vel_nav2(self, msg):
         """Callback for raw Nav2 controller output (/cmd_vel_nav)."""
+        if self.mem_time_latest_teleop_received is not None:
+            if (time.time() - self.mem_time_latest_teleop_received) < LL_Controller.TELEOP_PRIORITY_TIMEOUT:
+                return
         self._store_cmd_vel(msg, 'nav2')
 
     def cb_cmd_vel_teleop(self, msg):
         """Callback for teleop /cmd_vel, converted to LL-compatible Twist metadata."""
+        self.mem_time_latest_teleop_received = time.time()
         cmd = Twist()
         cmd.linear.x = msg.linear.x
         cmd.angular.z = msg.angular.z

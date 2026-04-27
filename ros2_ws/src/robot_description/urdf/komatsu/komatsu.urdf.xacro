@@ -57,8 +57,8 @@
     <!-- Body center relative to axle-height frame -->
     <xacro:property name="body_center_z" value="${F_clearance + box_h/2.0 - wheel_radius}"/>
     <xacro:property name="body_top_z" value="${body_center_z + box_h/2.0}"/>
-    <!-- Lower COM than geometric center to better approximate wheel-loader mass distribution. -->
-    <xacro:property name="body_com_z" value="${body_center_z - 0.65}"/>
+    <!-- Keep COM lower than geometric center, but not extreme for simplified Gazebo dynamics. -->
+    <xacro:property name="body_com_z" value="${body_center_z - 0.25}"/>
 
     <!-- rear body -->
     <link name="rear_chassis">
@@ -74,7 +74,7 @@
         </collision>
 
         <xacro:box_inertia
-                m="9000.0"
+                m="2500.0"
                 x="${rear_box_len}"
                 y="${box_w}"
                 z="${box_h}"
@@ -96,7 +96,7 @@
         </collision>
 
         <xacro:box_inertia
-                m="9000.0"
+                m="2500.0"
                 x="${front_box_len}"
                 y="${box_w}"
                 z="${box_h}"
@@ -110,8 +110,8 @@
         <child link="front_chassis"/>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <axis xyz="0 0 1"/>
-        <limit lower="-0.558505" upper="0.558505" effort="120000" velocity="0.35"/>
-        <dynamics damping="320.0" friction="35.0"/>
+        <limit lower="-0.558505" upper="0.558505" effort="80000" velocity="0.8"/>
+        <dynamics damping="80.0" friction="5.0"/>
     </joint>
 
     <joint name="articulation_to_rear" type="fixed">
