@@ -1,4 +1,4 @@
-# komatsu_nav2_params.yaml
+# fendt_nav2_params.yaml
 #
 # Key points for articulated vehicle navigation:
 # 1) Use base_footprint as the main 2D navigation frame.
