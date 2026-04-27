@@ -17,7 +17,7 @@ def generate_launch_description():
     default_params_file = os.path.join(
         robot_bringup_dir,
         'config',
-        'komatsu_nav2_params.yaml'
+        'fendt_nav2_params.yaml'
     )
 
     nav2_launch = os.path.join(

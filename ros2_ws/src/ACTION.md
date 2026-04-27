@@ -999,7 +999,7 @@ cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select robot_bringup robot_description ros2_application ros_ll_controller_python ros2_interfaces
 source /opt/ros/humble/setup.bash
 source install/setup.bash
-ros2 launch robot_bringup komatsu_gazebo_nav.launch.py use_sim_time:=true
+ros2 launch robot_bringup robot_gazebo.launch.py use_sim_time:=true
 
 ```
 
@@ -1128,7 +1128,7 @@ cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 colcon build --packages-select ros2_application
 source install/setup.bash
 
-ros2 launch ros2_application komatsu_gps_waypoint_follower.launch.py
+ros2 launch ros2_application gps_waypoint_follower.launch.py
 ```
 
 Verified behavior:

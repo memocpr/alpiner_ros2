@@ -40,7 +40,7 @@ def generate_launch_description():
     default_params_file = os.path.join(
         bringup_dir,
         'config',
-        'komatsu_nav2_params.yaml'
+        'fendt_nav2_params.yaml'
     )
 
     default_rviz_config = os.path.join(
@@ -85,7 +85,7 @@ def generate_launch_description():
     localization_launch_file = os.path.join(
         ros2_app_dir,
         'launch',
-        'komatsu_localization_nav.launch.py'
+        'localization_gnss.launch.py'
     )
 
     localization_cmd = IncludeLaunchDescription(
@@ -112,7 +112,7 @@ def generate_launch_description():
 
     mapviz_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(ros2_app_dir, 'launch', 'komatsu_mapviz_nav.launch.py')
+            os.path.join(ros2_app_dir, 'launch', 'mapviz.launch.py')
         ),
         launch_arguments={
             'use_sim_time': use_sim_time,
@@ -122,7 +122,7 @@ def generate_launch_description():
 
     nav2_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(bringup_dir, 'launch', 'komatsu_nav2_nav.launch.py')
+            os.path.join(bringup_dir, 'launch', 'robot_nav2.launch.py')
         ),
         launch_arguments={
             'use_sim_time': use_sim_time,
