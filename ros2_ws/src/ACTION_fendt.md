@@ -6,8 +6,8 @@ cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source /opt/ros/humble/setup.bash
 colcon build --packages-select robot_description
 source install/setup.bash
-xacro src/robot_description/urdf/fent/fent.urdf.xacro > /tmp/fent.urdf
-ros2 launch robot_description fent_view_robot.launch.py
+xacro src/robot_description/urdf/fendt/fendt.urdf.xacro > /tmp/fendt.urdf
+ros2 launch robot_description fendt_view_robot.launch.py
 ```
 
 Expected:

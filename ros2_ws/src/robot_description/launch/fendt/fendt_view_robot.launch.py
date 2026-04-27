@@ -9,7 +9,7 @@ from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
     robot_description_dir = get_package_share_directory('robot_description')
-    urdf_file = os.path.join(robot_description_dir, 'urdf/fent', 'fent.urdf.xacro')
+    urdf_file = os.path.join(robot_description_dir, 'urdf/fendt', 'fendt.urdf.xacro')
     rviz_config_file = os.path.join(robot_description_dir, 'rviz', 'urdf_config.rviz')
 
     robot_description_content = ParameterValue(

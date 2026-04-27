@@ -17,7 +17,7 @@ def generate_launch_description():
         DeclareLaunchArgument('x_pose', default_value='0.0', description='Spawn x position'),
         DeclareLaunchArgument('y_pose', default_value='0.0', description='Spawn y position'),
         DeclareLaunchArgument('z_pose', default_value='0.0', description='Spawn z position'),
-        DeclareLaunchArgument('entity_name', default_value='fent', description='Gazebo entity name'),
+        DeclareLaunchArgument('entity_name', default_value='fendt', description='Gazebo entity name'),
         DeclareLaunchArgument(
             'robot_description_topic',
             default_value='robot_description',

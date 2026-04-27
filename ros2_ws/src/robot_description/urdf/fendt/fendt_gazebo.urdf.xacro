@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot name="fent" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-    <xacro:include filename="$(find robot_description)/urdf/fent/fent.urdf.xacro"/>
+    <xacro:include filename="fendt.urdf.xacro"/>
 
     <gazebo reference="chassis">
         <material>Gazebo/DarkGrey</material>
