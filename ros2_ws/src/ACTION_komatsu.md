@@ -365,15 +365,23 @@ check velocity smoother output:
 ros2 node info /velocity_smoother
 ```
 
-## action 10: GZ, custom RPP, GPS localization
+## ACTION 10: GZ, custom RPP, GPS localization
 
-### quick run (single terminal)
+## kill nodes
 ```bash
-kill -9 $(ps aux | grep -E "ros2|gz|gazebo|nav2" | grep -v grep | awk '{print $2}') 2>/dev/null
+kill -9 $(ps aux | grep -E "ros2|gz|gazebo|nav2" | grep -v grep | awk '{print $2}')
+pkill -9 -f "joint_state_publisher|komatsu_gazebo_nav.launch.py|gzserver|gzclient|navsat_transform_node|ukf_node|gps_covariance_relay|mapviz|initialize_origin.py|planner_server|controller_server|bt_navigator|lifecycle_manager|robot_state_publisher|teleop_twist_keyboard"
 ros2 daemon stop
 sleep 2
 ros2 daemon start
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
+rm -rf build/ install/ log/
+source /opt/ros/humble/setup.bash
+ros2 node list
+```
 
+### quick run (single terminal)
+```bash
 cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
 source /opt/ros/humble/setup.bash
 
@@ -387,12 +395,14 @@ ros2 launch robot_bringup komatsu_gazebo.launch.py use_sim_time:=true use_ll_con
 
 ## run teleop
 ```bash
-ros2 run teleop_twist_keyboard teleop_twist_keyboard
+ros2 run teleop_twist_keyboard teleop_twist_keyboard \
+  --ros-args -r /cmd_vel:=/cmd_vel_teleop
 ```
 
 Quick verify while teleop is sending commands:
 ```bash
 ros2 topic echo /atcom_wa380/wheeler/write/nav_ctrl --once
+ros2 topic echo /cmd_vel_nav --once
 ros2 topic echo /cmd_vel_ll --once
 ros2 topic echo /joint_states --once
 ```
@@ -410,12 +420,6 @@ ros2 topic info /cmd_vel_ll -v
 ros2 topic info /atcom_wa380/wheeler/read/all -v
 ```
 
-```bash
-ros2 topic echo /cmd_vel_nav --once
-ros2 topic echo /atcom_wa380/wheeler/write/nav_ctrl --once
-ros2 topic echo /joint_states --once
-```
-
 Expected for Action 10:
 - `/cmd_vel_nav` published by `controller_server`
 - `/atcom_wa380/wheeler/write/nav_ctrl` published by `ll_controller_python`
@@ -423,3 +427,11 @@ Expected for Action 10:
 - `/joint_states` contains `articulation_to_front`
 - `/atcom_wa380/wheeler/read/all` feedback is present
 
+Expected chain for articulated P12:
+Nav2 / teleop
+→ P12
+→ MachineSetAll
+→ gazebo_machine_bridge
+→ directly command:
+- wheel drive joints
+- articulation_to_front joint

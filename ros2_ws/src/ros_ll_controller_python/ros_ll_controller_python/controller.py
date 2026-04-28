@@ -56,6 +56,7 @@ class LL_Controller(Node):
         self.declare_parameter('min_target_angular_speed_ll_controller', 0.0, ParameterDescriptor(description='Minimum target value for angular speed, below we dont move', read_only=True))
         self.declare_parameter('cmd_input_topic', '/cmd_vel_nav', ParameterDescriptor(description='Input Twist topic for LL controller command', read_only=True))
         self.declare_parameter('teleop_input_topic', '/cmd_vel', ParameterDescriptor(description='Fallback teleop Twist topic', read_only=True))
+        self.declare_parameter('allow_neutral_shift_on_brake', True, ParameterDescriptor(description='Allow neutral gear shift during braking in FW/BW regulation', read_only=True))
 
         # read parameters from launch file
         self.p_gain_brake = float(self.get_parameter('p_gain_braking_ll_controller').value)
@@ -69,6 +70,7 @@ class LL_Controller(Node):
         self.min_target_angular_speed_ll_controller = float(self.get_parameter('min_target_angular_speed_ll_controller').value)
         self.cmd_input_topic = str(self.get_parameter('cmd_input_topic').value)
         self.teleop_input_topic = str(self.get_parameter('teleop_input_topic').value)
+        self.allow_neutral_shift_on_brake = bool(self.get_parameter('allow_neutral_shift_on_brake').value)
         logger.info('We got these parameters for steering : P :{} D : {} I : {}'.format(self.p_gain, self.d_gain, self.i_gain))
 
         # memorized messages
@@ -274,7 +276,7 @@ class LL_Controller(Node):
         throttle, brake = self.linear_controller.compute_throttle_brake_FW(delta_lin_speed, dt, target_speed)
         
         # shift to neutral only if active braking and we are slow enough, otherwise we use the motor brake
-        if (brake > 0.0) and (lin_speed_machine < 0.5):
+        if self.allow_neutral_shift_on_brake and (brake > 0.0) and (lin_speed_machine < 0.5):
             logger.debug('shift to neutral because active braking and almost stopped')
             dm = MachineWrite.DM_NEUTRAL
         else:
@@ -307,7 +309,7 @@ class LL_Controller(Node):
         throttle, brake = self.linear_controller.compute_throttle_brake_BW(delta_lin_speed, dt, target_speed)
         
         # shift to neutral only if active braking and if we're slow enough, otherwise we use the motor brake
-        if (brake > 0.0) and (lin_speed_machine > -0.5):
+        if self.allow_neutral_shift_on_brake and (brake > 0.0) and (lin_speed_machine > -0.5):
             logger.debug('shift to neutral because active braking and almost stopped')
             dm = MachineWrite.DM_NEUTRAL
         else:

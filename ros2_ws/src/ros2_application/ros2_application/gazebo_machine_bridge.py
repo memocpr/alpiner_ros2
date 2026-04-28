@@ -5,11 +5,10 @@ from typing import Optional
 
 import rclpy
 from rclpy.executors import ExternalShutdownException
-from gazebo_msgs.srv import SetModelConfiguration
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
-from geometry_msgs.msg import Twist
 from ros2_interfaces.msg import MachineIndAll, MachineSetAll
+from std_msgs.msg import Float64MultiArray
 
 
 class GazeboMachineBridge(Node):
@@ -28,11 +27,12 @@ class GazeboMachineBridge(Node):
         self.declare_parameter('machine_cmd_topic', '/atcom_wa380/wheeler/write/nav_ctrl')
         self.declare_parameter('machine_feedback_topic', '/atcom_wa380/wheeler/read/all')
         self.declare_parameter('odom_topic', '/odom')
-        self.declare_parameter('cmd_vel_out_topic', '/cmd_vel_ll')
-        self.declare_parameter('model_name', 'komatsu')
-        self.declare_parameter('urdf_param_name', 'robot_description')
-        self.declare_parameter('articulation_joint_name', 'articulation_to_front')
-        self.declare_parameter('wheelbase_m', 3.03)
+        self.declare_parameter('wheel_cmd_topic', '/wheel_velocity_controller/commands')
+        self.declare_parameter('articulation_cmd_topic', '/articulation_position_controller/commands')
+        self.declare_parameter('wheel_radius_m', 0.8)
+        self.declare_parameter('wheel_speed_command_scale', 1.0)
+        self.declare_parameter('neutral_throttle_forward_enable', True)
+        self.declare_parameter('neutral_throttle_min', 0.05)
         self.declare_parameter('max_forward_speed_mps', 2.2)
         self.declare_parameter('max_reverse_speed_mps', 1.4)
         self.declare_parameter('max_brake_decel_mps2', 2.0)
@@ -43,12 +43,13 @@ class GazeboMachineBridge(Node):
         self.machine_cmd_topic = self.get_parameter('machine_cmd_topic').value
         self.machine_feedback_topic = self.get_parameter('machine_feedback_topic').value
         self.odom_topic = self.get_parameter('odom_topic').value
-        self.cmd_vel_out_topic = self.get_parameter('cmd_vel_out_topic').value
-        self.model_name = self.get_parameter('model_name').value
-        self.urdf_param_name = self.get_parameter('urdf_param_name').value
-        self.articulation_joint_name = self.get_parameter('articulation_joint_name').value
+        self.wheel_cmd_topic = self.get_parameter('wheel_cmd_topic').value
+        self.articulation_cmd_topic = self.get_parameter('articulation_cmd_topic').value
 
-        self.wheelbase_m = float(self.get_parameter('wheelbase_m').value)
+        self.wheel_radius_m = float(self.get_parameter('wheel_radius_m').value)
+        self.wheel_speed_command_scale = float(self.get_parameter('wheel_speed_command_scale').value)
+        self.neutral_throttle_forward_enable = bool(self.get_parameter('neutral_throttle_forward_enable').value)
+        self.neutral_throttle_min = float(self.get_parameter('neutral_throttle_min').value)
         self.max_forward_speed_mps = float(self.get_parameter('max_forward_speed_mps').value)
         self.max_reverse_speed_mps = float(self.get_parameter('max_reverse_speed_mps').value)
         self.max_brake_decel_mps2 = float(self.get_parameter('max_brake_decel_mps2').value)
@@ -65,15 +66,13 @@ class GazeboMachineBridge(Node):
         self.current_speed_cmd = 0.0
         self.current_articulation_rad = 0.0
         self.last_update_time = self.get_clock().now()
-        self._set_joint_future = None
 
         self.create_subscription(MachineSetAll, self.machine_cmd_topic, self._on_machine_cmd, 20)
         self.create_subscription(Odometry, self.odom_topic, self._on_odom, 20)
 
-        self.cmd_vel_pub = self.create_publisher(Twist, self.cmd_vel_out_topic, 20)
+        self.wheel_cmd_pub = self.create_publisher(Float64MultiArray, self.wheel_cmd_topic, 20)
+        self.articulation_cmd_pub = self.create_publisher(Float64MultiArray, self.articulation_cmd_topic, 20)
         self.machine_ind_pub = self.create_publisher(MachineIndAll, self.machine_feedback_topic, 20)
-
-        self.set_joint_client = self.create_client(SetModelConfiguration, '/gazebo/set_model_configuration')
         self.create_timer(0.05, self._on_timer)
 
     def _on_machine_cmd(self, msg: MachineSetAll) -> None:
@@ -104,6 +103,8 @@ class GazeboMachineBridge(Node):
             return throttle * self.max_forward_speed_mps
         if cmd.directional_sel == self.DM_REVERSE:
             return -throttle * self.max_reverse_speed_mps
+        if self.neutral_throttle_forward_enable and cmd.directional_sel == self.DM_NEUTRAL and throttle >= self.neutral_throttle_min:
+            return throttle * self.max_forward_speed_mps
         return 0.0
 
     def _target_articulation(self, cmd: MachineSetAll) -> float:
@@ -157,25 +158,17 @@ class GazeboMachineBridge(Node):
 
         self.machine_ind_pub.publish(msg)
 
-    def _publish_cmd_vel(self) -> None:
-        twist = Twist()
-        twist.linear.x = self.current_speed_cmd
-        if abs(self.wheelbase_m) > 1e-6:
-            twist.angular.z = self.current_speed_cmd * math.tan(self.current_articulation_rad) / self.wheelbase_m
-        self.cmd_vel_pub.publish(twist)
+    def _publish_joint_commands(self) -> None:
+        wheel_cmd = Float64MultiArray()
+        wheel_speed_radps = 0.0
+        if abs(self.wheel_radius_m) > 1e-6:
+            wheel_speed_radps = (self.current_speed_cmd / self.wheel_radius_m) * self.wheel_speed_command_scale
+        wheel_cmd.data = [wheel_speed_radps, wheel_speed_radps, wheel_speed_radps, wheel_speed_radps]
+        self.wheel_cmd_pub.publish(wheel_cmd)
 
-    def _update_articulation_in_gazebo(self) -> None:
-        if not self.set_joint_client.service_is_ready():
-            return
-        if self._set_joint_future is not None and not self._set_joint_future.done():
-            return
-
-        req = SetModelConfiguration.Request()
-        req.model_name = self.model_name
-        req.urdf_param_name = self.urdf_param_name
-        req.joint_names = [self.articulation_joint_name]
-        req.joint_positions = [self.current_articulation_rad]
-        self._set_joint_future = self.set_joint_client.call_async(req)
+        articulation_cmd = Float64MultiArray()
+        articulation_cmd.data = [self.current_articulation_rad]
+        self.articulation_cmd_pub.publish(articulation_cmd)
 
     def _on_timer(self) -> None:
         now = self.get_clock().now()
@@ -212,8 +205,7 @@ class GazeboMachineBridge(Node):
                 self.max_articulation_rate_radps * dt,
             )
 
-        self._publish_cmd_vel()
-        self._update_articulation_in_gazebo()
+        self._publish_joint_commands()
         self._publish_machine_feedback()
 
 

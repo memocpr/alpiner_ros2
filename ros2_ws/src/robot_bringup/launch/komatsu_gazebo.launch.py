@@ -4,10 +4,10 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, LogInfo, TimerAction
-from launch.conditions import IfCondition, UnlessCondition
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, LogInfo, TimerAction, SetEnvironmentVariable
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PythonExpression
+from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 
@@ -143,7 +143,7 @@ def generate_launch_description():
         parameters=[
             {'p_gain_braking_ll_controller': 0.5},
             {'factor_throttle_reduction_when_not_active_braking': 0.5},
-            {'p_gain_linear_speed_ll_controller': 0.2},
+            {'p_gain_linear_speed_ll_controller': 1.0},
             {'p_gain_angular_speed_ll_controller': 0.14},
             {'i_gain_linear_speed_ll_controller': 0.0},
             {'i_gain_angular_speed_ll_controller': 0.0},
@@ -151,6 +151,8 @@ def generate_launch_description():
             {'d_gain_angular_speed_ll_controller': 0.0},
             {'min_target_angular_speed_ll_controller': 0.0},
             {'cmd_input_topic': '/cmd_vel_nav'},
+            {'teleop_input_topic': '/cmd_vel_teleop'},
+            {'allow_neutral_shift_on_brake': False},
         ],
         respawn=True,
         condition=IfCondition(use_ll_control_chain),
@@ -162,8 +164,10 @@ def generate_launch_description():
         name='gazebo_machine_bridge',
         output='screen',
         parameters=[
-            {'model_name': 'komatsu'},
-            {'cmd_vel_out_topic': '/cmd_vel_ll'},
+            {'wheel_cmd_topic': '/wheel_velocity_controller/commands'},
+            {'articulation_cmd_topic': '/articulation_position_controller/commands'},
+            {'wheel_radius_m': 0.8},
+            {'wheel_speed_command_scale': 35.0},
             {'odom_topic': '/odom'},
             {'max_forward_speed_mps': 5.0},
             {'max_reverse_speed_mps': 1.0},
@@ -172,6 +176,48 @@ def generate_launch_description():
             {'max_articulation_angle_deg': 32.0},
             {'max_articulation_rate_degps': 20.0},
         ],
+        condition=IfCondition(use_ll_control_chain),
+    )
+
+    joint_state_broadcaster_spawner_cmd = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=[
+            'joint_state_broadcaster',
+            '--controller-manager', '/controller_manager',
+            '--controller-manager-timeout', '120',
+            '--service-call-timeout', '120',
+            '--switch-timeout', '120',
+        ],
+        output='screen',
+        condition=IfCondition(use_ll_control_chain),
+    )
+
+    wheel_velocity_controller_spawner_cmd = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=[
+            'wheel_velocity_controller',
+            '--controller-manager', '/controller_manager',
+            '--controller-manager-timeout', '120',
+            '--service-call-timeout', '120',
+            '--switch-timeout', '120',
+        ],
+        output='screen',
+        condition=IfCondition(use_ll_control_chain),
+    )
+
+    articulation_position_controller_spawner_cmd = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=[
+            'articulation_position_controller',
+            '--controller-manager', '/controller_manager',
+            '--controller-manager-timeout', '120',
+            '--service-call-timeout', '120',
+            '--switch-timeout', '120',
+        ],
+        output='screen',
         condition=IfCondition(use_ll_control_chain),
     )
 
@@ -240,6 +286,7 @@ def generate_launch_description():
             'z_pose',
             default_value='0.0'
         ),
+        SetEnvironmentVariable('FASTDDS_BUILTIN_TRANSPORTS', 'UDPv4'),
         gzserver_cmd,
         gzclient_cmd,
         robot_state_publisher_cmd,
@@ -255,6 +302,9 @@ def generate_launch_description():
         TimerAction(
             period=ll_chain_start_delay,
             actions=[
+                joint_state_broadcaster_spawner_cmd,
+                wheel_velocity_controller_spawner_cmd,
+                articulation_position_controller_spawner_cmd,
                 ll_controller_cmd,
                 gazebo_machine_bridge_cmd,
             ],
