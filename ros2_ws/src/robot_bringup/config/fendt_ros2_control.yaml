@@ -16,6 +16,8 @@ fendt_ackermann_controller:
     rear_left_wheel_joint: rear_left_wheel_joint
     rear_right_wheel_joint: rear_right_wheel_joint
     wheelbase: 2.37
+    traction_track_width: 1.66
+    steering_track_width: 1.66
     rear_wheel_radius: 0.78
     max_steering_angle: 0.7853981634
     cmd_vel_timeout: 0.5

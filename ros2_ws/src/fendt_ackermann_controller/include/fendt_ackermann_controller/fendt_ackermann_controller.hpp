@@ -42,6 +42,7 @@ private:
 
   void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg);
   static double clamp(double value, double low, double high);
+  void writeZeroCommands();
 
   std::string cmd_vel_topic_{"/cmd_vel"};
   std::string front_left_steer_joint_;
@@ -50,6 +51,8 @@ private:
   std::string rear_right_wheel_joint_;
 
   double wheelbase_{2.37};
+  double traction_track_width_{1.66};
+  double steering_track_width_{1.66};
   double rear_wheel_radius_{0.78};
   double max_steering_angle_{0.7853981634};
   double cmd_vel_timeout_{0.5};
