@@ -320,7 +320,7 @@ fendt_ackermann_controller active
 
 ---
 
-### 6. Create custom Ackermann controller package
+### 6. Create custom Ackermann controller package (ros2_control is better in c++)
 
 Package:
 ```txt
