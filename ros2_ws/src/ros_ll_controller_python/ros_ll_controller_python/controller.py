@@ -29,8 +29,9 @@ class LL_Controller(Node):
     # timer duration value for the main loop
     TIME_OPERATE_MACHINE = 0.04 # 25Hz
     # max delay to consider a command message as still valid
-    # depends on the frequency of the cmd_vel publisher (10 Hz currently)
-    MAX_DELAY_CMD_VEL_MSG = 0.25
+    # depends on the frequency of the cmd_vel publisher (10-20 Hz)
+    # increased to 1.0s to handle startup jitter, Gazebo real-time factor issues, and message queue delays
+    MAX_DELAY_CMD_VEL_MSG = 1.0
 
     # speed constants m/s
     # used to decide how to act when switching direction FW->BW, BW->FW
@@ -57,6 +58,7 @@ class LL_Controller(Node):
         self.declare_parameter('cmd_input_topic', '/cmd_vel_nav', ParameterDescriptor(description='Input Twist topic for LL controller command', read_only=True))
         self.declare_parameter('teleop_input_topic', '/cmd_vel', ParameterDescriptor(description='Fallback teleop Twist topic', read_only=True))
         self.declare_parameter('allow_neutral_shift_on_brake', True, ParameterDescriptor(description='Allow neutral gear shift during braking in FW/BW regulation', read_only=True))
+        self.declare_parameter('cmd_vel_timeout_sec', LL_Controller.MAX_DELAY_CMD_VEL_MSG, ParameterDescriptor(description='Maximum age (seconds) for latest cmd_vel before forcing idle', read_only=True))
 
         # read parameters from launch file
         self.p_gain_brake = float(self.get_parameter('p_gain_braking_ll_controller').value)
@@ -71,6 +73,7 @@ class LL_Controller(Node):
         self.cmd_input_topic = str(self.get_parameter('cmd_input_topic').value)
         self.teleop_input_topic = str(self.get_parameter('teleop_input_topic').value)
         self.allow_neutral_shift_on_brake = bool(self.get_parameter('allow_neutral_shift_on_brake').value)
+        self.cmd_vel_timeout_sec = float(self.get_parameter('cmd_vel_timeout_sec').value)
         logger.info('We got these parameters for steering : P :{} D : {} I : {}'.format(self.p_gain, self.d_gain, self.i_gain))
 
         # memorized messages
@@ -81,6 +84,8 @@ class LL_Controller(Node):
         self.mem_time_latest_cmd_vel_received = None
         # flag to reset values only once per end of path
         self.has_been_reset = True
+        # flag to track if this is the first valid command - allow it even without full feedback
+        self.first_cmd_processed = False
 
         # init CuspHandler
         self.cusp_handler = CuspHandler()
@@ -152,18 +157,19 @@ class LL_Controller(Node):
         
         # memorize data and timestamp
         self.mem_cmd_vel = msg
-        self.mem_time_latest_cmd_vel_received = time.time()
+        self.mem_time_latest_cmd_vel_received = self.get_clock().now().nanoseconds / 1e9
 
     def cb_cmd_vel_nav2(self, msg):
         """Callback for raw Nav2 controller output (/cmd_vel_nav)."""
         if self.mem_time_latest_teleop_received is not None:
-            if (time.time() - self.mem_time_latest_teleop_received) < LL_Controller.TELEOP_PRIORITY_TIMEOUT:
+            now_sec = self.get_clock().now().nanoseconds / 1e9
+            if (now_sec - self.mem_time_latest_teleop_received) < LL_Controller.TELEOP_PRIORITY_TIMEOUT:
                 return
         self._store_cmd_vel(msg, 'nav2')
 
     def cb_cmd_vel_teleop(self, msg):
         """Callback for teleop /cmd_vel, converted to LL-compatible Twist metadata."""
-        self.mem_time_latest_teleop_received = time.time()
+        self.mem_time_latest_teleop_received = self.get_clock().now().nanoseconds / 1e9
         cmd = Twist()
         cmd.linear.x = msg.linear.x
         cmd.angular.z = msg.angular.z
@@ -373,28 +379,40 @@ class LL_Controller(Node):
         #logger.debug('TIMEOUT -> operate_machine()')
 
         # make sure all required values are valid, otherwise go to idle
-        if (self.mem_machine_ind_all == None) or (self.mem_time_latest_cmd_vel_received == None) or (self.mem_cmd_vel == None):
-            logger.debug('cant operate machine, None value...')
+        # Allow first command even without feedback to avoid initialization deadlock
+        if (self.mem_time_latest_cmd_vel_received is None) or (self.mem_cmd_vel is None):
+            logger.debug('cant operate machine, no cmd_vel or machine_ind_all...')
             self.set_idle(self.mem_machine_ind_all)
             return
-        
+
+        # If this is the first valid command and we still don't have feedback, use a default
+        if self.mem_machine_ind_all is None:
+            if not self.first_cmd_processed:
+                logger.debug('First command received without feedback, creating default feedback')
+                # Create a minimal default feedback to allow operation to start
+                self.mem_machine_ind_all = MachineIndAll()
+                self.mem_machine_ind_all.speed = 0.0
+                self.mem_machine_ind_all.speed_sign = 11  # SPEED_SIGN_FORWARD
+                self.mem_machine_ind_all.flag_speed_signing_uncertain = False
+            else:
+                logger.debug('cant operate machine, no machine_ind_all feedback...')
+                self.set_idle(self.mem_machine_ind_all)
+                return
+
         # deepcopy to have local variable in case it changes in another callback during this execution
         mem_cmd_vel = copy.deepcopy(self.mem_cmd_vel)
         mem_machine_ind_all = copy.deepcopy(self.mem_machine_ind_all)
         time_last_cmd_vel_received = copy.deepcopy(self.mem_time_latest_cmd_vel_received)
-        
+
         # make sure the latest command message is not too old
-        delta_tm_msg = time.time() - time_last_cmd_vel_received
+        now_sec = self.get_clock().now().nanoseconds / 1e9
+        delta_tm_msg = now_sec - time_last_cmd_vel_received
 
-        # normal case, msg must arrive within 0.2s
-        if delta_tm_msg <= LL_Controller.MAX_DELAY_CMD_VEL_MSG:
+        if delta_tm_msg <= self.cmd_vel_timeout_sec:
             logger.debug('NEW CYCLE !')
-
         # backup msg are published each 0.5s
-        elif (mem_cmd_vel.linear.x == -1.0) and (mem_cmd_vel.angular.z == 0.0) \
-            and (delta_tm_msg <= 0.6):
+        elif (mem_cmd_vel.linear.x == -1.0) and (mem_cmd_vel.angular.z == 0.0) and (delta_tm_msg <= 0.6):
             logger.debug('NEW CYCLE BACK-UP MSG')
-
         # too old and not backup
         else:
             logger.warning('dt {} too big -> IDLE'.format(delta_tm_msg))
@@ -404,12 +422,14 @@ class LL_Controller(Node):
                 self.reset_at_end_of_path()
                 self.has_been_reset = True
             return
-        
+
         # delta time
         dt = LL_Controller.TIME_OPERATE_MACHINE
 
         # reset flag
         self.has_been_reset = False
+        # Mark first command as processed
+        self.first_cmd_processed = True
 
         # get input data
         flag_speed_direction_unknown = mem_machine_ind_all.flag_speed_signing_uncertain

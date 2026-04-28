@@ -435,3 +435,12 @@ Nav2 / teleop
 → directly command:
 - wheel drive joints
 - articulation_to_front joint
+
+## check controller output and feedback
+```bash
+ros2 control list_controllers
+ros2 topic echo /wheel_velocity_controller/commands --once
+ros2 topic echo /articulation_position_controller/commands --once
+ros2 topic echo /joint_states --once
+ros2 topic echo /odom --once
+```

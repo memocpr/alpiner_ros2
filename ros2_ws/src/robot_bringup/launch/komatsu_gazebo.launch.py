@@ -153,6 +153,7 @@ def generate_launch_description():
             {'cmd_input_topic': '/cmd_vel_nav'},
             {'teleop_input_topic': '/cmd_vel_teleop'},
             {'allow_neutral_shift_on_brake': False},
+            {'cmd_vel_timeout_sec': 0.6},
         ],
         respawn=True,
         condition=IfCondition(use_ll_control_chain),

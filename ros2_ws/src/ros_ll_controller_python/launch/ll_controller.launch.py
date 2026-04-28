@@ -22,6 +22,7 @@ def generate_launch_description():
                 {"min_target_angular_speed_ll_controller": 0.0}, # minimum target so that we consider doing the regulation in rad/s
                 {"cmd_input_topic": "/cmd_vel_nav"}, # consume raw Nav2 controller output (before smoothing)
                 {"teleop_input_topic": "/cmd_vel"}, # fallback manual teleop input topic
+                {"cmd_vel_timeout_sec": 0.6}, # tolerate short Nav2/Gazebo scheduling jitter before forcing idle
             ],
             respawn=True,
             namespace=EnvironmentVariable("ATCOM_NS"),

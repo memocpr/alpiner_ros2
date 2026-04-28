@@ -73,7 +73,8 @@ class GazeboMachineBridge(Node):
         self.wheel_cmd_pub = self.create_publisher(Float64MultiArray, self.wheel_cmd_topic, 20)
         self.articulation_cmd_pub = self.create_publisher(Float64MultiArray, self.articulation_cmd_topic, 20)
         self.machine_ind_pub = self.create_publisher(MachineIndAll, self.machine_feedback_topic, 20)
-        self.create_timer(0.05, self._on_timer)
+        # 40ms timer to match ll_controller's operate_machine frequency (25Hz)
+        self.create_timer(0.04, self._on_timer)
 
     def _on_machine_cmd(self, msg: MachineSetAll) -> None:
         self.latest_cmd = msg
