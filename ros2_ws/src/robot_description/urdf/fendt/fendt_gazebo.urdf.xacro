@@ -135,5 +135,11 @@
         </plugin>
     </gazebo>
 
+    <gazebo>
+        <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+            <parameters>$(find robot_bringup)/config/fendt_ros2_control.yaml</parameters>
+        </plugin>
+    </gazebo>
+
 </robot>
 

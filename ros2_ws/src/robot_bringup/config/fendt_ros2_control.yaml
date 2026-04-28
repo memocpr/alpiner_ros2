@@ -1,0 +1,17 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 100
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    fendt_ackermann_controller:
+      type: forward_command_controller/ForwardCommandController
+
+fendt_ackermann_controller:
+  ros__parameters:
+    joints:
+      - rear_left_wheel_joint
+      - rear_right_wheel_joint
+    interface_name: velocity
+
