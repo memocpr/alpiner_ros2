@@ -193,3 +193,273 @@ ros2 topic echo /gps/fix_cov --once
 ```
 
 
+
+
+# Action 10: Fendt Ackermann ros2_control
+
+## Current state
+
+- Fendt launches with Gazebo + GNSS + Mapviz + Nav2.
+- Nav2 publishes `/cmd_vel`.
+- Robot currently moves through Gazebo diff-drive plugin.
+- Diff-drive plugin must be removed from `fendt_gazebo.urdf.xacro`.
+- New control chain should be:
+
+```txt
+Nav2 / teleop
+  → /cmd_vel
+  → custom Ackermann controller
+  → steering + throttle + brake commands
+  → Gazebo / ros2_control hardware interface
+  → wheel + steering joints
+```
+
+## Action plan
+
+### 1. Freeze current working baseline
+
+```bash
+ros2 launch robot_bringup fendt_gazebo.launch.py use_sim_time:=true
+ros2 topic echo /cmd_vel
+ros2 topic echo /odom --once
+ros2 topic echo /gps/fix --once
+```
+
+Expected:
+- Robot still moves with current diff-drive.
+- GNSS + Mapviz + Nav2 still work.
+
+---
+
+### 2. Remove Gazebo diff-drive plugin
+
+File:
+```txt
+robot_description/urdf/fendt/fendt_gazebo.urdf.xacro
+```
+
+Remove:
+```xml
+<plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+...
+</plugin>
+```
+
+Expected:
+- Robot no longer moves from `/cmd_vel`.
+- Sensors still publish:
+    - `/gps/fix`
+    - `/imu/data`
+    - `/scan`
+    - `/joint_states`
+
+---
+
+### 3. Add ros2_control xacro
+
+Create:
+```txt
+robot_description/urdf/fendt/fendt_ros2_control.xacro
+```
+
+Control interfaces:
+```txt
+front_left_wheel_steer_joint  -> position
+front_right_wheel_steer_joint -> position
+rear_left_wheel_joint         -> velocity
+rear_right_wheel_joint        -> velocity
+```
+
+Expected:
+- Steering joints receive angle commands.
+- Rear wheels receive velocity commands.
+
+---
+
+### 4. Add Gazebo ros2_control plugin
+
+In `fendt_gazebo.urdf.xacro`, add:
+
+```xml
+<gazebo>
+  <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+    <parameters>$(find robot_bringup)/config/fendt_ros2_control.yaml</parameters>
+  </plugin>
+</gazebo>
+```
+
+Expected:
+- `/controller_manager` appears.
+- Controllers can be loaded.
+
+---
+
+### 5. Create controller config
+
+Create:
+```txt
+robot_bringup/config/fendt_ros2_control.yaml
+```
+
+Controllers:
+```txt
+joint_state_broadcaster
+fendt_ackermann_controller
+```
+
+Expected:
+```bash
+ros2 control list_controllers
+```
+
+Shows:
+```txt
+joint_state_broadcaster active
+fendt_ackermann_controller active
+```
+
+---
+
+### 6. Create custom Ackermann controller package
+
+Package:
+```txt
+fendt_ackermann_controller
+```
+
+Node/controller input:
+```txt
+/cmd_vel : geometry_msgs/msg/Twist
+```
+
+Internal conversion:
+```txt
+v = cmd_vel.linear.x
+w = cmd_vel.angular.z
+
+steering_angle = atan(wheelbase * w / v)
+rear_wheel_velocity = v / rear_wheel_radius
+```
+
+Outputs:
+```txt
+front steering joint position
+rear wheel joint velocity
+brake command
+throttle command
+```
+
+Expected:
+- Teleop and Nav2 both control the same chain through `/cmd_vel`.
+
+---
+
+### 7. Add lifecycle / safety wrapper
+
+Create lifecycle node:
+```txt
+fendt_control_manager
+```
+
+States:
+```txt
+unconfigured -> inactive -> active -> finalized
+```
+
+Safety behavior:
+```txt
+no /cmd_vel timeout -> throttle = 0, brake = active
+cmd_vel linear.x = 0 -> brake = active
+invalid steering angle -> clamp to limit
+```
+
+Expected:
+- Robot stops safely if Nav2 or teleop stops publishing.
+
+---
+
+### 8. Bridge sim control with real retrofit messages later
+
+For simulation first:
+```txt
+/cmd_vel -> ackermann controller -> ros2_control joints
+```
+
+For real retrofit later:
+```txt
+/cmd_vel -> ackermann controller -> MachineSetAll
+```
+
+Focus fields:
+```txt
+steering
+throttle
+brake
+directional_sel
+```
+
+---
+
+### 9. Update Fendt launch
+
+File:
+```txt
+robot_bringup/launch/fendt_gazebo.launch.py
+```
+
+Add:
+```txt
+controller_manager
+joint_state_broadcaster spawner
+fendt_ackermann_controller spawner
+```
+
+Keep unchanged:
+```txt
+GNSS localization
+Mapviz
+Nav2
+Gazebo world
+robot_state_publisher
+```
+
+Expected:
+- Existing GNSS/Mapviz/Nav2 flow remains unchanged.
+- Only motion backend changes.
+
+---
+
+### 10. Validate step by step
+
+```bash
+ros2 control list_hardware_interfaces
+ros2 control list_controllers
+ros2 topic echo /cmd_vel
+ros2 topic echo /joint_states --once
+ros2 topic echo /odom --once
+ros2 run tf2_ros tf2_echo odom base_footprint
+```
+
+Expected:
+- `/cmd_vel` changes steering/wheel joints.
+- Robot moves with Ackermann behavior.
+- GNSS localization still publishes stable odometry.
+- Nav2 still reaches goal.
+
+---
+
+## Needed next context
+
+Please provide these outputs next:
+
+```bash
+cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
+
+find src -maxdepth 3 -type f | grep -E "ros2_control|controller|MachineSetAll|MachineIndAll|bridge|fendt|komatsu"
+
+ros2 pkg list | grep -E "ros2_control|gazebo_ros2_control|ackermann|ros2_interfaces|ros_ll"
+
+ros2 interface show ros2_interfaces/msg/MachineSetAll
+ros2 interface show ros2_interfaces/msg/MachineIndAll
+```
+
