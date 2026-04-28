@@ -27,6 +27,11 @@
     <xacro:property name="front_box_len" value="${X_len + half_wb}"/>
     <xacro:property name="box_w" value="${D_width-(2*wheel_width)}"/>
     <xacro:property name="box_h" value="${H_height-F_clearance}"/>
+    <!-- Dynamics tuning for a heavier articulated loader body model -->
+    <xacro:property name="rear_chassis_mass" value="8500.0"/>
+    <xacro:property name="front_chassis_mass" value="8500.0"/>
+    <xacro:property name="articulation_damping" value="650.0"/>
+    <xacro:property name="articulation_friction" value="45.0"/>
 
     <!-- Ground frame -->
     <link name="base_footprint"/>
@@ -57,8 +62,8 @@
     <!-- Body center relative to axle-height frame -->
     <xacro:property name="body_center_z" value="${F_clearance + box_h/2.0 - wheel_radius}"/>
     <xacro:property name="body_top_z" value="${body_center_z + box_h/2.0}"/>
-    <!-- Keep COM lower than geometric center, but not extreme for simplified Gazebo dynamics. -->
-    <xacro:property name="body_com_z" value="${body_center_z - 0.25}"/>
+    <!-- Place COM at the bottom quarter of body height (bottom + box_h/4). -->
+    <xacro:property name="body_com_z" value="${body_center_z - box_h/4.0}"/>
 
     <!-- rear body -->
     <link name="rear_chassis">
@@ -74,7 +79,7 @@
         </collision>
 
         <xacro:box_inertia
-                m="2500.0"
+                m="${rear_chassis_mass}"
                 x="${rear_box_len}"
                 y="${box_w}"
                 z="${box_h}"
@@ -96,7 +101,7 @@
         </collision>
 
         <xacro:box_inertia
-                m="2500.0"
+                m="${front_chassis_mass}"
                 x="${front_box_len}"
                 y="${box_w}"
                 z="${box_h}"
@@ -111,7 +116,7 @@
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <axis xyz="0 0 1"/>
         <limit lower="-0.558505" upper="0.558505" effort="80000" velocity="0.8"/>
-        <dynamics damping="80.0" friction="5.0"/>
+        <dynamics damping="${articulation_damping}" friction="${articulation_friction}"/>
     </joint>
 
     <joint name="articulation_to_rear" type="fixed">

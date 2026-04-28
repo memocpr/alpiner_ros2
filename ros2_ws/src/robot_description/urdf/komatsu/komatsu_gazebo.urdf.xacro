@@ -4,50 +4,82 @@
     <!-- Include base robot model -->
     <xacro:include filename="$(find robot_description)/urdf/komatsu/komatsu.urdf.xacro"/>
 
+    <!-- Contact and joint tuning for Gazebo classic -->
+    <xacro:property name="wheel_mu" value="1.15"/>
+    <xacro:property name="wheel_kp" value="2500000.0"/>
+    <xacro:property name="wheel_kd" value="22000.0"/>
+    <xacro:property name="wheel_min_depth" value="0.004"/>
+    <xacro:property name="wheel_max_vel" value="0.25"/>
+    <xacro:property name="wheel_slip" value="0.015"/>
+    <xacro:property name="articulation_spring_k" value="2500.0"/>
+    <xacro:property name="articulation_spring_ref" value="0.0"/>
+
     <!-- ===== Gazebo Material Properties ===== -->
     <gazebo reference="rear_chassis">
         <material>Gazebo/Red</material>
-        <mu1>0.5</mu1>
-        <mu2>0.5</mu2>
+        <mu1>0.7</mu1>
+        <mu2>0.7</mu2>
     </gazebo>
 
     <gazebo reference="front_chassis">
         <material>Gazebo/Green</material>
-        <mu1>0.5</mu1>
-        <mu2>0.5</mu2>
+        <mu1>0.7</mu1>
+        <mu2>0.7</mu2>
     </gazebo>
 
     <!-- Wheel friction properties -->
     <gazebo reference="rear_left_wheel">
         <material>Gazebo/Black</material>
-        <mu1>0.6</mu1>
-        <mu2>0.6</mu2>
-        <kp>1e5</kp>
-        <kd>10.0</kd>
+        <mu1>${wheel_mu}</mu1>
+        <mu2>${wheel_mu}</mu2>
+        <kp>${wheel_kp}</kp>
+        <kd>${wheel_kd}</kd>
+        <minDepth>${wheel_min_depth}</minDepth>
+        <maxVel>${wheel_max_vel}</maxVel>
+        <slip1>${wheel_slip}</slip1>
+        <slip2>${wheel_slip}</slip2>
     </gazebo>
 
     <gazebo reference="rear_right_wheel">
         <material>Gazebo/Black</material>
-        <mu1>0.6</mu1>
-        <mu2>0.6</mu2>
-        <kp>1e5</kp>
-        <kd>10.0</kd>
+        <mu1>${wheel_mu}</mu1>
+        <mu2>${wheel_mu}</mu2>
+        <kp>${wheel_kp}</kp>
+        <kd>${wheel_kd}</kd>
+        <minDepth>${wheel_min_depth}</minDepth>
+        <maxVel>${wheel_max_vel}</maxVel>
+        <slip1>${wheel_slip}</slip1>
+        <slip2>${wheel_slip}</slip2>
     </gazebo>
 
     <gazebo reference="front_left_wheel">
         <material>Gazebo/Black</material>
-        <mu1>0.6</mu1>
-        <mu2>0.6</mu2>
-        <kp>1e5</kp>
-        <kd>10.0</kd>
+        <mu1>${wheel_mu}</mu1>
+        <mu2>${wheel_mu}</mu2>
+        <kp>${wheel_kp}</kp>
+        <kd>${wheel_kd}</kd>
+        <minDepth>${wheel_min_depth}</minDepth>
+        <maxVel>${wheel_max_vel}</maxVel>
+        <slip1>${wheel_slip}</slip1>
+        <slip2>${wheel_slip}</slip2>
     </gazebo>
 
     <gazebo reference="front_right_wheel">
         <material>Gazebo/Black</material>
-        <mu1>0.6</mu1>
-        <mu2>0.6</mu2>
-        <kp>1e5</kp>
-        <kd>10.0</kd>
+        <mu1>${wheel_mu}</mu1>
+        <mu2>${wheel_mu}</mu2>
+        <kp>${wheel_kp}</kp>
+        <kd>${wheel_kd}</kd>
+        <minDepth>${wheel_min_depth}</minDepth>
+        <maxVel>${wheel_max_vel}</maxVel>
+        <slip1>${wheel_slip}</slip1>
+        <slip2>${wheel_slip}</slip2>
+    </gazebo>
+
+    <gazebo reference="articulation_to_front">
+        <implicitSpringDamper>true</implicitSpringDamper>
+        <springStiffness>${articulation_spring_k}</springStiffness>
+        <springReference>${articulation_spring_ref}</springReference>
     </gazebo>
 
     <!-- ===== Sensors ===== -->
