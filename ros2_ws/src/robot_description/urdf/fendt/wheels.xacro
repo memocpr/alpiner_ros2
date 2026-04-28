@@ -29,7 +29,7 @@
       <child link="${name}"/>
       <origin xyz="${x} ${y} ${z}" rpy="0 0 0"/>
       <axis xyz="0 1 0"/>
-      <dynamics damping="2.0" friction="0.2"/>
+      <dynamics damping="12.0" friction="2.0"/>
     </joint>
   </xacro:macro>
 
@@ -81,7 +81,7 @@
       <child link="${name}"/>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <axis xyz="0 1 0"/>
-      <dynamics damping="2.0" friction="0.2"/>
+      <dynamics damping="10.0" friction="1.5"/>
     </joint>
   </xacro:macro>
 

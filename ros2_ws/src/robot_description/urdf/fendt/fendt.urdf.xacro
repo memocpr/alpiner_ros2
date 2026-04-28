@@ -126,7 +126,7 @@
         </collision>
 
         <xacro:box_inertia
-                m="${weight_f_body}"
+                m="${weight_r_body}"
                 x="${box_len_r_body}"
                 y="${box_width_r_body}"
                 z="${box_height_r_body}"
