@@ -4,10 +4,10 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, LogInfo, TimerAction
-from launch.conditions import IfCondition, UnlessCondition
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, LogInfo, TimerAction, ExecuteProcess
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PythonExpression
+from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 
@@ -24,6 +24,7 @@ def generate_launch_description():
     params_file = LaunchConfiguration('params_file')
     enable_rviz = LaunchConfiguration('enable_rviz')
     localization_start_delay = LaunchConfiguration('localization_start_delay')
+    control_chain_start_delay = LaunchConfiguration('control_chain_start_delay')
     nav2_start_delay = LaunchConfiguration('nav2_start_delay')
 
     x_pose = LaunchConfiguration('x_pose')
@@ -131,6 +132,50 @@ def generate_launch_description():
         }.items()
     )
 
+    fendt_control_manager_cmd = Node(
+        package='fendt_ackermann_controller',
+        executable='fendt_control_manager_node',
+        name='fendt_control_manager',
+        output='screen',
+        parameters=[{'use_sim_time': use_sim_time}],
+    )
+
+    fendt_control_manager_configure_cmd = ExecuteProcess(
+        cmd=['ros2', 'lifecycle', 'set', '/fendt_control_manager', 'configure'],
+        output='screen',
+    )
+
+    fendt_control_manager_activate_cmd = ExecuteProcess(
+        cmd=['ros2', 'lifecycle', 'set', '/fendt_control_manager', 'activate'],
+        output='screen',
+    )
+
+    joint_state_broadcaster_spawner_cmd = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=[
+            'joint_state_broadcaster',
+            '--controller-manager', '/controller_manager',
+            '--controller-manager-timeout', '120',
+            '--service-call-timeout', '120',
+            '--switch-timeout', '120',
+        ],
+        output='screen',
+    )
+
+    fendt_ackermann_controller_spawner_cmd = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=[
+            'fendt_ackermann_controller',
+            '--controller-manager', '/controller_manager',
+            '--controller-manager-timeout', '120',
+            '--service-call-timeout', '120',
+            '--switch-timeout', '120',
+        ],
+        output='screen',
+    )
+
     rviz_cmd = Node(
         package='rviz2',
         executable='rviz2',
@@ -161,6 +206,11 @@ def generate_launch_description():
             description='Delay (s) before starting GNSS localization nodes'
         ),
         DeclareLaunchArgument(
+            'control_chain_start_delay',
+            default_value='3.0',
+            description='Delay (s) before starting ros2_control and fendt control manager'
+        ),
+        DeclareLaunchArgument(
             'nav2_start_delay',
             default_value='8.0',
             description='Delay (s) before starting mapviz and Nav2 nodes'
@@ -185,6 +235,22 @@ def generate_launch_description():
         gzclient_cmd,
         robot_state_publisher_cmd,
         spawn_robot_cmd,
+        TimerAction(
+            period=control_chain_start_delay,
+            actions=[
+                fendt_control_manager_cmd,
+                joint_state_broadcaster_spawner_cmd,
+                fendt_ackermann_controller_spawner_cmd,
+                TimerAction(
+                    period=1.0,
+                    actions=[fendt_control_manager_configure_cmd],
+                ),
+                TimerAction(
+                    period=2.0,
+                    actions=[fendt_control_manager_activate_cmd],
+                ),
+            ],
+        ),
         TimerAction(
             period=localization_start_delay,
             actions=[
