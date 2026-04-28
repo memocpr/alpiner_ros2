@@ -448,18 +448,29 @@ Expected:
 
 ---
 
-## Needed next context
-
-Please provide these outputs next:
-
+## kill nodes
 ```bash
+kill -9 $(ps aux | grep -E "ros2|gz|gazebo|nav2" | grep -v grep | awk '{print $2}')
+pkill -9 -f "joint_state_publisher|komatsu_gazebo_nav.launch.py|gzserver|gzclient|navsat_transform_node|ukf_node|gps_covariance_relay|mapviz|initialize_origin.py|planner_server|controller_server|bt_navigator|lifecycle_manager|robot_state_publisher|teleop_twist_keyboard"
+ros2 daemon stop
+sleep 2
+ros2 daemon start
 cd ~/Desktop/AlpineR/alpiner_ros2/ros2_ws
-
-find src -maxdepth 3 -type f | grep -E "ros2_control|controller|MachineSetAll|MachineIndAll|bridge|fendt|komatsu"
-
-ros2 pkg list | grep -E "ros2_control|gazebo_ros2_control|ackermann|ros2_interfaces|ros_ll"
-
-ros2 interface show ros2_interfaces/msg/MachineSetAll
-ros2 interface show ros2_interfaces/msg/MachineIndAll
+rm -rf build/ install/ log/
+source /opt/ros/humble/setup.bash
+ros2 node list
 ```
 
+run nav2 with ackermann controller:
+```bash
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws
+source /opt/ros/humble/setup.bash
+colcon build --symlink-install --packages-select robot_bringup robot_description ros2_application ros2_interfaces ros_ll_controller_python fendt_ackermann_controller
+source install/setup.bash
+ros2 launch robot_bringup fendt_gazebo.launch.py use_sim_time:=true autostart:=true
+```
+
+### run teleop
+```bash
+ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/cmd_vel
+```
