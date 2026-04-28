@@ -11,6 +11,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
+find_package(ros2_interfaces REQUIRED)
 find_package(std_msgs REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
@@ -41,6 +42,7 @@ ament_target_dependencies(fendt_control_manager_node
   geometry_msgs
   rclcpp
   rclcpp_lifecycle
+  ros2_interfaces
   std_msgs
 )
 
@@ -76,6 +78,7 @@ ament_export_dependencies(
   pluginlib
   rclcpp
   rclcpp_lifecycle
+  ros2_interfaces
   std_msgs
 )
 

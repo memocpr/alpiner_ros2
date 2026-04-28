@@ -34,6 +34,13 @@ Lifecycle safety wrapper (`fendt_control_manager_node`):
   - `linear.x == 0` -> brake active
   - invalid or excessive steering request -> clamped before forwarding
 
+    Optional retrofit placeholder bridge (default disabled):
+
+    - Parameter: `enable_machine_set_bridge` (`false` by default)
+    - When enabled, the node also publishes `ros2_interfaces/msg/MachineSetAll`
+    - Mapping focus fields: `steering`, `throttle`, `brake`, `directional_sel`
+    - This keeps simulation backend unchanged (`/cmd_vel_safe -> ros2_control joints`)
+
 Parameters (key):
 
 - `wheelbase`
