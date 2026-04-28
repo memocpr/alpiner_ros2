@@ -229,7 +229,7 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'z_pose',
-            default_value='0.0'
+            default_value='0.05'
         ),
         gzserver_cmd,
         gzclient_cmd,

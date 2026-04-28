@@ -44,8 +44,8 @@
     <xacro:property name="box_width_r_body" value="${full_width-(2*wheel_width_r)}"/>
     <xacro:property name="box_height_r_body" value="${full_height-bottom_clearance}"/>
 
-    <xacro:property name="weight_f_body" value="50"/>
-    <xacro:property name="weight_r_body" value="500"/>
+    <xacro:property name="weight_f_body" value="150"/>
+    <xacro:property name="weight_r_body" value="250"/>
     <xacro:property name="weight_chassis" value="3000"/>
     <xacro:property name="wheel_weight_f" value="100"/> <!-- x2 -->
     <xacro:property name="weight_f_axle" value="100"/>
