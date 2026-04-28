@@ -11,9 +11,14 @@ find_package(geometry_msgs REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
+find_package(std_msgs REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
   src/fendt_ackermann_controller.cpp
+)
+
+add_executable(fendt_control_manager_node
+  src/fendt_control_manager_node.cpp
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -32,6 +37,13 @@ ament_target_dependencies(${PROJECT_NAME}
   rclcpp_lifecycle
 )
 
+ament_target_dependencies(fendt_control_manager_node
+  geometry_msgs
+  rclcpp
+  rclcpp_lifecycle
+  std_msgs
+)
+
 pluginlib_export_plugin_description_file(controller_interface fendt_ackermann_controller_plugins.xml)
 
 install(
@@ -40,6 +52,11 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
+)
+
+install(
+  TARGETS fendt_control_manager_node
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
 install(
@@ -59,6 +76,7 @@ ament_export_dependencies(
   pluginlib
   rclcpp
   rclcpp_lifecycle
+  std_msgs
 )
 
 ament_package()
