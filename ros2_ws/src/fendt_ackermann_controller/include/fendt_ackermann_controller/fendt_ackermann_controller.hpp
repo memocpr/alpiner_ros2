@@ -56,11 +56,16 @@ private:
   double rear_wheel_radius_{0.78};
   double max_steering_angle_{0.7853981634};
   double cmd_vel_timeout_{0.5};
+  double steering_rate_limit_{0.2617993878};
+  double linear_deadband_{0.02};
+  double angular_deadband_{0.02};
 
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_sub_;
 
   std::mutex cmd_mutex_;
   Cmd latest_cmd_;
+  double last_left_steer_cmd_{0.0};
+  double last_right_steer_cmd_{0.0};
 };
 
 }  // namespace fendt_ackermann_controller

@@ -31,6 +31,8 @@ public:
     declare_parameter<double>("cmd_vel_timeout", 0.5);
     declare_parameter<double>("max_steering_angle", 0.7853981634);
     declare_parameter<double>("wheelbase", 2.37);
+    declare_parameter<double>("linear_deadband", 0.02);
+    declare_parameter<double>("angular_deadband", 0.02);
   }
 
 private:
@@ -51,6 +53,8 @@ private:
     cmd_vel_timeout_ = std::max(0.0, get_parameter("cmd_vel_timeout").as_double());
     max_steering_angle_ = std::abs(get_parameter("max_steering_angle").as_double());
     wheelbase_ = get_parameter("wheelbase").as_double();
+    linear_deadband_ = std::max(0.0, get_parameter("linear_deadband").as_double());
+    angular_deadband_ = std::max(0.0, get_parameter("angular_deadband").as_double());
 
     if (wheelbase_ <= 0.0) {
       RCLCPP_ERROR(get_logger(), "wheelbase must be > 0.0");
@@ -165,6 +169,13 @@ private:
       return;
     }
 
+    if (std::abs(safe_cmd.linear.x) < linear_deadband_) {
+      safe_cmd.linear.x = 0.0;
+    }
+    if (std::abs(safe_cmd.angular.z) < angular_deadband_) {
+      safe_cmd.angular.z = 0.0;
+    }
+
     if (std::abs(safe_cmd.linear.x) < 1e-6) {
       safe_cmd.angular.z = 0.0;
       brake_active = true;
@@ -216,6 +227,8 @@ private:
   double cmd_vel_timeout_{0.5};
   double max_steering_angle_{0.7853981634};
   double wheelbase_{2.37};
+  double linear_deadband_{0.02};
+  double angular_deadband_{0.02};
   double max_linear_speed_{2.0};
   int64_t direction_forward_value_{8};
   int64_t direction_reverse_value_{9};
