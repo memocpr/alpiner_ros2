@@ -16,9 +16,7 @@ Expected:
 
 
 
-# Action 9 : Gazebo + Nav2 + GNSS (with static map fallback)
-
-### Action 9 command flow (current)
+# Action 9 : Gazebo + Nav2 + GNSS
 
 - Nav2 publishes `geometry_msgs/Twist` on `/cmd_vel`
 
