@@ -43,7 +43,7 @@
       </inertial>
     </link>
 
-    <joint name="${name}_steer_joint" type="fixed">
+    <joint name="${name}_steer_joint" type="revolute">
       <parent link="${parent}"/>
       <child link="${name}_steer"/>
       <origin xyz="${x} ${y} ${z}" rpy="0 0 0"/>

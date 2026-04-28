@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<library path="fendt_ackermann_controller">
+  <class
+    name="fendt_ackermann_controller/FendtAckermannController"
+    type="fendt_ackermann_controller::FendtAckermannController"
+    base_class_type="controller_interface::ControllerInterface">
+    <description>
+      Converts /cmd_vel into front steering position commands and rear wheel velocity commands.
+    </description>
+  </class>
+</library>
+

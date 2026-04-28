@@ -216,7 +216,7 @@
     <xacro:wheel name="rear_right_wheel" parent="rear_axle"  x="0.0" y="${-wheel_y_distance}" z="0.0" radius="${wheel_rad_rear}" width="${wheel_width_r}" mass="${wheel_weight_r}"/>
 
     <xacro:steerable_wheel name="front_left_wheel"  parent="front_axle" x="0.0" y="${ wheel_y_distance}" z="0.0" radius="${wheel_rad_front}" width="${wheel_width_f}" mass="${wheel_weight_f}" steer_limit="${front_steer_limit}"/>
-    <xacro:steerable_wheel name="front_right_wheel" parent="front_axle" x="0.0" y="${-wheel_y_distance}" z="0.0" radius="${wheel_rad_front}" width="${wheel_width_f}" mass="${wheel_weight_f}" steer_limit="${front_steer_limit}" mimic_joint="front_left_wheel_steer_joint"/>
+    <xacro:steerable_wheel name="front_right_wheel" parent="front_axle" x="0.0" y="${-wheel_y_distance}" z="0.0" radius="${wheel_rad_front}" width="${wheel_width_f}" mass="${wheel_weight_f}" steer_limit="${front_steer_limit}"/>
 
 
     <!-- ===== Sensors ===== -->
