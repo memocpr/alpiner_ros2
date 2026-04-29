@@ -196,7 +196,7 @@
             <geometry><cylinder radius="${axle_rad_front}" length="${axle_len_front}"/></geometry>
         </collision>
         <xacro:cylinder_inertia
-                m="${wheel_weight_f}"
+                m="${weight_f_axle}"
                 r="${axle_rad_front}"
                 l="${axle_len_front}"
                 o_xyz="0 0 0"

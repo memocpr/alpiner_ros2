@@ -60,7 +60,7 @@
       <child link="${name}_hub"/>
       <origin xyz="0 ${pivot_y_offset} 0" rpy="0 0 0"/>
       <axis xyz="0 1 0"/>
-      <dynamics damping="12.0" friction="2.0"/>
+      <dynamics damping="25.0" friction="6.0"/>
     </joint>
 
     <link name="${name}">
@@ -126,7 +126,7 @@
       <xacro:if value="${mimic_joint != ''}">
         <mimic joint="${mimic_joint}" multiplier="${mimic_multiplier}" offset="0.0"/>
       </xacro:if>
-      <dynamics damping="150.0" friction="15.0"/>
+      <dynamics damping="300.0" friction="45.0"/>
     </joint>
 
     <link name="${name}_hub">
@@ -155,7 +155,7 @@
       <child link="${name}_hub"/>
       <origin xyz="0 ${pivot_y_offset} 0" rpy="0 0 0"/>
       <axis xyz="0 1 0"/>
-      <dynamics damping="10.0" friction="1.5"/>
+      <dynamics damping="20.0" friction="5.0"/>
     </joint>
 
     <link name="${name}">

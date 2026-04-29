@@ -9,6 +9,10 @@
         <material>Gazebo/DarkGrey</material>
         <mu1>0.5</mu1>
         <mu2>0.5</mu2>
+        <velocity_decay>
+            <linear>0.2</linear>
+            <angular>0.2</angular>
+        </velocity_decay>
     </gazebo>
 
     <gazebo reference="front_body">
@@ -61,34 +65,42 @@
 
     <gazebo reference="rear_left_wheel">
         <material>Gazebo/Black</material>
-        <mu1>2.5</mu1>
-        <mu2>2.5</mu2>
+        <mu1>3.2</mu1>
+        <mu2>3.2</mu2>
         <kp>1e7</kp>
-        <kd>500.0</kd>
+        <kd>1000.0</kd>
+        <slip1>0.0</slip1>
+        <slip2>0.0</slip2>
     </gazebo>
 
     <gazebo reference="rear_right_wheel">
         <material>Gazebo/Black</material>
-        <mu1>2.5</mu1>
-        <mu2>2.5</mu2>
+        <mu1>3.2</mu1>
+        <mu2>3.2</mu2>
         <kp>1e7</kp>
-        <kd>500.0</kd>
+        <kd>1000.0</kd>
+        <slip1>0.0</slip1>
+        <slip2>0.0</slip2>
     </gazebo>
 
     <gazebo reference="front_left_wheel">
         <material>Gazebo/Black</material>
-        <mu1>2.5</mu1>
-        <mu2>2.5</mu2>
+        <mu1>3.2</mu1>
+        <mu2>3.2</mu2>
         <kp>1e7</kp>
-        <kd>500.0</kd>
+        <kd>1000.0</kd>
+        <slip1>0.0</slip1>
+        <slip2>0.0</slip2>
     </gazebo>
 
     <gazebo reference="front_right_wheel">
         <material>Gazebo/Black</material>
-        <mu1>2.5</mu1>
-        <mu2>2.5</mu2>
+        <mu1>3.2</mu1>
+        <mu2>3.2</mu2>
         <kp>1e7</kp>
-        <kd>500.0</kd>
+        <kd>1000.0</kd>
+        <slip1>0.0</slip1>
+        <slip2>0.0</slip2>
     </gazebo>
 
     <gazebo reference="laser_frame">
@@ -150,7 +162,7 @@
                     <horizontal>
                         <noise type="gaussian">
                             <mean>0.0</mean>
-                            <stddev>0.02</stddev>
+                            <stddev>0.0</stddev>
                             <bias_mean>0.0</bias_mean>
                             <bias_stddev>0.0</bias_stddev>
                         </noise>
@@ -158,7 +170,7 @@
                     <vertical>
                         <noise type="gaussian">
                             <mean>0.0</mean>
-                            <stddev>0.03</stddev>
+                            <stddev>0.0</stddev>
                             <bias_mean>0.0</bias_mean>
                             <bias_stddev>0.0</bias_stddev>
                         </noise>
@@ -168,7 +180,7 @@
                     <horizontal>
                         <noise type="gaussian">
                             <mean>0.0</mean>
-                            <stddev>0.01</stddev>
+                            <stddev>0.0</stddev>
                             <bias_mean>0.0</bias_mean>
                             <bias_stddev>0.0</bias_stddev>
                         </noise>
@@ -176,7 +188,7 @@
                     <vertical>
                         <noise type="gaussian">
                             <mean>0.0</mean>
-                            <stddev>0.01</stddev>
+                            <stddev>0.0</stddev>
                             <bias_mean>0.0</bias_mean>
                             <bias_stddev>0.0</bias_stddev>
                         </noise>
