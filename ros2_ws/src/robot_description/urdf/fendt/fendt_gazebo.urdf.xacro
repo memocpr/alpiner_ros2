@@ -10,8 +10,8 @@
         <mu1>0.5</mu1>
         <mu2>0.5</mu2>
         <velocity_decay>
-            <linear>0.2</linear>
-            <angular>0.2</angular>
+            <linear>0.0</linear>
+            <angular>0.0</angular>
         </velocity_decay>
     </gazebo>
 
@@ -65,42 +65,42 @@
 
     <gazebo reference="rear_left_wheel">
         <material>Gazebo/Black</material>
-        <mu1>3.2</mu1>
-        <mu2>3.2</mu2>
+        <mu1>2.2</mu1>
+        <mu2>2.2</mu2>
         <kp>1e7</kp>
         <kd>1000.0</kd>
-        <slip1>0.0</slip1>
-        <slip2>0.0</slip2>
+        <slip1>0.02</slip1>
+        <slip2>0.02</slip2>
     </gazebo>
 
     <gazebo reference="rear_right_wheel">
         <material>Gazebo/Black</material>
-        <mu1>3.2</mu1>
-        <mu2>3.2</mu2>
+        <mu1>2.2</mu1>
+        <mu2>2.2</mu2>
         <kp>1e7</kp>
         <kd>1000.0</kd>
-        <slip1>0.0</slip1>
-        <slip2>0.0</slip2>
+        <slip1>0.02</slip1>
+        <slip2>0.02</slip2>
     </gazebo>
 
     <gazebo reference="front_left_wheel">
         <material>Gazebo/Black</material>
-        <mu1>3.2</mu1>
-        <mu2>3.2</mu2>
+        <mu1>2.2</mu1>
+        <mu2>2.2</mu2>
         <kp>1e7</kp>
         <kd>1000.0</kd>
-        <slip1>0.0</slip1>
-        <slip2>0.0</slip2>
+        <slip1>0.02</slip1>
+        <slip2>0.02</slip2>
     </gazebo>
 
     <gazebo reference="front_right_wheel">
         <material>Gazebo/Black</material>
-        <mu1>3.2</mu1>
-        <mu2>3.2</mu2>
+        <mu1>2.2</mu1>
+        <mu2>2.2</mu2>
         <kp>1e7</kp>
         <kd>1000.0</kd>
-        <slip1>0.0</slip1>
-        <slip2>0.0</slip2>
+        <slip1>0.02</slip1>
+        <slip2>0.02</slip2>
     </gazebo>
 
     <gazebo reference="laser_frame">
