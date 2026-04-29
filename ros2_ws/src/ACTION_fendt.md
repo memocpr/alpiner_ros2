@@ -15,6 +15,14 @@ Expected:
 - The Fendt model appears with different front/rear wheel sizes and body sections.
 
 
+### create tf
+```bash
+cd /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws/src/robot_description/TFs/fendt
+source /opt/ros/humble/setup.bash
+source /home/evomrd/Desktop/AlpineR/alpiner_ros2/ros2_ws/install/setup.bash
+ros2 run tf2_tools view_frames
+```
+
 
 # Action 9 : Gazebo + Nav2 + GNSS
 
@@ -490,3 +498,5 @@ ros2 topic echo /odometry/filtered_local
 ros2 topic echo /gps/fix
 ```
 ```bash
+
+

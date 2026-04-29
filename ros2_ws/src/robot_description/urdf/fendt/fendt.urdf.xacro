@@ -223,7 +223,7 @@
     <!-- ===== Sensors ===== -->
     <link name="laser_frame"/>
     <joint name="laser_joint" type="fixed">
-        <parent link="rear_body"/>
+        <parent link="base_link"/>
         <child link="laser_frame"/>
         <origin xyz="0.0 0.0 ${laser_origin_z}" rpy="0 0 0"/>
     </joint>
