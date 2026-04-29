@@ -16,7 +16,7 @@
     </gazebo>
 
     <gazebo reference="rear_body">
-        <material>Gazebo/Red</material>
+        <material>Gazebo/White</material>
     </gazebo>
 
     <gazebo reference="rear_axle">

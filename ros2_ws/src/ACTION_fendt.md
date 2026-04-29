@@ -472,7 +472,7 @@ ros2 launch robot_bringup fendt_gazebo.launch.py use_sim_time:=true autostart:=t
 
 ### run teleop
 ```bash
-ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/cmd_vel
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
 
 

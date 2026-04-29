@@ -21,7 +21,7 @@
 
     <xacro:property name="wheel_rad_front" value="0.59"/>
     <xacro:property name="wheel_width_f" value="0.44"/>
-    <xacro:property name="front_steer_limit" value="0.7853981634"/>
+    <xacro:property name="front_steer_limit" value="0.6108652382"/>
     <xacro:property name="axle_rad_front" value="0.13"/>
     <xacro:property name="axle_len_front" value="${wheel_track-wheel_width_f}"/>
 
@@ -41,7 +41,7 @@
 
     <xacro:property name="axle_to_r_body" value="0.20"/>
     <xacro:property name="box_len_r_body" value="${axle_to_r_body + half_wheelbase}"/>
-    <xacro:property name="box_width_r_body" value="${full_width-(2*wheel_width_r)}"/>
+    <xacro:property name="box_width_r_body" value="${full_width-2*wheel_width_r-0.10}"/>
     <xacro:property name="box_height_r_body" value="${full_height-bottom_clearance}"/>
 
     <xacro:property name="weight_f_body" value="150"/>
@@ -203,7 +203,7 @@
                 o_rpy="0 0 0"/>
     </link>
 
-    <joint name="front_axle_roll_joint" type="revolute">
+    <joint name="front_axle_roll_joint" type="fixed">
         <parent link="chassis"/>
         <child link="front_axle"/>
         <origin xyz="${front_axle_origin_x} 0 ${front_axle_origin_z}" rpy="0 0 0"/>

@@ -137,7 +137,10 @@ def generate_launch_description():
         executable='fendt_control_manager_node',
         name='fendt_control_manager',
         output='screen',
-        parameters=[{'use_sim_time': use_sim_time}],
+        parameters=[{
+            'use_sim_time': use_sim_time,
+            'max_steering_angle': 0.6108652382,
+        }],
     )
 
     fendt_control_manager_configure_cmd = ExecuteProcess(
