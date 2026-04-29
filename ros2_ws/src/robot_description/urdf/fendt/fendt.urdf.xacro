@@ -203,18 +203,21 @@
                 o_rpy="0 0 0"/>
     </link>
 
-    <joint name="front_axle_roll_joint" type="fixed">
+    <joint name="front_axle_roll_joint" type="revolute">
         <parent link="chassis"/>
         <child link="front_axle"/>
         <origin xyz="${front_axle_origin_x} 0 ${front_axle_origin_z}" rpy="0 0 0"/>
+        <axis xyz="1 0 0"/>
+        <limit lower="-0.1745329252" upper="0.1745329252" effort="3000.0" velocity="0.5"/>
+        <dynamics damping="80.0" friction="8.0"/>
     </joint>
 
     <!-- ===== Wheels ===== -->
-    <xacro:wheel name="rear_left_wheel"  parent="rear_axle"  x="0.0" y="${ wheel_y_distance}" z="0.0" radius="${wheel_rad_rear}" width="${wheel_width_r}" mass="${wheel_weight_r}"/>
-    <xacro:wheel name="rear_right_wheel" parent="rear_axle"  x="0.0" y="${-wheel_y_distance}" z="0.0" radius="${wheel_rad_rear}" width="${wheel_width_r}" mass="${wheel_weight_r}"/>
+    <xacro:wheel name="rear_left_wheel"  parent="rear_axle"  x="0.0" y="${wheel_y_distance - (wheel_width_r/2.0)}" z="0.0" radius="${wheel_rad_rear}" width="${wheel_width_r}" mass="${wheel_weight_r}" axle_radius="${axle_rad_rear}" pivot_y_offset="${wheel_width_r/2.0}"/>
+    <xacro:wheel name="rear_right_wheel" parent="rear_axle"  x="0.0" y="${-wheel_y_distance + (wheel_width_r/2.0)}" z="0.0" radius="${wheel_rad_rear}" width="${wheel_width_r}" mass="${wheel_weight_r}" axle_radius="${axle_rad_rear}" pivot_y_offset="${-wheel_width_r/2.0}"/>
 
-    <xacro:steerable_wheel name="front_left_wheel"  parent="front_axle" x="0.0" y="${ wheel_y_distance}" z="0.0" radius="${wheel_rad_front}" width="${wheel_width_f}" mass="${wheel_weight_f}" steer_limit="${front_steer_limit}"/>
-    <xacro:steerable_wheel name="front_right_wheel" parent="front_axle" x="0.0" y="${-wheel_y_distance}" z="0.0" radius="${wheel_rad_front}" width="${wheel_width_f}" mass="${wheel_weight_f}" steer_limit="${front_steer_limit}"/>
+    <xacro:steerable_wheel name="front_left_wheel"  parent="front_axle" x="0.0" y="${wheel_y_distance - (wheel_width_f/2.0)}" z="0.0" radius="${wheel_rad_front}" width="${wheel_width_f}" mass="${wheel_weight_f}" steer_limit="${front_steer_limit}" axle_radius="${axle_rad_front}" pivot_y_offset="${wheel_width_f/2.0}"/>
+    <xacro:steerable_wheel name="front_right_wheel" parent="front_axle" x="0.0" y="${-wheel_y_distance + (wheel_width_f/2.0)}" z="0.0" radius="${wheel_rad_front}" width="${wheel_width_f}" mass="${wheel_weight_f}" steer_limit="${front_steer_limit}" axle_radius="${axle_rad_front}" pivot_y_offset="${-wheel_width_f/2.0}"/>
 
 
     <!-- ===== Sensors ===== -->

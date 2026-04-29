@@ -30,7 +30,20 @@ def generate_launch_description():
     joint_state_publisher_gui_node = Node(
         package='joint_state_publisher_gui',
         executable='joint_state_publisher_gui',
-        output='screen'
+        output='screen',
+        parameters=[{
+            'zeros': {
+                'front_left_wheel_steer_joint': 0.0,
+                'front_axle_roll_joint': 0.0,
+            },
+            'dependent_joints': {
+                'front_right_wheel_steer_joint': {
+                    'parent': 'front_left_wheel_steer_joint',
+                    'factor': 1.0,
+                    'offset': 0.0,
+                }
+            }
+        }]
     )
 
     rviz_node = Node(

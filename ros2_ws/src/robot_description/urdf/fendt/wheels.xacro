@@ -1,8 +1,68 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <!-- ===== Wheel Macro ===== -->
-  <xacro:macro name="wheel" params="name parent x y z radius width mass:=50.0">
+  <!-- ===== Rear Wheel Macro (axle -> knuckle -> hub -> tire) ===== -->
+  <xacro:macro name="wheel" params="name parent x y z radius width mass:=50.0 axle_radius:=0.13 pivot_y_offset:=0.0">
+    <xacro:property name="knuckle_length" value="${width + 0.04}"/>
+    <xacro:property name="hub_radius" value="${0.6 * radius}"/>
+    <xacro:property name="hub_length" value="${width + 0.02}"/>
+
+    <link name="${name}_knuckle">
+      <visual>
+        <origin xyz="0 ${pivot_y_offset} 0" rpy="1.57079632679 0 0"/>
+        <geometry>
+          <cylinder radius="${axle_radius}" length="${knuckle_length}"/>
+        </geometry>
+        <material name="grey"/>
+      </visual>
+      <collision>
+        <origin xyz="0 ${pivot_y_offset} 0" rpy="1.57079632679 0 0"/>
+        <geometry>
+          <cylinder radius="${axle_radius}" length="${knuckle_length}"/>
+        </geometry>
+      </collision>
+      <xacro:cylinder_inertia m="${0.1 * mass}"
+                              r="${axle_radius}"
+                              l="${knuckle_length}"
+                              o_xyz="0 ${pivot_y_offset} 0"
+                              o_rpy="0 0 0"/>
+    </link>
+
+    <joint name="${name}_knuckle_joint" type="fixed">
+      <parent link="${parent}"/>
+      <child link="${name}_knuckle"/>
+      <origin xyz="${x} ${y} ${z}" rpy="0 0 0"/>
+    </joint>
+
+    <link name="${name}_hub">
+      <visual>
+        <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
+        <geometry>
+          <cylinder radius="${hub_radius}" length="${hub_length}"/>
+        </geometry>
+        <material name="red"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
+        <geometry>
+          <cylinder radius="${hub_radius}" length="${hub_length}"/>
+        </geometry>
+      </collision>
+      <xacro:cylinder_inertia m="${0.2 * mass}"
+                              r="${hub_radius}"
+                              l="${hub_length}"
+                              o_xyz="0 0 0"
+                              o_rpy="0 0 0"/>
+    </link>
+
+    <joint name="${name}_joint" type="continuous">
+      <parent link="${name}_knuckle"/>
+      <child link="${name}_hub"/>
+      <origin xyz="0 ${pivot_y_offset} 0" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+      <dynamics damping="12.0" friction="2.0"/>
+    </joint>
+
     <link name="${name}">
       <visual>
         <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
@@ -17,35 +77,49 @@
           <cylinder radius="${radius}" length="${width}"/>
         </geometry>
       </collision>
-      <xacro:cylinder_inertia m="${mass}"
+      <xacro:cylinder_inertia m="${0.7 * mass}"
                               r="${radius}"
                               l="${width}"
                               o_xyz="0 0 0"
                               o_rpy="0 0 0"/>
     </link>
 
-    <joint name="${name}_joint" type="continuous">
-      <parent link="${parent}"/>
+    <joint name="${name}_tire_joint" type="fixed">
+      <parent link="${name}_hub"/>
       <child link="${name}"/>
-      <origin xyz="${x} ${y} ${z}" rpy="0 0 0"/>
-      <axis xyz="0 1 0"/>
-      <dynamics damping="12.0" friction="2.0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
     </joint>
   </xacro:macro>
 
-  <xacro:macro name="steerable_wheel" params="name parent x y z radius width mass:=50.0 steer_limit:=0.9599310886 mimic_joint:='' mimic_multiplier:=1.0">
-    <link name="${name}_steer">
-      <!-- Keep a physical steering knuckle link so Gazebo doesn't prune the front wheel chain -->
-      <inertial>
-        <mass value="1.0"/>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
-      </inertial>
+  <xacro:macro name="steerable_wheel" params="name parent x y z radius width mass:=50.0 steer_limit:=0.9599310886 mimic_joint:='' mimic_multiplier:=1.0 axle_radius:=0.13 pivot_y_offset:=0.0">
+    <xacro:property name="knuckle_length" value="${width + 0.04}"/>
+    <xacro:property name="hub_radius" value="${0.6 * radius}"/>
+    <xacro:property name="hub_length" value="${width + 0.02}"/>
+
+    <link name="${name}_knuckle">
+      <visual>
+        <origin xyz="0 ${pivot_y_offset} 0" rpy="1.57079632679 0 0"/>
+        <geometry>
+          <cylinder radius="${axle_radius}" length="${knuckle_length}"/>
+        </geometry>
+        <material name="grey"/>
+      </visual>
+      <collision>
+        <origin xyz="0 ${pivot_y_offset} 0" rpy="1.57079632679 0 0"/>
+        <geometry>
+          <cylinder radius="${axle_radius}" length="${knuckle_length}"/>
+        </geometry>
+      </collision>
+      <xacro:cylinder_inertia m="${0.1 * mass}"
+                              r="${axle_radius}"
+                              l="${knuckle_length}"
+                              o_xyz="0 ${pivot_y_offset} 0"
+                              o_rpy="0 0 0"/>
     </link>
 
     <joint name="${name}_steer_joint" type="revolute">
       <parent link="${parent}"/>
-      <child link="${name}_steer"/>
+      <child link="${name}_knuckle"/>
       <origin xyz="${x} ${y} ${z}" rpy="0 0 0"/>
       <axis xyz="0 0 1"/>
       <limit lower="${-steer_limit}" upper="${steer_limit}" effort="2000.0" velocity="1.5"/>
@@ -55,6 +129,35 @@
       <dynamics damping="150.0" friction="15.0"/>
     </joint>
 
+    <link name="${name}_hub">
+      <visual>
+        <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
+        <geometry>
+          <cylinder radius="${hub_radius}" length="${hub_length}"/>
+        </geometry>
+        <material name="red"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
+        <geometry>
+          <cylinder radius="${hub_radius}" length="${hub_length}"/>
+        </geometry>
+      </collision>
+      <xacro:cylinder_inertia m="${0.2 * mass}"
+                              r="${hub_radius}"
+                              l="${hub_length}"
+                              o_xyz="0 0 0"
+                              o_rpy="0 0 0"/>
+    </link>
+
+    <joint name="${name}_joint" type="continuous">
+      <parent link="${name}_knuckle"/>
+      <child link="${name}_hub"/>
+      <origin xyz="0 ${pivot_y_offset} 0" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+      <dynamics damping="10.0" friction="1.5"/>
+    </joint>
+
     <link name="${name}">
       <visual>
         <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
@@ -69,19 +172,17 @@
           <cylinder radius="${radius}" length="${width}"/>
         </geometry>
       </collision>
-      <xacro:cylinder_inertia m="${mass}"
+      <xacro:cylinder_inertia m="${0.7 * mass}"
                               r="${radius}"
                               l="${width}"
                               o_xyz="0 0 0"
                               o_rpy="0 0 0"/>
     </link>
 
-    <joint name="${name}_joint" type="continuous">
-      <parent link="${name}_steer"/>
+    <joint name="${name}_tire_joint" type="fixed">
+      <parent link="${name}_hub"/>
       <child link="${name}"/>
       <origin xyz="0 0 0" rpy="0 0 0"/>
-      <axis xyz="0 1 0"/>
-      <dynamics damping="10.0" friction="1.5"/>
     </joint>
   </xacro:macro>
 

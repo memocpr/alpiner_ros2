@@ -27,6 +27,38 @@
         <material>Gazebo/DarkGrey</material>
     </gazebo>
 
+    <gazebo reference="rear_left_wheel_knuckle">
+        <material>Gazebo/DarkGrey</material>
+    </gazebo>
+
+    <gazebo reference="rear_right_wheel_knuckle">
+        <material>Gazebo/DarkGrey</material>
+    </gazebo>
+
+    <gazebo reference="front_left_wheel_knuckle">
+        <material>Gazebo/DarkGrey</material>
+    </gazebo>
+
+    <gazebo reference="front_right_wheel_knuckle">
+        <material>Gazebo/DarkGrey</material>
+    </gazebo>
+
+    <gazebo reference="rear_left_wheel_hub">
+        <material>Gazebo/Red</material>
+    </gazebo>
+
+    <gazebo reference="rear_right_wheel_hub">
+        <material>Gazebo/Red</material>
+    </gazebo>
+
+    <gazebo reference="front_left_wheel_hub">
+        <material>Gazebo/Red</material>
+    </gazebo>
+
+    <gazebo reference="front_right_wheel_hub">
+        <material>Gazebo/Red</material>
+    </gazebo>
+
     <gazebo reference="rear_left_wheel">
         <material>Gazebo/Black</material>
         <mu1>2.5</mu1>
