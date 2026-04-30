@@ -42,7 +42,7 @@
     <xacro:property name="axle_to_r_body" value="0.20"/>
     <xacro:property name="box_len_r_body" value="${axle_to_r_body + half_wheelbase}"/>
     <xacro:property name="box_width_r_body" value="${full_width-2*wheel_width_r-0.10}"/>
-    <xacro:property name="box_height_r_body" value="${full_height-bottom_clearance}"/>
+    <xacro:property name="box_height_r_body" value="${full_height-bottom_clearance - chassis_origin_z}"/>
 
     <xacro:property name="weight_f_body" value="150"/>
     <xacro:property name="weight_r_body" value="250"/>
@@ -64,7 +64,7 @@
     <xacro:property name="front_axle_origin_z" value="${wheel_rad_front - (bottom_clearance+chassis_origin_z)}"/>
 
     <xacro:property name="rear_body_origin_x" value="${-box_len_r_body/2.0}"/>
-    <xacro:property name="rear_body_origin_z" value="${box_height_r_body/2.0 - chassis_origin_z}"/>
+    <xacro:property name="rear_body_origin_z" value="${box_height_r_body/2.0}"/>
 
     <xacro:property name="front_body_origin_x" value="${box_len_f_body/2.0}"/>
     <xacro:property name="front_body_origin_z" value="${box_height_f_body/2.0 + chassis_origin_z}"/>
