@@ -1,12 +1,12 @@
 # fendt_nav2_params.yaml
 #
-# Key points for articulated vehicle navigation:
+# Key points for Fendt Ackermann navigation:
 # 1) Use base_footprint as the main 2D navigation frame.
 # 2) Use one Nav2 footprint polygon, not robot_radius.
 # 3) Keep URDF body collisions separate, but use one conservative 2D footprint here.
-# 4) This footprint is a rectangular envelope around the whole machine in plan view.
-#    It is referenced to the articulation / base_footprint area.
-# 5) Footprint values below are based on your current xacro dimensions with a small safety margin.
+# 4) This footprint is a rectangular envelope around the whole tractor in plan view.
+#    It is referenced to base_footprint.
+# 5) Footprint values below are based on the Fendt URDF collision geometry with a small safety margin.
 #    If needed, enlarge them further for wheel/attachment sweep in tight maneuvers.
 
 bt_navigator:
@@ -144,7 +144,7 @@ local_costmap:
       publish_frequency: 2.0
       global_frame: odom
 
-      # Main 2D navigation frame for articulated vehicle.
+      # Main 2D navigation frame for the Fendt tractor.
       robot_base_frame: base_footprint
 
       rolling_window: true
@@ -152,14 +152,14 @@ local_costmap:
       height: 12
       resolution: 0.05
 
-      # One conservative 2D footprint polygon for the whole articulated machine.
+      # One conservative 2D footprint polygon for the whole tractor.
       # Coordinates are [x, y] in meters in base_footprint.
-      # Approximate envelope from xacro:
-      #   front extent  ~ +4.175 m
-      #   rear extent   ~ -4.175 m
-      #   total width   ~ 2.990 m incl. wheels
+      # Approximate envelope from the URDF collision geometry:
+      #   front extent  ~ +1.775 m
+      #   rear extent   ~ -1.965 m
+      #   total width   ~ 2.20 m incl. wheels
       # Safety margin added here.
-      footprint: "[[4.00, 1.40], [4.00, -1.40], [-4.00, -1.40], [-4.00, 1.40]]"
+      footprint: "[[1.85, 1.15], [1.85, -1.15], [-2.05, -1.15], [-2.05, 1.15]]"
 
       plugins: ["voxel_layer", "inflation_layer"]
 
@@ -173,8 +173,8 @@ local_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0          # 2.5 | 4.0
-        # Keep inflation at least the inscribed radius for this large footprint.
-        inflation_radius: 1.60            # 1.8 | 2.0
+        # Keep inflation slightly above the footprint half-width.
+        inflation_radius: 1.20            # 1.0 | 1.4
 
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
@@ -221,7 +221,7 @@ global_costmap:
       publish_frequency: 1.0
       global_frame: map
 
-      # Main 2D navigation frame for articulated vehicle.
+      # Main 2D navigation frame for the Fendt tractor.
       robot_base_frame: base_footprint
 
       # GPS-only mode: rolling costmap (no static map).
@@ -230,7 +230,7 @@ global_costmap:
       height: 450
 
       # Same global planning footprint as local costmap.
-      footprint: "[[4.00, 1.40], [4.00, -1.40], [-4.00, -1.40], [-4.00, 1.40]]"
+      footprint: "[[1.85, 1.15], [1.85, -1.15], [-2.05, -1.15], [-2.05, 1.15]]"
 
       resolution: 0.25
       track_unknown_space: false
@@ -261,7 +261,7 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0          # 2.5 | 4.0
-        inflation_radius: 1.60            # 1.8 | 2.0
+        inflation_radius: 1.20            # 1.0 | 1.4
 
       always_send_full_costmap: true
       introspection_mode: "disabled"
@@ -338,7 +338,7 @@ planner_server:
       allow_unknown: true                    # false
       motion_model_for_search: "REEDS_SHEPP"      # "REEDS_SHEPP" "DUBIN"
       angle_quantization_bins: 72            # 96 | 144
-      minimum_turning_radius: 6.0            # 5.0 | 7.0
+      minimum_turning_radius: 3.4            # wheelbase / tan(front_steer_limit) ~= 3.38 m
       reverse_penalty: 1.2                   # 1.0 | 2.0
       change_penalty: 0.0                    # 0.2
       non_straight_penalty: 1.2              # 1.0 | 1.3
@@ -573,7 +573,7 @@ loopback_simulator:
     base_frame_id: "base_footprint"
     odom_frame_id: "odom"
     map_frame_id: "map"
-    scan_frame_id: "base_scan" # tb4_loopback_simulator.launch.py remaps to 'rplidar_link'
+    scan_frame_id: "laser_frame"
     update_duration: 0.02
     scan_range_min: 0.05
     scan_range_max: 30.0
