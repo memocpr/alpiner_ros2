@@ -492,11 +492,18 @@ ros2 topic echo /cmd_vel --once
 ros2 topic echo /cmd_vel_safe --once
 ```
 ```bash
-ros2 topic echo /odometry/filtered_local
+ros2 topic echo /odometry/filtered_local --once
 ```
 ```bash
-ros2 topic echo /gps/fix
+ros2 topic echo /gps/fix --once
 ```
 ```bash
-
-
+ros2 node list | grep -E "joint|state|controller|robot_state"
+```
+```bash
+ros2 control list_controllers
+```
+```bash
+ros2 topic info /joint_states -v
+```
+```bash
