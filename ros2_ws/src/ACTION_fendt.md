@@ -459,7 +459,7 @@ Expected:
 ## kill nodes
 ```bash
 kill -9 $(ps aux | grep -E "ros2|gz|gazebo|nav2" | grep -v grep | awk '{print $2}')
-pkill -9 -f "spawner_fendt_ackermann_controller|teleop_twist_keyboard|initialize_origin|mapviz"
+pkill -9 -f "robot_state_publisher|navsat_transform_node|spawner_fendt_ackermann_controller|teleop_twist_keyboard|initialize_origin|mapviz"
 ros2 daemon stop
 sleep 2
 ros2 daemon start
@@ -520,3 +520,27 @@ ros2 topic info /joint_states -v
 ros2 control list_controllers
 ros2 node list | grep -E "controller|joint|robot_state"
 ```
+
+### frictions
+        mu1 = friction in primary direction
+        mu2 = friction in secondary direction
+        kp  = contact stiffness, higher = harder tire/ground contact
+        kd  = contact damping, higher = less bouncing/vibration
+
+        robot slips too much → increase mu1/mu2
+        robot sticks / cannot turn naturally → decrease mu2
+        robot sinks / shakes → increase kp
+        robot bounces / vibrates → increase kd
+        simulation unstable → decrease kp or kd
+
+    Recommended friction parameters for the wheels
+              <mu1>1.0</mu1>
+              <mu2>0.8</mu2>
+              <kp>1e6</kp>
+              <kd>100.0</kd>
+
+    “tractor on soil / grass” behavior
+            <mu1>0.8</mu1>
+            <mu2>0.6</mu2>
+            <kp>5e5</kp>
+            <kd>80</kd>
