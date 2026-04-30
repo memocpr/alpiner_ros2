@@ -459,7 +459,7 @@ Expected:
 ## kill nodes
 ```bash
 kill -9 $(ps aux | grep -E "ros2|gz|gazebo|nav2" | grep -v grep | awk '{print $2}')
-pkill -9 -f "joint_state_publisher|komatsu_gazebo_nav.launch.py|gzserver|gzclient|navsat_transform_node|ukf_node|gps_covariance_relay|mapviz|initialize_origin.py|planner_server|controller_server|bt_navigator|lifecycle_manager|robot_state_publisher|teleop_twist_keyboard"
+pkill -9 -f "spawner_fendt_ackermann_controller|teleop_twist_keyboard|initialize_origin|mapviz"
 ros2 daemon stop
 sleep 2
 ros2 daemon start
@@ -496,6 +496,8 @@ ros2 topic echo /odometry/filtered_local --once
 ```
 ```bash
 ros2 topic echo /gps/fix --once
+sleep 5
+ros2 topic echo /gps/fix --once
 ```
 ```bash
 ros2 node list | grep -E "joint|state|controller|robot_state"
@@ -506,4 +508,15 @@ ros2 control list_controllers
 ```bash
 ros2 topic info /joint_states -v
 ```
+
 ```bash
+ros2 topic echo /joint_states --once
+sleep 5
+ros2 topic echo /joint_states --once
+```
+
+```bash
+ros2 topic info /joint_states -v
+ros2 control list_controllers
+ros2 node list | grep -E "controller|joint|robot_state"
+```

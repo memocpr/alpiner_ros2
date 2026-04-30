@@ -37,7 +37,7 @@
     <xacro:property name="axle_to_front_f_body" value="${wheel_rad_front}"/>
     <xacro:property name="box_len_f_body" value="${axle_to_front_f_body + half_wheelbase}"/>
     <xacro:property name="box_width_f_body" value="0.60"/>
-    <xacro:property name="box_height_f_body" value="0.50"/>
+    <xacro:property name="box_height_f_body" value="0.60"/>
 
     <xacro:property name="axle_to_r_body" value="0.20"/>
     <xacro:property name="box_len_r_body" value="${axle_to_r_body + half_wheelbase}"/>
